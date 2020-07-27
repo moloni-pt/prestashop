@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>moloni</name>
+    <displayName><![CDATA[Moloni]]></displayName>
+    <version><![CDATA[2.".0]]></version>
+    <description><![CDATA[Cria os teus documentos de forma simples e autom&aacute;tica.]]></description>
+    <author><![CDATA[Nuno Almeida]]></author>
+    <tab><![CDATA[administration]]></tab>
+    <is_configurable>0</is_configurable>
+    <need_instance>1</need_instance>
+	<limited_countries></limited_countries>
+</module>

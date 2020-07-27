@@ -1,0 +1,104 @@
+	
+		
+			
+				
+					
+						
+							
+								
+							
+							
+							
+								{data_hoje}
+								Documentos para download
+							
+						
+					
+				
+			
+		
+		
+						
+				
+					
+						
+							
+								Exmo(s) Snr(s) {nome_cliente},Vimos por este meio enviar-lhe o documento abaixo para download.
+								Com os melhores cumprimentos,{nome_empresa}
+							
+						
+						
+							
+								Documentos para download
+							
+						
+						
+							
+								
+									
+										
+											
+												Tipo de Documento
+											
+											
+												Número
+											
+											
+												Data de Emissão
+											
+											
+												Data Vencimento
+											
+											
+												Valor
+											
+											
+												Downloads
+											
+										
+										
+											
+												{documento_tipo}
+											
+											
+												{documento_numero}
+											
+											
+												{documento_emissao}
+											
+											
+												{documento_vencimento}
+											
+											
+												{documento_total}
+											
+											
+												
+													
+														Download
+													
+												
+											
+										
+									
+								
+							
+						
+						
+							 
+						
+					
+				
+			
+		
+		
+			
+				{empresa_nome}
+				{empresa_morada}
+				E-mail: 
+				
+					{empresa_email}
+				
+			
+		
+	
