@@ -1,0 +1,25 @@
+{
+  "name": "moloni-pt/prestashop",
+  "description": "Moloni integration for Prestashop",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Moloni, lda",
+      "email": "apoio@moloni.com"
+    }
+  ],
+  "require": {
+  },
+  "extra": {
+    "changelog": [
+      {
+        "version": "v2.2.1",
+        "title": "Initial Repository Commit",
+        "description": [
+          ""
+        ]
+      }
+    ]
+  }
+}

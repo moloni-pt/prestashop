@@ -42,21 +42,21 @@
 
                     {if isset($moloni.syncResult.header) && is_array($moloni.syncResult.header)} 
                         <li>
-                            <div class="collapsible-header"><b>{l s='Artigos atualizados desde: ' mod='moloni'}{$moloni.syncResult.header.updated_since} ({l s='Encontrados' mod='moloni'}: {$moloni.syncResult.header.products_total})</b></div>                            
+                            <div class="collapsible-header"><b>{l s='Products updated since: ' mod='moloni'}{$moloni.syncResult.header.updated_since} ({l s='Found' mod='moloni'}: {$moloni.syncResult.header.products_total})</b></div>
                         </li>
                     {/if}
                     {if isset($moloni.syncResult.with_attributes) && is_array($moloni.syncResult.with_attributes)} 
                         <li>
-                            <div class="collapsible-header">{l s='Artigos com atributos atualizados' mod='moloni'} <i class="material-icons">arrow_drop_down</i></div>
+                            <div class="collapsible-header">{l s='Products with updated attributes' mod='moloni'} <i class="material-icons">arrow_drop_down</i></div>
                             <div class="collapsible-body">
                                 <span>
                                     <table class="striped">
                                         <thead>
                                             <tr>
-                                                <th>{l s='Referência' mod='moloni'} </th>
-                                                <th>{l s='Stock anterior' mod='moloni'} </th>
-                                                <th>{l s='Stock atualizado' mod='moloni'} </th>
-                                                <th>{l s='Stock do artigo pai' mod='moloni'} </th>
+                                                <th>{l s='Reference' mod='moloni'} </th>
+                                                <th>{l s='Old stock' mod='moloni'} </th>
+                                                <th>{l s='Updated stock' mod='moloni'} </th>
+                                                <th>{l s='Parent product stock' mod='moloni'} </th>
                                             </tr>
                                         </thead>
 
@@ -78,16 +78,16 @@
 
                     {if isset($moloni.syncResult.update_error)} 
                         <li>
-                            <div class="collapsible-header">{l s='Artigos com atributos - erro ao atualizar' mod='moloni'} <i class="material-icons">arrow_drop_down</i></div>
+                            <div class="collapsible-header">{l s='Products with attributes - error updating' mod='moloni'} <i class="material-icons">arrow_drop_down</i></div>
                             <div class="collapsible-body">
                                 <span>
                                     <table class="striped">
                                         <thead>
                                             <tr>
-                                                <th>{l s='Referência' mod='moloni'} </th>
-                                                <th>{l s='Stock anterior' mod='moloni'} </th>
-                                                <th>{l s='Stock atualizado' mod='moloni'} </th>
-                                                <th>{l s='Stock do artigo pai' mod='moloni'} </th>
+                                                <th>{l s='Reference' mod='moloni'} </th>
+                                                <th>{l s='Old stock' mod='moloni'} </th>
+                                                <th>{l s='Updated stock' mod='moloni'} </th>
+                                                <th>{l s='Parent product stock' mod='moloni'} </th>
                                             </tr>
                                         </thead>
 
@@ -109,15 +109,15 @@
 
                     {if isset($moloni.syncResult.simple)} 
                         <li>
-                            <div class="collapsible-header">{l s='Artigos simples atualizados' mod='moloni'} <i class="material-icons">arrow_drop_down</i></div>
+                            <div class="collapsible-header">{l s='Updated simple products' mod='moloni'} <i class="material-icons">arrow_drop_down</i></div>
                             <div class="collapsible-body">
                                 <span>
                                     <table class="striped">
                                         <thead>
                                             <tr>
-                                                <th>{l s='Referência' mod='moloni'} </th>
-                                                <th>{l s='Stock anterior' mod='moloni'} </th>
-                                                <th>{l s='Stock atualizado' mod='moloni'} </th>
+                                                <th>{l s='Reference' mod='moloni'} </th>
+                                                <th>{l s='Old stock' mod='moloni'} </th>
+                                                <th>{l s='Updated stock' mod='moloni'} </th>
                                             </tr>
                                         </thead>
 
@@ -138,15 +138,15 @@
 
                     {if isset($moloni.syncResult.insert_success)} 
                         <li>
-                            <div class="collapsible-header">{l s='Artigos inseridos' mod='moloni'} <i class="material-icons">arrow_drop_down</i></div>
+                            <div class="collapsible-header">{l s='Inserted products' mod='moloni'} <i class="material-icons">arrow_drop_down</i></div>
                             <div class="collapsible-body">
                                 <span>
                                     <table class="striped">
                                         <thead>
                                             <tr>
-                                                <th>{l s='Referência' mod='moloni'} </th>
-                                                <th>{l s='Nome' mod='moloni'} </th>
-                                                <th>{l s='Preço' mod='moloni'} </th>
+                                                <th>{l s='Reference' mod='moloni'} </th>
+                                                <th>{l s='Name' mod='moloni'} </th>
+                                                <th>{l s='Price' mod='moloni'} </th>
                                             </tr>
                                         </thead>
 
@@ -167,15 +167,15 @@
 
                     {if isset($moloni.syncResult.insert_error)} 
                         <li>
-                            <div class="collapsible-header">{l s='Artigos não inseridos' mod='moloni'} <i class="material-icons">arrow_drop_down</i></div>
+                            <div class="collapsible-header">{l s='Products not inserted' mod='moloni'} <i class="material-icons">arrow_drop_down</i></div>
                             <div class="collapsible-body">
                                 <span>
                                     <table class="striped">
                                         <thead>
                                             <tr>
-                                                <th>{l s='Referência' mod='moloni'} </th>
-                                                <th>{l s='Nome' mod='moloni'} </th>
-                                                <th>{l s='Preço' mod='moloni'} </th>
+                                                <th>{l s='Reference' mod='moloni'} </th>
+                                                <th>{l s='Name' mod='moloni'} </th>
+                                                <th>{l s='Price' mod='moloni'} </th>
                                             </tr>
                                         </thead>
 
@@ -346,14 +346,15 @@
                 <div class="col s12 z-depth-1">
                     <h3>{l s='Automation' mod='moloni'}</h3>
 
-                    <!-------------------------- Gerar documento automaticamente quando é pago (Sim/Não) ------------------------------>
+                    <!-------------------------- Gerar documento automaticamente (Sim, quando paga/Sim, num dos estados escolhidos/Não) ------------------------------>
                     <div class='input-field col s6' style='margin-top: 50px'>
                         <select name='options[invoice_auto]'>
-                            <option value='' disabled selected>{l s='Create document when paid' mod='moloni'}</option>
-                            <option value='1' {if $moloni.configurations.invoice_auto.value == "1"} selected {/if}>{l s='Yes' mod='moloni'}</option>	  
-                            <option value='0' {if $moloni.configurations.invoice_auto.value == "0"} selected {/if}>{l s='No' mod='moloni'}</option>	  
+                            <option value='' disabled selected>{l s='Create document automatically' mod='moloni'}</option>
+                            <option value='2' {if $moloni.configurations.invoice_auto.value == "2"} selected {/if}>{l s='Yes, when in one of the selected status (on option: "Status of pending orders")' mod='moloni'}</option>
+                            <option value='1' {if $moloni.configurations.invoice_auto.value == "1"} selected {/if}>{l s='Yes, when paid' mod='moloni'}</option>
+                            <option value='0' {if $moloni.configurations.invoice_auto.value == "0"} selected {/if}>{l s='No' mod='moloni'}</option>
                         </select>
-                        <label>{l s='Create document when paid' mod='moloni'}</label>
+                        <label>{l s='Create document automatically' mod='moloni'}</label>
                     </div>
 
                     <!-------------------------- Enviar email ao cliente quando é gerado o documento fechado (Sim/Não) ------------------------------>

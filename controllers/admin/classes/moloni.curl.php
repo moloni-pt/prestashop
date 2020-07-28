@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 2016 - Moloni.pt
+ * 2020 - Moloni.pt
  *
  * NOTICE OF LICENSE
  *

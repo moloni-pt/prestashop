@@ -1,6 +1,6 @@
 <?php
 /**
- * 2016 - Moloni.com
+ * 2020 - Moloni.com
  *
  * NOTICE OF LICENSE
  *

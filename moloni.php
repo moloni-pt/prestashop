@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 2016 - Moloni.com
+ * 2020 - Moloni.com
  *
  * NOTICE OF LICENSE
  *
@@ -45,16 +45,17 @@ class Moloni extends Module
     public function install()
     {
 
-        $this->setMenu('MoloniTab', 'Moloni', (_PS_VERSION_ > 1.6) ? Tab::getIdFromClassName('SELL') : '0');
-        $this->setMenu('MoloniStart', 'Moloni', Tab::getIdFromClassName('MoloniTab'));
-        $this->setMenu('MoloniMovimentos', 'Documents', Tab::getIdFromClassName('MoloniTab'));
-        $this->setMenu('MoloniConfiguracao', 'Settings', Tab::getIdFromClassName('MoloniTab'));
+        $this->setMenu('MoloniTab', $this->l('Moloni'), (_PS_VERSION_ > 1.6) ? Tab::getIdFromClassName('SELL') : '0');
+        $this->setMenu('MoloniStart', $this->l('Moloni'), Tab::getIdFromClassName('MoloniTab'));
+        $this->setMenu('MoloniMovimentos', $this->l('Documents'), Tab::getIdFromClassName('MoloniTab'));
+        $this->setMenu('MoloniConfiguracao', $this->l('Settings'), Tab::getIdFromClassName('MoloniTab'));
 
         return parent::install()
             && $this->dbInstall()
             && $this->registerHook('actionPaymentConfirmation')
             && $this->registerHook('displayFooter')
             && $this->registerHook('DisplayBackOfficeHeader')
+            && $this->registerHook('actionOrderStatusPostUpdate') //after order status is changed
             && $this->registerHook('actionProductSave');
     }
 
@@ -85,9 +86,8 @@ class Moloni extends Module
         include_once(__DIR__ . '/controllers/admin/classes/moloni.start.php');
         include_once(__DIR__ . '/controllers/admin/classes/prestashop.general.php');
 
-
         new Start();
-        if (defined('INVOICE_AUTO') && INVOICE_AUTO == true) {
+        if (defined('INVOICE_AUTO') && (int)INVOICE_AUTO === 1) {
             $functions = new General();
 
             $functions->makeInvoice($params['id_order']);
@@ -97,6 +97,11 @@ class Moloni extends Module
         }
     }
 
+    /**
+     * Fires after product update/create
+     * @param $params
+     * @return bool
+     */
     public function hookActionProductSave($params)
     {
         include_once(__DIR__ . '/controllers/admin/classes/error.class.php');
@@ -113,6 +118,32 @@ class Moloni extends Module
         }
 
         return true;
+    }
+
+    /**
+     * Fires after an orders has it status changed
+     * @param $params
+     */
+    public function hookActionOrderStatusPostUpdate($params)
+    {
+        include_once(__DIR__ . '/controllers/admin/classes/error.class.php');
+        include_once(__DIR__ . '/controllers/admin/classes/moloni.curl.php');
+        include_once(__DIR__ . '/controllers/admin/classes/moloni.start.php');
+        include_once(__DIR__ . '/controllers/admin/classes/prestashop.general.php');
+
+        new Start();
+
+        if (defined('INVOICE_AUTO') && (int)INVOICE_AUTO === 2) {
+            //check if the new status was chosen in settings
+            if (defined('ORDER_STATUS') && in_array($params['newOrderStatus']->id, unserialize(ORDER_STATUS))) {
+                $functions = new General();
+
+                $functions->makeInvoice($params['id_order']);
+                if (MoloniError::$exists) {
+                    MoloniError::$message;
+                }
+            }
+        }
     }
 
     /**
