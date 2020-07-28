@@ -1,45 +1,12 @@
-/** 
-*  2020 - Moloni.com
-*  Author: Nuno Almeida
-*  Contact: apoio@moloni.pt
-*  
-*  First you must have an active moloni.com account
-*  Make sure the account is in the 30 days trial, or you have at least a Flex plan
-*  Configure your moloni account as needed
-*  Install the .zip file in your prestashop store
-*  Go to the Moloni tab in your Prestashop
-*  Login with your valid Moloni account
-*  Select the company you want to use with your store
-*  Go to the Moloni Configurations tab in your Prestashop and fill the options
-*  When an order is one of the selected status, it will show up in the list of orders ready to convert
-*  Press the button to convert the order into a documento in Moloni
-*  The client, Products and Category will be created on Moloni without any effort
-*  Check the document
-*  All ready!
-*  
-*  If you have any error while creating your documents, you can either check errors details here:
-*  https://www.moloni.com/dev/?action=getApiTxtDetail&id=7
-*  
-*  Or you can contact the Moloni support team: 
-*  https://www.moloni.com/support/index.php
-*  
-*  Or even email me at apoio@moloni.pt, and I'll be available for all your questions with fast reply time. 
-*  Also if you would like to make any sugestion/improvement, please don't hesitate to email me with them, 
-*  Every opinnion counts and will be evaluated. 
-**/
-
 DISCLAIMER 
 --------------------------------------
-@author    Nuno Almeida
-@copyright Moloni
-@license   https://creativecommons.org/licenses/by-nd/4.0/  
+Author    Moloni, lda
 
 Para qualquer dúvida sobre a instalação/utilização/melhorias do módulo não hesite em entrar em contacto
 via telefone, webchat ou email.
-https://moloni.com
+https://moloni.pt
 
 Passos para a instalação do Plugin Moloni para Prestashop
-Versão Plugin: 2.2
 
 INSTALAÇÃO
 --------------------------------------
