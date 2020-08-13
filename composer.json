@@ -14,6 +14,13 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.2.2",
+        "title": "Release da versão 2.2.2",
+        "description": [
+          "Corrigido um erro no cálculo da quantidade dos artigos \"pais\" de um composto"
+        ]
+      },
+      {
         "version": "v2.2.1",
         "title": "Initial Repository Commit",
         "description": [

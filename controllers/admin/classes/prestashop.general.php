@@ -414,7 +414,7 @@ class General
                     $invoice['products'][$x]['child_products'][$key]['name'] = $moloni_child['name'];
                     $invoice['products'][$x]['child_products'][$key]['summary'] = $moloni_child['summary'];
                     $invoice['products'][$x]['child_products'][$key]['discount'] = ($discount ? $discount : 0);
-                    $invoice['products'][$x]['child_products'][$key]['qty'] = $child['qty'];
+                    $invoice['products'][$x]['child_products'][$key]['qty'] = $child['qty'] * $product['product_quantity'];
                     $invoice['products'][$x]['child_products'][$key]['price'] = $child['price'] * $priceScale;
                     $invoice['products'][$x]['child_products'][$key]['order'] = $key;
 
