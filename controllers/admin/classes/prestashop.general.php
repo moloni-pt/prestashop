@@ -192,9 +192,9 @@ class General
         $vat = trim($input);
         $vat = str_replace('PT', '', $vat);
 
-        $usual = array('000000000', '111111111', '123123123');
+        $usual = array('000000000', '111111111', '123123123', '-');
 
-        if (empty($vat) or in_array($vat, $usual, true)) {
+        if (empty($vat) || in_array($vat, $usual, true)) {
             $vat = '999999990';
         }
 
@@ -715,12 +715,18 @@ class General
 
         $countryCode = (int)$this->getCountryCode($customer['address']['invoice']['id_country']);
 
-        $vat = '';
+        $vat = '999999990';
+        $firstVatNumber = $customer['address']['invoice']['vat_number'];
 
-        if (!empty($customer['address']['invoice']['vat_number']) && trim($customer['address']['invoice']['vat_number']) !== '') {
-            $vat = $customer['address']['invoice']['vat_number'];
-        } elseif (!empty($customer['address']['invoice']['dni']) && trim($customer['address']['invoice']['dni']) !== '') {
-            $vat = $customer['address']['invoice']['dni'];
+        if (!empty($this->clean($firstVatNumber))) {
+            $vat = $firstVatNumber;
+        }
+
+        if (empty($vat)) {
+            $secondVatNumber = $customer['address']['invoice']['dni'];
+            if (!empty($this->clean($secondVatNumber))) {
+                $vat = $secondVatNumber;
+            }
         }
 
         $vat = $this->vatCheck($vat);
@@ -737,9 +743,11 @@ class General
             $clientExists = $this->entities->customers->getByVat($vat);
         }
 
-        $name = (empty($customer['address']['invoice']['company']) ?
+        $companyName = $this->clean(trim($customer['address']['invoice']['company']));
+
+        $name = (empty($companyName)) ?
             $customer['address']['invoice']['firstname'] . ' ' . $customer['address']['invoice']['lastname'] :
-            $customer['address']['invoice']['company']);
+            $customer['address']['invoice']['company'];
 
         $MoloniCustomer = array();
 
@@ -768,9 +776,9 @@ class General
             $MoloniCustomer['contact_phone'] = $customer['address']['invoice']['phone_mobile'];
         }
 
-        $MoloniCustomer['maturity_date_id'] = ((defined('MATURITY_DATE') && !empty(MATURITY_DATE)) ? MATURITY_DATE : $this->me['maturity_date_id']);
-        $MoloniCustomer['payment_method_id'] = ((defined('PAYMENT_METHOD') && !empty(PAYMENT_METHOD)) ? PAYMENT_METHOD : $this->me['payment_method_id']);
-        $MoloniCustomer['delivery_method_id'] = $this->me['delivery_method_id'];
+        $MoloniCustomer['maturity_date_id'] = 0;
+        $MoloniCustomer['payment_method_id'] = 0;
+        $MoloniCustomer['delivery_method_id'] = 0;
         $MoloniCustomer['copies'] = $this->me['copies'];
 
         $MoloniCustomer['salesman_id'] = '0';
@@ -803,6 +811,12 @@ class General
 
         return $return;
     }
+
+    function clean($string)
+    {
+        return preg_replace('/[^A-Za-z0-9\-]/', '', $string);
+    }
+
 
     public function product($input)
     {
