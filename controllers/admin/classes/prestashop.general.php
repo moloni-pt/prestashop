@@ -874,11 +874,16 @@ class General
     {
 
         $reference = '';
-        $helper = preg_replace('/([^A-Z.])\w+/i', '', str_replace(' ', '.', $input['carrier_name']));
+
+        $shippingName = $input['carrier_name'] ? substr($input['carrier_name'], 0, 28) : 'PORTES';
+
+
+        $helper = preg_replace('/([^A-Z.])\w+/i', '', str_replace(' ', '.', $shippingName));
         $helper = explode('.', $helper);
         foreach ($helper as $word) {
             $reference .= Tools::substr($word, 0, 3) . '.';
         }
+
         $reference = Tools::strtoupper(trim($reference, '.'));
 
         if (trim($reference) == '') {

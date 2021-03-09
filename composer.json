@@ -14,6 +14,13 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.2.4",
+        "title": "Release da versão 2.2.4",
+        "description": [
+          "Correção nas referências dos portes"
+        ]
+      },
+      {
         "version": "v2.2.3",
         "title": "Release da versão 2.2.3",
         "description": [
