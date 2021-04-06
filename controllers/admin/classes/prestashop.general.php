@@ -1268,10 +1268,10 @@ class General
                         $product['name'] = $productPS->name;
                         $product['summary'] = $this->formDescription($this->getAttributes($attribute['id_product_attribute']));
                         $product['reference'] = $reference;
-                        $product['ean'] = '';
+                        $product['ean'] = $attribute['ean13'] ?: '';
                         $product['price'] = $productPS->price;
                         $product['unit_id'] = MEASURE_UNIT;
-                        $product['has_stock'] = (AT_CATEGORY == 'SS') ? '0' : '1';
+                        $product['has_stock'] = (AT_CATEGORY === 'SS') ? '0' : '1';
                         $product['stock'] = $productPS->quantity;
                         $product['pos_favorite'] = '0';
                         $product['at_product_category'] = AT_CATEGORY;
