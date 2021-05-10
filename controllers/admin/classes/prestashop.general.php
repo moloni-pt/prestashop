@@ -370,7 +370,6 @@ class General
         $x = 0;
 
         foreach ($order['products'] as $product) {
-
             if ($this->priceHasTaxIncluded) {
                 $product['tax_rate'] = 23;
                 $product['unit_price_tax_excl'] /= 1.23;
@@ -430,6 +429,23 @@ class General
                 $taxRate = ($product['tax_rate'] <> '23') ? round((100 * ($product['unit_price_tax_incl'] - $product['unit_price_tax_excl'])) / $product['unit_price_tax_excl'], 2) : $product['tax_rate'];
                 $invoice['products'][$x]['taxes'][0]['tax_id'] = $this->settings->taxes->check($taxRate);
                 $invoice['products'][$x]['taxes'][0]['value'] = $product['unit_price_tax_incl'] - $product['unit_price_tax_excl'];
+
+                if (isset($product['ecotax']) && (float)$product['ecotax'] > 0) {
+                    $invoice['products'][$x]['taxes'][1]['tax_id'] = $this->settings->taxes->checkEcotax($product['ecotax']);
+                    $invoice['products'][$x]['taxes'][1]['value'] = $product['ecotax'];
+                    $invoice['products'][$x]['taxes'][1]['order'] = '0';
+                    $invoice['products'][$x]['taxes'][1]['cumulative'] = '0';
+
+                    //taxa tem de ser depois da ecotaxa e cumulativa
+                    $invoice['products'][$x]['taxes'][0]['order'] = '1';
+                    $invoice['products'][$x]['taxes'][0]['cumulative'] = '1';
+
+                    //retirar ecotaxa ao valor base do produto (sem iva)
+                    $invoice['products'][$x]['price'] -= $product['ecotax'];
+
+                    //a eco taxa tem de ir em primeiro lugar
+                    $invoice['products'][$x]['taxes'] = array_reverse($invoice['products'][$x]['taxes']);
+                }
             } else {
                 $invoice['products'][$x]['exemption_reason'] = EXEMPTION_REASON;
             }
@@ -504,7 +520,7 @@ class General
         $result = false;
 
         $invoiceExists = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "moloni_invoices WHERE order_id = '" . (int)$order_id . "'");
-
+        $invoiceExists = false;
         if (!MoloniError::$exists && !$invoiceExists) {
 
             $documents = new Documents();
@@ -862,6 +878,23 @@ class General
                 $product['taxes'][0]['value'] = $input['unit_price_tax_incl'] - $input['unit_price_tax_excl'];
                 $product['taxes'][0]['order'] = '0';
                 $product['taxes'][0]['cumulative'] = '0';
+
+                if ((float)$productPS->ecotax > 0) {
+                    $product['taxes'][1]['tax_id'] = $this->settings->taxes->checkEcotax($productPS->ecotax);
+                    $product['taxes'][1]['value'] = $productPS->ecotax;
+                    $product['taxes'][1]['order'] = '0';
+                    $product['taxes'][1]['cumulative'] = '0';
+
+                    //taxa tem de ser depois da ecotaxa e cumulativa
+                    $product['taxes'][0]['order'] = '1';
+                    $product['taxes'][0]['cumulative'] = '1';
+
+                    //retirar ecotaxa ao valor base do produto (sem iva)
+                    $product['price'] -= $productPS->ecotax;
+
+                    //a eco taxa tem de ir em primeiro lugar
+                    $product['taxes'] = array_reverse($product['taxes']);
+                }
             }
 
             $productID = $this->products->insert($product);
@@ -1195,7 +1228,6 @@ class General
 
     public function productCreate($input)
     {
-
         $productID = $input['id_product'];
         $error = false;
 
@@ -1216,7 +1248,7 @@ class General
         id_product = '" . (int)$productID . "'";
         $attributes = Db::getInstance()->ExecuteS($query);
 
-        if (!$productExists and !$error and count($attributes) == 0) {
+        if (!$productExists && !$error && count($attributes) == 0) {
 
             $product = array();
 
@@ -1233,6 +1265,9 @@ class General
             $product['pos_favorite'] = '0';
             $product['at_product_category'] = AT_CATEGORY;
 
+            print_r($productPS);
+            print_r(get_class_methods($productPS));
+
             if ($taxRate == 0) {
                 $product['exemption_reason'] = EXEMPTION_REASON;
             } else {
@@ -1240,6 +1275,23 @@ class General
                 $product['taxes'][0]['value'] = ($productPS->price * $taxRate) / 100;
                 $product['taxes'][0]['order'] = '0';
                 $product['taxes'][0]['cumulative'] = '0';
+
+                if ((float)$productPS->ecotax > 0) {
+                    $product['taxes'][1]['tax_id'] = $this->settings->taxes->checkEcotax($productPS->ecotax);
+                    $product['taxes'][1]['value'] = $productPS->ecotax;
+                    $product['taxes'][1]['order'] = '0';
+                    $product['taxes'][1]['cumulative'] = '0';
+
+                    //taxa tem de ser depois da ecotaxa e cumulativa
+                    $product['taxes'][0]['order'] = '1';
+                    $product['taxes'][0]['cumulative'] = '1';
+
+                    //retirar ecotaxa ao valor base do produto (sem iva)
+                    $product['price'] -= $productPS->ecotax;
+
+                    //a eco taxa tem de ir em primeiro lugar
+                    $product['taxes'] = array_reverse($product['taxes']);
+                }
             }
 
             $productID = $this->products->insert($product);
@@ -1283,6 +1335,23 @@ class General
                             $product['taxes'][0]['value'] = ($productPS->price * $taxRate) / 100;
                             $product['taxes'][0]['order'] = '0';
                             $product['taxes'][0]['cumulative'] = '0';
+
+                            if ((float)$productPS->ecotax > 0) {
+                                $product['taxes'][1]['tax_id'] = $this->settings->taxes->checkEcotax($productPS->ecotax);
+                                $product['taxes'][1]['value'] = $productPS->ecotax;
+                                $product['taxes'][1]['order'] = '0';
+                                $product['taxes'][1]['cumulative'] = '0';
+
+                                //taxa tem de ser depois da ecotaxa e cumulativa
+                                $product['taxes'][0]['order'] = '1';
+                                $product['taxes'][0]['cumulative'] = '1';
+
+                                //retirar ecotaxa ao valor base do produto (sem iva)
+                                $product['price'] -= $productPS->ecotax;
+
+                                //a eco taxa tem de ir em primeiro lugar
+                                $product['taxes'] = array_reverse($product['taxes']);
+                            }
                         }
 
                         $productID = $this->products->insert($product);

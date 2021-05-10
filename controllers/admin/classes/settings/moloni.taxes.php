@@ -60,9 +60,34 @@ class Taxes extends settings
         return $this->insert($values);
     }
 
+    public function checkEcotax($value)
+    {
+
+        $taxes = $this->getAll();
+
+        foreach ($taxes as $tax) {
+            if ($tax['name'] === ("Ecotaxa " . $value) &&
+                round($value) === round($tax['value'])) {
+                return $tax['tax_id'];
+            }
+        }
+
+        $values                      = [];
+        $values['name']              = "Ecotaxa " . $value;
+        $values['value']             = $value;
+        $values['type']              = "3";
+        $values['saft_type']         = "3";
+        $values['vat_type']          = "OUT";
+        $values['stamp_tax']         = "0";
+        $values['fiscal_zone']       = "PT";
+        $values['active_by_default'] = "0";
+
+        return $this->insert($values);
+    }
+
     public function getAll($companyID = COMPANY)
     {
-        $values               = array();
+        $values               = [];
         $values['company_id'] = $companyID;
         $result               = curl::simple("taxes/getAll", $values);
         return($result);
