@@ -520,7 +520,7 @@ class General
         $result = false;
 
         $invoiceExists = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "moloni_invoices WHERE order_id = '" . (int)$order_id . "'");
-        $invoiceExists = false;
+
         if (!MoloniError::$exists && !$invoiceExists) {
 
             $documents = new Documents();
