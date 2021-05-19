@@ -1058,8 +1058,10 @@ class General
                 }
             } else {
                 $productCheck = Db::getInstance()->getRow('SELECT id_product FROM ' . _DB_PREFIX_ . "product WHERE reference = '" . pSQL($reference) . "'");
-                $stockCheck = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "stock_available WHERE id_product = '" . (int)$productCheck['id_product'] . "'");
+
                 if ($productCheck) {
+                    $stockCheck = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "stock_available WHERE id_product = '" . (int)$productCheck['id_product'] . "'");
+
                     if ($syncStocks && $moloniProduct['has_stock'] == 1) {
 
                         $updated['simple'][] = array('reference' => $reference, 'stock_before' => $stockCheck['quantity'], 'stock_after' => $stock);
@@ -1090,11 +1092,11 @@ class General
     {
         if (isset($product['name']) && !empty($product['name'])) {
             $newProduct = new Product();
-            $newProduct->name = [$this->default_lang => $product['name']];
+            $newProduct->name = [$this->default_lang => $this->getName($product['name'])];
             $newProduct->reference = $product['reference'];
-            $newProduct->link_rewrite = [$this->default_lang => Tools::link_rewrite($product['name'])];
+            $newProduct->link_rewrite = [$this->default_lang => $this->linkRewrite($product['name'])];
             $newProduct->price = $product['price'];
-            $newProduct->ean13 = $product['ean'];
+            $newProduct->ean13 = $this->getEAN($product['ean']);
             $newProduct->quantity = ($product['has_stock'] ? $product['stock'] : 0);
             $newProduct->id_category = $this->categoriesExists[$product['category_id']]['ps_id'];
             $newProduct->id_category_default = $this->categoriesExists[$product['category_id']]['ps_id'];
@@ -1383,6 +1385,54 @@ class General
             }
         }
         return mb_substr($number, 0, 30);
+    }
+
+    /**
+     * Cleans EAN field
+     *
+     * @param string $ean EAN value
+     *
+     * @return string
+     */
+    private function getEAN($ean)
+    {
+        if (!$ean || !preg_match('/^[0-9]{0,13}$/', $ean)) {
+            $ean = '';
+        }
+
+        return $ean;
+    }
+
+    /**
+     * Cleans name field
+     *
+     * @param string $name Name value
+     *
+     * @return string
+     */
+    private function getName($name)
+    {
+        if (!empty($name)) {
+            $name = str_replace(array('<' , '>', ';' , '=', '#' , '{', '}'), '', $name); // Removes special chars.
+        }
+
+        return $name;
+    }
+
+    /**
+     * Cleans link rewrite field
+     *
+     * @param string $name Name value
+     *
+     * @return string
+     */
+    private function linkRewrite($name)
+    {
+        if (!empty($name)) {
+            $name = preg_replace('/[^A-Za-z0-9\-]/', '', $name); // Removes special chars and spaces.
+        }
+
+        return $name;
     }
 
     //***** Copied from AdminImporterController and modified ******//
