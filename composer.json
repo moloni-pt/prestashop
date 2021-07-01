@@ -14,6 +14,13 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.3.0",
+        "title": "Release da versão 2.3.0",
+        "description": [
+          "Correção de erro em métodos de envio inválidos."
+        ]
+      },
+      {
         "version": "v2.2.9",
         "title": "Release da versão 2.2.9",
         "description": [
