@@ -484,20 +484,22 @@ class General
             }
         }
 
+        $deliveryMethodId = $this->parseDeliveryMethodId($order['shipping'][0]['carrier_name']);;
 
-        $invoice['delivery_method_id'] = $this->parseDeliveryMethodId($order['shipping'][0]['carrier_name']);
-        $invoice['delivery_datetime'] = date('Y-m-d h:m:s');
+        if ($deliveryMethodId > 0) {
+            $invoice['delivery_method_id'] = $deliveryMethodId;
+            $invoice['delivery_datetime'] = date('Y-m-d h:m:s');
 
-        $invoice['delivery_departure_address'] = $this->me['address'];
-        $invoice['delivery_departure_city'] = $this->me['city'];
-        $invoice['delivery_departure_zip_code'] = $this->me['zip_code'];
-        $invoice['delivery_departure_country'] = $this->me['country_id'];
+            $invoice['delivery_departure_address'] = $this->me['address'];
+            $invoice['delivery_departure_city'] = $this->me['city'];
+            $invoice['delivery_departure_zip_code'] = $this->me['zip_code'];
+            $invoice['delivery_departure_country'] = $this->me['country_id'];
 
-        $invoice['delivery_destination_address'] = $moloniClient['shipping']['address'];
-        $invoice['delivery_destination_city'] = $moloniClient['shipping']['delivery_destination_city'];
-        $invoice['delivery_destination_zip_code'] = $moloniClient['shipping']['delivery_destination_zip_code'];
-        $invoice['delivery_destination_country'] = $moloniClient['shipping']['delivery_destination_country'];
-
+            $invoice['delivery_destination_address'] = $moloniClient['shipping']['address'];
+            $invoice['delivery_destination_city'] = $moloniClient['shipping']['delivery_destination_city'];
+            $invoice['delivery_destination_zip_code'] = $moloniClient['shipping']['delivery_destination_zip_code'];
+            $invoice['delivery_destination_country'] = $moloniClient['shipping']['delivery_destination_country'];
+        }
 
         $orderPayments = $orderPS->getOrderPayments();
         if ($orderPayments && !empty($orderPayments)) {
