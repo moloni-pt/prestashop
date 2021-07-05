@@ -2,7 +2,7 @@
 <module>
     <name>moloni</name>
     <displayName><![CDATA[Moloni]]></displayName>
-    <version><![CDATA[2.3.0]]></version>
+    <version><![CDATA[2.3.1]]></version>
     <description><![CDATA[Cria os teus documentos de forma simples e automática.]]></description>
     <author><![CDATA[Nuno Almeida]]></author>
     <tab><![CDATA[administration]]></tab>

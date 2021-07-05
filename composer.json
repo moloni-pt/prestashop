@@ -14,6 +14,13 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.3.1",
+        "title": "Release da versão 2.3.1",
+        "description": [
+          "Atualização de versão."
+        ]
+      },
+      {
         "version": "v2.3.0",
         "title": "Release da versão 2.3.0",
         "description": [
