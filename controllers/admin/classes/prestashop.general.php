@@ -269,11 +269,11 @@ class General
 
         foreach ($this->countries as $country) {
             if (Tools::strtolower($country['iso_3166_1']) == Tools::strtolower($iso2)) {
-                return $country['country_id'];
+                return [$country['country_id'], Tools::strtoupper($country['iso_3166_1'])];
             }
         }
 
-        return 1;
+        return [1, 'PT'];
     }
 
     public function companyMe($companyID = COMPANY)
@@ -315,7 +315,6 @@ class General
 
     public function makeInvoice($order_id)
     {
-
         require_once('moloni.documents.php');
         require_once('moloni.settings.php');
         require_once('moloni.products.php');
@@ -332,7 +331,6 @@ class General
             return false;
         }
 
-
         $orderPS = new Order($order['base']['id_order']);
         $order['products'] = $orderPS->getProducts();
         $order['shipping'] = $orderPS->getShipping();
@@ -340,6 +338,7 @@ class General
 
         // Handle currency exchanges
         $orderCurrency = new Currency($orderPS->id_currency);
+
         if ($orderCurrency->iso_code !== 'EUR') {
             $eurCurrency = new Currency(Currency::getIdByIsoCode('EUR'));
             $this->moloniExchangeId = $this->getExchangeRateId($orderCurrency->iso_code);
@@ -376,6 +375,7 @@ class General
             }
 
             $product['moloni_reference'] = Tools::substr($product['product_reference'], 0, 25);
+
             if (empty($product['moloni_reference'])) {
                 $product['moloni_reference'] = 'PS' . mt_rand(10000, 100000);
             }
@@ -386,7 +386,7 @@ class General
             $invoice['products'][$x]['product_id'] = isset($moloni_product['product_id']) ? $moloni_product['product_id'] : 0;
             $invoice['products'][$x]['name'] = $product['product_name'];
             $invoice['products'][$x]['summary'] = '';
-            $invoice['products'][$x]['discount'] = ($discount ? $discount : 0);
+            $invoice['products'][$x]['discount'] = $discount ?: 0;
             $invoice['products'][$x]['qty'] = $product['product_quantity'];
 
             if ($orderCurrency->iso_code !== 'EUR') {
@@ -398,8 +398,38 @@ class General
             $invoice['products'][$x]['price'] = $price;
             $invoice['products'][$x]['order'] = $x;
 
-            if (!empty($moloni_product) && $moloni_product['composition_type'] == 1 && !empty($moloni_product['child_products'])) {
-                // Set the price difference and aply it to the childs 
+            if ($product['unit_price_tax_incl'] != $product['unit_price_tax_excl']) {
+                $taxRate = $product['tax_rate'];
+
+                if ((int)$product['tax_rate'] !== 23) {
+                    $taxRate = round((100 * ($product['unit_price_tax_incl'] - $product['unit_price_tax_excl'])) / $product['unit_price_tax_excl'], 2);
+                }
+
+                $invoice['products'][$x]['taxes'][0]['tax_id'] = $this->settings->taxes->check($taxRate, $moloniClient['billing_country_code']);
+                $invoice['products'][$x]['taxes'][0]['value'] = $product['unit_price_tax_incl'] - $product['unit_price_tax_excl'];
+
+                if (isset($product['ecotax']) && (float)$product['ecotax'] > 0) {
+                    $invoice['products'][$x]['taxes'][1]['tax_id'] = $this->settings->taxes->checkEcotax($product['ecotax']);
+                    $invoice['products'][$x]['taxes'][1]['value'] = $product['ecotax'];
+                    $invoice['products'][$x]['taxes'][1]['order'] = '0';
+                    $invoice['products'][$x]['taxes'][1]['cumulative'] = '0';
+
+                    //tax rate must be after ecotax and cumulative
+                    $invoice['products'][$x]['taxes'][0]['order'] = '1';
+                    $invoice['products'][$x]['taxes'][0]['cumulative'] = '1';
+
+                    //withdraw ecotax from the base value of the product (excluding VAT)
+                    $invoice['products'][$x]['price'] -= $product['ecotax'];
+
+                    //the eco rate has to go first
+                    $invoice['products'][$x]['taxes'] = array_reverse($invoice['products'][$x]['taxes']);
+                }
+            } else {
+                $invoice['products'][$x]['exemption_reason'] = EXEMPTION_REASON;
+            }
+
+            if (!empty($moloni_product) && (int)$moloni_product['composition_type'] === 1 && !empty($moloni_product['child_products'])) {
+                // Set the price difference and apply it to the child products
                 if ($orderCurrency->iso_code !== 'EUR') {
                     $product['unit_price_tax_excl'] = $this->convertPriceFull($product['unit_price_tax_excl'], $orderCurrency, $eurCurrency);
                 }
@@ -412,42 +442,35 @@ class General
                     $invoice['products'][$x]['child_products'][$key]['product_id'] = $moloni_child['product_id'];
                     $invoice['products'][$x]['child_products'][$key]['name'] = $moloni_child['name'];
                     $invoice['products'][$x]['child_products'][$key]['summary'] = $moloni_child['summary'];
-                    $invoice['products'][$x]['child_products'][$key]['discount'] = ($discount ? $discount : 0);
+                    $invoice['products'][$x]['child_products'][$key]['discount'] = $discount ?: 0;
                     $invoice['products'][$x]['child_products'][$key]['qty'] = $child['qty'] * $product['product_quantity'];
                     $invoice['products'][$x]['child_products'][$key]['price'] = $child['price'] * $priceScale;
                     $invoice['products'][$x]['child_products'][$key]['order'] = $key;
 
-                    if (!empty($moloni_child['taxes'])) {
-                        $invoice['products'][$x]['child_products'][$key]['taxes'] = $moloni_child['taxes'];
+                    //If billing country is not PT, change child products taxes to match order taxes
+                    if (isset($moloniClient['billing_country_id']) && (int)$moloniClient['billing_country_id'] > 1){
+                        if (isset($invoice['products'][$x]['exemption_reason'])) {
+                            //Delete moloni taxes data
+                            unset($invoice['products'][$x]['child_products'][$key]['taxes']);
+
+                            //Keep this order defined exemption reason
+                            $invoice['products'][$x]['child_products'][$key]['exemption_reason'] = $invoice['products'][$x]['exemption_reason'];
+                        } else {
+                            //Delete moloni exemption reason data
+                            unset($invoice['products'][$x]['child_products'][$key]['exemption_reason']);
+
+                            //Keep this order defined taxes
+                            $invoice['products'][$x]['child_products'][$key]['taxes']= $invoice['products'][$x]['taxes'];
+                        }
                     } else {
-                        $invoice['products'][$x]['child_products'][$key]['exemption_reason'] = $moloni_child['exemption_reason'];
+                        //If billing country is PT, use Moloni defined taxes and/or exemption reason
+                        if (!empty($moloni_child['taxes'])) {
+                            $invoice['products'][$x]['child_products'][$key]['taxes'] = $moloni_child['taxes'];
+                        } else {
+                            $invoice['products'][$x]['child_products'][$key]['exemption_reason'] = $moloni_child['exemption_reason'];
+                        }
                     }
                 }
-            }
-
-            if ($product['unit_price_tax_incl'] <> $product['unit_price_tax_excl']) {
-                $taxRate = ($product['tax_rate'] <> '23') ? round((100 * ($product['unit_price_tax_incl'] - $product['unit_price_tax_excl'])) / $product['unit_price_tax_excl'], 2) : $product['tax_rate'];
-                $invoice['products'][$x]['taxes'][0]['tax_id'] = $this->settings->taxes->check($taxRate);
-                $invoice['products'][$x]['taxes'][0]['value'] = $product['unit_price_tax_incl'] - $product['unit_price_tax_excl'];
-
-                if (isset($product['ecotax']) && (float)$product['ecotax'] > 0) {
-                    $invoice['products'][$x]['taxes'][1]['tax_id'] = $this->settings->taxes->checkEcotax($product['ecotax']);
-                    $invoice['products'][$x]['taxes'][1]['value'] = $product['ecotax'];
-                    $invoice['products'][$x]['taxes'][1]['order'] = '0';
-                    $invoice['products'][$x]['taxes'][1]['cumulative'] = '0';
-
-                    //taxa tem de ser depois da ecotaxa e cumulativa
-                    $invoice['products'][$x]['taxes'][0]['order'] = '1';
-                    $invoice['products'][$x]['taxes'][0]['cumulative'] = '1';
-
-                    //retirar ecotaxa ao valor base do produto (sem iva)
-                    $invoice['products'][$x]['price'] -= $product['ecotax'];
-
-                    //a eco taxa tem de ir em primeiro lugar
-                    $invoice['products'][$x]['taxes'] = array_reverse($invoice['products'][$x]['taxes']);
-                }
-            } else {
-                $invoice['products'][$x]['exemption_reason'] = EXEMPTION_REASON;
             }
 
             $x++;
@@ -477,7 +500,7 @@ class General
             }
 
             if ($order['base']['carrier_tax_rate'] > 0) {
-                $invoice['products'][$x]['taxes'][0]['tax_id'] = $this->settings->taxes->check($order['base']['carrier_tax_rate']);
+                $invoice['products'][$x]['taxes'][0]['tax_id'] = $this->settings->taxes->check($order['base']['carrier_tax_rate'], $moloniClient['billing_country_code']);
                 $invoice['products'][$x]['taxes'][0]['value'] = $order['base']['total_shipping_tax_incl'] - $order['base']['total_shipping_tax_excl'];
             } else {
                 $invoice['products'][$x]['exemption_reason'] = EXEMPTION_REASON_SHIPPING;
@@ -731,7 +754,7 @@ class General
         $customer['address']['invoice'] = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "address WHERE id_address = '" . (int)$order['base']['id_address_invoice'] . "'");
         $customer['address']['delivery'] = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "address WHERE id_address = '" . (int)$order['base']['id_address_delivery'] . "'");
 
-        $countryCode = (int)$this->getCountryCode($customer['address']['invoice']['id_country']);
+        list($countryCodeId, $countryCode) = $this->getCountryCode($customer['address']['invoice']['id_country']);
 
         $vat = '999999990';
         $firstVatNumber = $customer['address']['invoice']['vat_number'];
@@ -774,15 +797,15 @@ class General
         $MoloniCustomer['phone'] = $customer['address']['invoice']['phone'];
 
         $MoloniCustomer['address'] = $customer['address']['invoice']['address1'] . (empty($customer['address']['invoice']['address2']) ? '' : ' - ' . $customer['address']['invoice']['address2']);
-        $MoloniCustomer['zip_code'] = ($countryCode === 1 ? $this->zipCheck($customer['address']['invoice']['postcode']) : $customer['address']['invoice']['postcode']);
+        $MoloniCustomer['zip_code'] = ((int)$countryCodeId === 1 ? $this->zipCheck($customer['address']['invoice']['postcode']) : $customer['address']['invoice']['postcode']);
         $MoloniCustomer['city'] = $customer['address']['invoice']['city'];
 
-        $MoloniCustomer['country_id'] = $countryCode;
+        $MoloniCustomer['country_id'] = $countryCodeId;
         $MoloniCustomer['language_id'] = '1';
 
-        if (in_array($countryCode, [1, 33, 8])) {
+        if (in_array($countryCodeId, [1, 33, 8])) {
             $MoloniCustomer['language_id'] = 1;
-        } elseif (in_array($countryCode, [70])) {
+        } elseif ((int)$countryCodeId === 70) {
             $MoloniCustomer['language_id'] = 3;
         } else {
             $MoloniCustomer['language_id'] = 2;
@@ -821,11 +844,15 @@ class General
             $return['customer_id'] = $this->entities->customers->insert($MoloniCustomer);
         }
 
-        $countryCode = $this->getCountryCode($customer['address']['delivery']['id_country']);
+        $return['billing_country_id'] = $countryCodeId;
+        $return['billing_country_code'] = $countryCode;
+
+        list($countryCodeId, $countryCode) = $this->getCountryCode($customer['address']['delivery']['id_country']);
+
         $return['shipping']['address'] = $customer['address']['delivery']['address1'] . (empty($customer['address']['delivery']['address2']) ? '' : ' - ' . $customer['address']['delivery']['address2']);
         $return['shipping']['delivery_destination_city'] = $customer['address']['delivery']['city'];
-        $return['shipping']['delivery_destination_zip_code'] = ($countryCode == '1' ? $this->zipCheck($customer['address']['delivery']['postcode']) : $customer['address']['delivery']['postcode']);
-        $return['shipping']['delivery_destination_country'] = $countryCode;
+        $return['shipping']['delivery_destination_zip_code'] = ($countryCodeId == '1' ? $this->zipCheck($customer['address']['delivery']['postcode']) : $customer['address']['delivery']['postcode']);
+        $return['shipping']['delivery_destination_country'] = $countryCodeId;
 
         return $return;
     }
@@ -834,7 +861,6 @@ class General
     {
         return preg_replace('/[^A-Za-z0-9\-]/', '', $string);
     }
-
 
     public function product($input)
     {

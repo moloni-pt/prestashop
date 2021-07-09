@@ -28,33 +28,32 @@ class Taxes extends settings
 
     }
 
-    public function check($rate)
+    public function check($rate, $countryCode = 'PT')
     {
 
         $taxes = $this->getAll();
-        
+
         foreach ($taxes as $tax) {
-            if (round($rate, 2) == round($tax['value'], 2)) {
+            if ($tax['fiscal_zone'] === $countryCode && (round($rate, 2) === round($tax['value'], 2))) {
                 return $tax['tax_id'];
             }
         }
-        
-        
+
         foreach ($taxes as $tax) {
-            if (round($rate) == round($tax['value'])) {
+            if ($tax['fiscal_zone'] === $countryCode && round($rate) === round($tax['value'])) {
                 return $tax['tax_id'];
             }
         }        
 
-        $values                      = array();
-        $values['name']              = "Taxa ".$rate;
+        $values                      = [];
+        $values['name']              = 'VAT ' . $countryCode;
         $values['value']             = $rate;
         $values['type']              = "1";
         $values['saft_type']         = "1";
         $values['vat_type']          = "OUT";
         $values['stamp_tax']         = "0";
         $values['exemption_reason']  = EXEMPTION_REASON;
-        $values['fiscal_zone']       = "PT";
+        $values['fiscal_zone']       = $countryCode;
         $values['active_by_default'] = "0";
 
         return $this->insert($values);
