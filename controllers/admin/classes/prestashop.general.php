@@ -334,6 +334,7 @@ class General
         $orderPS = new Order($order['base']['id_order']);
         $order['products'] = $orderPS->getProducts();
         $order['shipping'] = $orderPS->getShipping();
+
         $order['shipping'][0]['carrier_tax_rate'] = $orderPS->carrier_tax_rate;
 
         // Handle currency exchanges
@@ -693,6 +694,10 @@ class General
             'value' => $payment->amount,
             'date' => date('Y-m-d')
         ];
+
+        if (!empty($payment->conversion_rate)) {
+            $paymentMethod['value'] /= $payment->conversion_rate;
+        }
 
         $companyPaymentMethods = $this->settings->paymentMethods->getAll();
 
