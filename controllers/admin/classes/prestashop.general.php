@@ -322,7 +322,6 @@ class General
         $this->settings = new Settings();
         $this->products = new Products();
 
-
         $order = array();
         $order['base'] = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "orders WHERE id_order = '" . (int)$order_id . "'");
 
@@ -334,6 +333,7 @@ class General
         $orderPS = new Order($order['base']['id_order']);
         $order['products'] = $orderPS->getProducts();
         $order['shipping'] = $orderPS->getShipping();
+
         $order['shipping'][0]['carrier_tax_rate'] = $orderPS->carrier_tax_rate;
 
         // Handle currency exchanges
@@ -368,6 +368,7 @@ class General
         $invoice['products'] = array();
         $x = 0;
 
+        // Products
         foreach ($order['products'] as $product) {
             if ($this->priceHasTaxIncluded) {
                 $product['tax_rate'] = 23;
@@ -476,8 +477,8 @@ class General
             $x++;
         }
 
+        // Shipping
         if ($order['base']['total_shipping'] > 0) {
-
             if ($this->priceHasTaxIncluded) {
                 $order['shipping'][0]['carrier_tax_rate'] = 23;
                 $order['shipping'][0]['shipping_cost_tax_incl'] = $order['shipping'][0]['shipping_cost_tax_incl'] / 1.23;
@@ -505,9 +506,43 @@ class General
             } else {
                 $invoice['products'][$x]['exemption_reason'] = EXEMPTION_REASON_SHIPPING;
             }
+
+            $x++;
         }
 
-        $deliveryMethodId = $this->parseDeliveryMethodId($order['shipping'][0]['carrier_name']);;
+        // Wrapping
+        if (isset($order['base']['total_wrapping']) && (float)$order['base']['total_wrapping'] > 0) {
+            if ($this->priceHasTaxIncluded) {
+                $order['base']['total_wrapping_tax_excl'] = $order['base']['total_wrapping_tax_incl'] / 1.23;
+            }
+
+            $invoice['products'][$x]['name'] = 'Embrulho';
+            $invoice['products'][$x]['summary'] = '';
+            $invoice['products'][$x]['discount'] = 0;
+            $invoice['products'][$x]['qty'] = 1;
+
+            if ($orderCurrency->iso_code !== 'EUR') {
+                $invoice['products'][$x]['price'] = $this->convertPriceFull($order['base']['total_wrapping_tax_excl'], $orderCurrency, $eurCurrency);
+            } else {
+                $invoice['products'][$x]['price'] = $order['base']['total_wrapping_tax_excl'];
+            }
+
+            if ((float)$order['base']['total_wrapping_tax_incl'] !== (float)$order['base']['total_wrapping_tax_excl']) {
+                $wrappingTaxValue = $order['base']['total_wrapping_tax_incl'] - $order['base']['total_wrapping_tax_excl'];
+                $wrappingTax = round((100 * ($wrappingTaxValue)) / $order['base']['total_wrapping_tax_excl'], 2);
+
+                $invoice['products'][$x]['taxes'][0]['tax_id'] = $this->settings->taxes->check($wrappingTax, $moloniClient['billing_country_code']);
+                $invoice['products'][$x]['taxes'][0]['value'] = $wrappingTaxValue;
+                $invoice['products'][$x]['taxes'][0]['order'] = '0';
+                $invoice['products'][$x]['taxes'][0]['cumulative'] = '0';
+            } else {
+                $invoice['products'][$x]['exemption_reason'] = EXEMPTION_REASON;
+            }
+
+            $this->wrapping($invoice['products'][$x]);
+        }
+
+        $deliveryMethodId = $this->parseDeliveryMethodId($order['shipping'][0]['carrier_name']);
 
         if ($deliveryMethodId > 0) {
             $invoice['delivery_method_id'] = $deliveryMethodId;
@@ -693,6 +728,10 @@ class General
             'value' => $payment->amount,
             'date' => date('Y-m-d')
         ];
+
+        if (!empty($payment->conversion_rate)) {
+            $paymentMethod['value'] /= $payment->conversion_rate;
+        }
 
         $companyPaymentMethods = $this->settings->paymentMethods->getAll();
 
@@ -983,6 +1022,27 @@ class General
         }
 
         return $productID;
+    }
+
+    public function wrapping(&$wrapperProduct)
+    {
+        $wrapperReference = 'EMBRULHO';
+
+        $productExists = $this->products->getByReference($wrapperReference);
+
+        if ($productExists) {
+            $wrapperId = $productExists['product_id'];
+        } else {
+            $wrapperProduct['category_id'] = $this->products->categories->check('Embrulho');
+            $wrapperProduct['type'] = '1';
+            $wrapperProduct['reference'] = $wrapperReference;
+            $wrapperProduct['unit_id'] = defined('MEASURE_UNIT') ? MEASURE_UNIT : '';
+            $wrapperProduct['has_stock'] = '0';
+
+            $wrapperId = $this->products->insert($wrapperProduct);
+        }
+
+        $wrapperProduct['product_id'] = $wrapperId;
     }
 
     public function getAttributes($productAttribute)

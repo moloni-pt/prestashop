@@ -14,6 +14,14 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.3.3",
+        "title": "Release da versão 2.3.3",
+        "description": [
+          "Ajuste na captura dos valores de pagamento dos clientes.",
+          "Captura dos valores do Embrulho."
+        ]
+      },
+      {
         "version": "v2.3.2",
         "title": "Release da versão 2.3.2",
         "description": [
