@@ -101,6 +101,17 @@ class Start extends ModuleAdminController
                     #Tentar refresh se for preciso
                     if ($row['date_expire'] < time()) {
                         $refresh = curl::refresh($row['refresh_token']);
+
+                        if (!$refresh) {
+                            sleep(2000);
+                            $refresh = curl::refresh($row['refresh_token']);
+                        }
+
+                        if (!$refresh) {
+                            sleep(2000);
+                            $refresh = curl::refresh($row['refresh_token']);
+                        }
+
                         if (!$refresh) {
                             #Refresh não deu, volta a fazer login
 

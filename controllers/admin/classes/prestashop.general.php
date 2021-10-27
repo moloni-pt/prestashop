@@ -796,13 +796,13 @@ class General
         list($countryCodeId, $countryCode) = $this->getCountryCode($customer['address']['invoice']['id_country']);
 
         $vat = '999999990';
-        $firstVatNumber = $customer['address']['invoice']['vat_number'];
 
+        $firstVatNumber = $customer['address']['invoice']['vat_number'];
         if (!empty($this->clean($firstVatNumber))) {
             $vat = $firstVatNumber;
         }
 
-        if (empty($vat)) {
+        if ($vat === '999999990') {
             $secondVatNumber = $customer['address']['invoice']['dni'];
             if (!empty($this->clean($secondVatNumber))) {
                 $vat = $secondVatNumber;
