@@ -1,6 +1,4 @@
 <?php
-/** @noinspection SqlResolve */
-/** @noinspection SqlNoDataSourceInspection */
 
 /**
  * 2020 - Moloni.com
@@ -21,15 +19,19 @@
  * @author    Nuno Almeida
  * @copyright Nuno Almeida
  * @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
+ *
+ * @noinspection SqlResolve
+ * @noinspection SqlNoDataSourceInspection
  */
 class General
 {
 
-    private $me = array();
-    private $countries = array();
-    private $categoriesExists = array();
+    private $me = [];
+    private $countries = [];
+    private $categoriesExists = [];
     private $moloniExchangeId = 0;
     private $moloniExchangeRate = 1;
+
     private $eac_id = false;
     private $freeShipping = false;
     private $priceHasTaxIncluded = false;
@@ -43,19 +45,15 @@ class General
     public function __construct()
     {
         $this->default_lang = Configuration::get('PS_LANG_DEFAULT');
-        if (defined('COMPANY')) {
-            $this->me = $this->companyMe();
-        }
     }
 
     public function getCompaniesAll()
     {
-        $companies = array();
+        $companies = [];
 
         $values = curl::simple('companies/getAll');
 
         foreach ($values as $company) {
-
             $companies[] = array(
                 'vat' => $company['vat'],
                 'name' => $company['name'],
@@ -67,13 +65,13 @@ class General
                 'image' => ((!empty($company['image'])) ? '<img class="activator" src="https://www.moloni.com/_imagens/?macro=imgAC_iconeEmpresa_s3&img=' . $company['image'] . '">' : "<div class='activator image-text'><span class='activator'>" . $company['name'] . '</span></div>')
             );
         }
+
         return ($companies);
     }
 
     public function getOrdersAll()
     {
-
-        $populated = array();
+        $populated = [];
         $selectedStatus = unserialize(defined('ORDER_STATUS') ? ORDER_STATUS : '[]');
 
         $sWhere = 'WHERE (';
@@ -116,7 +114,6 @@ class General
 
     public function getConfigsAll()
     {
-
         $populated = null;
 
         if ($results = Db::getInstance()->ExecuteS('SELECT * FROM ' . _DB_PREFIX_ . 'moloni_configs')) {
@@ -139,9 +136,8 @@ class General
         return ($populated);
     }
 
-    public function getConfigsOptions($label)
+    private function getConfigsOptions($label)
     {
-
         $options = null;
 
         switch ($label) {
@@ -180,14 +176,13 @@ class General
         return ($options);
     }
 
-    public function genURL($controller, $extra = '')
+    private function genURL($controller, $extra = '')
     {
-
         $url = 'index.php?controller=' . $controller . $extra . '&token=' . Tools::getAdminTokenLite($controller);
         return ($url);
     }
 
-    public function vatCheck($input)
+    private function vatCheck($input)
     {
         $vat = trim($input);
         $vat = str_replace('PT', '', $vat);
@@ -202,7 +197,7 @@ class General
     }
 
     #Verificar se o código postal está com o formato correcto e tenta compor
-    public function zipCheck($input)
+    private function zipCheck($input)
     {
         $zipCode = trim(str_replace(' ', '', $input));
         $zipCode = preg_replace('/[^0-9]/', '', $zipCode);
@@ -248,7 +243,7 @@ class General
     }
 
     #Complemento da verificação do código postal
-    public function verify($zipCode)
+    private function verify($zipCode)
     {
         $regexp = "/[0-9]{4}\-[0-9]{3}/";
         if (preg_match($regexp, $zipCode)) {
@@ -258,7 +253,7 @@ class General
         return (false);
     }
 
-    public function getCountryCode($idCountry)
+    private function getCountryCode($idCountry)
     {
         $countryRow = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "country WHERE id_country = '" . (int)$idCountry . "'");
         $iso2 = $countryRow['iso_code'];
@@ -276,23 +271,23 @@ class General
         return [1, 'PT'];
     }
 
-    public function companyMe($companyID = COMPANY)
+    private function companyMe($companyID = COMPANY)
     {
-        $values = array();
+        $values = [];
         $values['company_id'] = $companyID;
         return curl::simple('companies/getOne', $values, true);
     }
 
     public function cleanInvoice($order_id)
     {
-        Db::getInstance()->insert('moloni_invoices', array(
+        Db::getInstance()->insert('moloni_invoices', [
             'order_id' => $order_id,
             'order_total' => '0',
             'invoice_id' => '0',
             'invoice_total' => '0',
             'invoice_date' => '0',
             'invoice_status' => '4',
-        ));
+        ]);
 
         return [
             'success' => true,
@@ -321,8 +316,9 @@ class General
 
         $this->settings = new Settings();
         $this->products = new Products();
+        $this->me = $this->companyMe();
 
-        $order = array();
+        $order = [];
         $order['base'] = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "orders WHERE id_order = '" . (int)$order_id . "'");
 
         if (!$order['base']) {
@@ -347,7 +343,7 @@ class General
 
         $discount = $this->getDiscountPercentage($orderPS);
 
-        $invoice = array();
+        $invoice = [];
 
         $invoice['company_id'] = COMPANY;
         $invoice['date'] = date('d-m-Y');
@@ -365,7 +361,7 @@ class General
         $invoice['financial_discount'] = ''; #$discount;
         $invoice['special_discount'] = '';
 
-        $invoice['products'] = array();
+        $invoice['products'] = [];
         $x = 0;
 
         // Products
@@ -382,7 +378,7 @@ class General
             }
 
             $moloniProductId = $this->product($product);
-            $moloni_product = $this->products->getOne(array('product_id' => $moloniProductId));
+            $moloni_product = $this->products->getOne(['product_id' => $moloniProductId]);
 
             $invoice['products'][$x]['product_id'] = isset($moloni_product['product_id']) ? $moloni_product['product_id'] : 0;
             $invoice['products'][$x]['name'] = $product['product_name'];
@@ -438,7 +434,7 @@ class General
                 $priceScale = ($product['unit_price_tax_excl'] / $moloni_product['price']);
 
                 foreach ($moloni_product['child_products'] as $key => $child) {
-                    $moloni_child = curl::simple('products/getOne', array('product_id' => $child['product_child_id']));
+                    $moloni_child = curl::simple('products/getOne', ['product_id' => $child['product_child_id']]);
 
                     $invoice['products'][$x]['child_products'][$key]['product_id'] = $moloni_child['product_id'];
                     $invoice['products'][$x]['child_products'][$key]['name'] = $moloni_child['name'];
@@ -449,7 +445,7 @@ class General
                     $invoice['products'][$x]['child_products'][$key]['order'] = $key;
 
                     //If billing country is not PT, change child products taxes to match order taxes
-                    if (isset($moloniClient['billing_country_id']) && (int)$moloniClient['billing_country_id'] > 1){
+                    if (isset($moloniClient['billing_country_id']) && (int)$moloniClient['billing_country_id'] > 1) {
                         if (isset($invoice['products'][$x]['exemption_reason'])) {
                             //Delete moloni taxes data
                             unset($invoice['products'][$x]['child_products'][$key]['taxes']);
@@ -461,7 +457,7 @@ class General
                             unset($invoice['products'][$x]['child_products'][$key]['exemption_reason']);
 
                             //Keep this order defined taxes
-                            $invoice['products'][$x]['child_products'][$key]['taxes']= $invoice['products'][$x]['taxes'];
+                            $invoice['products'][$x]['child_products'][$key]['taxes'] = $invoice['products'][$x]['taxes'];
                         }
                     } else {
                         //If billing country is PT, use Moloni defined taxes and/or exemption reason
@@ -481,7 +477,7 @@ class General
         if ($order['base']['total_shipping'] > 0) {
             if ($this->priceHasTaxIncluded) {
                 $order['shipping'][0]['carrier_tax_rate'] = 23;
-                $order['shipping'][0]['shipping_cost_tax_incl'] = $order['shipping'][0]['shipping_cost_tax_incl'] / 1.23;
+                $order['shipping'][0]['shipping_cost_tax_incl'] /= 1.23;
             }
 
             $shippingPrice = ($this->freeShipping ? 0 : $order['shipping'][0]['shipping_cost_tax_incl']);
@@ -503,7 +499,7 @@ class General
             if ($order['base']['carrier_tax_rate'] > 0) {
                 $invoice['products'][$x]['taxes'][0]['tax_id'] = $this->settings->taxes->check($order['base']['carrier_tax_rate'], $moloniClient['billing_country_code']);
                 $invoice['products'][$x]['taxes'][0]['value'] = $order['base']['total_shipping_tax_incl'] - $order['base']['total_shipping_tax_excl'];
-            } else {
+            } elseif (defined('EXEMPTION_REASON_SHIPPING')) {
                 $invoice['products'][$x]['exemption_reason'] = EXEMPTION_REASON_SHIPPING;
             }
 
@@ -593,7 +589,7 @@ class General
 
                     if (defined('DOCUMENT_STATUS') && (int)DOCUMENT_STATUS === 1) {
 
-                        $update = array();
+                        $update = [];
 
                         $update['document_id'] = $documentID;
                         $update['status'] = 1;
@@ -628,7 +624,7 @@ class General
 
                             MailCore::Send(
                                 (int)(
-                                Configuration::get('PS_LANG_DEFAULT')), 'invoice', $subject, array(
+                                Configuration::get('PS_LANG_DEFAULT')), 'invoice', $subject, [
                                 '{image}' => $this->me['image'],
                                 '{nome_empresa}' => $this->me['name'],
                                 '{data_hoje}' => date('Y-m-d'),
@@ -642,26 +638,26 @@ class General
                                 '{empresa_nome}' => $this->me['name'],
                                 '{empresa_morada}' => $this->me['address'],
                                 '{empresa_email}' => $this->me['mails_sender_address']
-                            ), $to, null, $this->me['mails_sender_name'], $this->me['mails_sender_address'], null, null, _PS_MODULE_DIR_ . 'moloni/mails/'
+                            ], $to, null, $this->me['mails_sender_name'], $this->me['mails_sender_address'], null, null, _PS_MODULE_DIR_ . 'moloni/mails/'
                             );
 
-                            Db::getInstance()->insert('moloni_invoices', array(
+                            Db::getInstance()->insert('moloni_invoices', [
                                 'order_id' => (int)$order_id,
                                 'order_total' => pSQL($order['base']['total_paid']),
                                 'invoice_id' => (int)$documentID,
                                 'invoice_total' => pSQL($documentInfo['net_value']),
                                 'invoice_date' => pSQL(date('Y-m-d H:i:s')),
                                 'invoice_status' => (int)'2',
-                            ));
+                            ]);
                         } else {
-                            Db::getInstance()->insert('moloni_invoices', array(
+                            Db::getInstance()->insert('moloni_invoices', [
                                 'order_id' => (int)$order_id,
                                 'order_total' => pSQL($order['base']['total_paid']),
                                 'invoice_id' => (int)$documentID,
                                 'invoice_total' => pSQL($documentInfo['net_value']),
                                 'invoice_date' => pSQL(date('Y-m-d H:i:s')),
                                 'invoice_status' => (int)'1',
-                            ));
+                            ]);
                         }
 
                         return [
@@ -673,14 +669,14 @@ class General
                         ];
                     }
 
-                    Db::getInstance()->insert('moloni_invoices', array(
+                    Db::getInstance()->insert('moloni_invoices', [
                         'order_id' => (int)$order_id,
                         'order_total' => pSQL($order['base']['total_paid']),
                         'invoice_id' => (int)$documentID,
                         'invoice_total' => pSQL($documentInfo['net_value']),
                         'invoice_date' => pSQL(date('Y-m-d H:i:s')),
                         'invoice_status' => (int)'0',
-                    ));
+                    ]);
                     return [
                         'success' => true,
                         'message' => 'Documento inserido como rascunho! :)',
@@ -690,14 +686,14 @@ class General
                     ];
                 }
 
-                Db::getInstance()->insert('moloni_invoices', array(
+                Db::getInstance()->insert('moloni_invoices', [
                     'order_id' => (int)$order_id,
                     'order_total' => pSQL($order['base']['total_paid']),
                     'invoice_id' => (int)$documentID,
                     'invoice_total' => pSQL($documentInfo['net_value']),
                     'invoice_date' => pSQL(date('Y-m-d H:i:s')),
                     'invoice_status' => (int)'3',
-                ));
+                ]);
                 MoloniError::create('document/update', 'Documento inserido, mas totais não correspondem', $documentInfo, $order);
             }
             return $result;
@@ -706,7 +702,7 @@ class General
         return false;
     }
 
-    public function parsePayments($payments)
+    private function parsePayments($payments)
     {
         $paymentMethods = [];
         if (!empty($payments) && is_array($payments)) {
@@ -758,7 +754,7 @@ class General
      * @param $deliveryMethodName
      * @return int
      */
-    public function parseDeliveryMethodId($deliveryMethodName)
+    private function parseDeliveryMethodId($deliveryMethodName)
     {
         $deliveryMethodId = 0;
 
@@ -782,12 +778,12 @@ class General
         return $deliveryMethodId;
     }
 
-    public function client($order)
+    private function client($order)
     {
         require_once('moloni.entities.php');
 
         $this->entities = new Entities();
-        $customer = array();
+        $customer = [];
 
         $customer['base'] = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "customer WHERE id_customer = '" . (int)$order['base']['id_customer'] . "'");
         $customer['address']['invoice'] = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "address WHERE id_address = '" . (int)$order['base']['id_address_invoice'] . "'");
@@ -829,7 +825,7 @@ class General
             $customer['address']['invoice']['firstname'] . ' ' . $customer['address']['invoice']['lastname'] :
             $customer['address']['invoice']['company'];
 
-        $MoloniCustomer = array();
+        $MoloniCustomer = [];
 
         $MoloniCustomer['name'] = $name;
         $MoloniCustomer['email'] = $customer['base']['email'];
@@ -840,7 +836,6 @@ class General
         $MoloniCustomer['city'] = $customer['address']['invoice']['city'];
 
         $MoloniCustomer['country_id'] = $countryCodeId;
-        $MoloniCustomer['language_id'] = '1';
 
         if (in_array($countryCodeId, [1, 33, 8])) {
             $MoloniCustomer['language_id'] = 1;
@@ -896,12 +891,22 @@ class General
         return $return;
     }
 
-    function clean($string)
+    /**
+     * @param $string
+     *
+     * @return string
+     */
+    private function clean($string)
     {
         return preg_replace('/[^A-Za-z0-9\-]/', '', $string);
     }
 
-    public function product($input)
+    /**
+     * @param array $input
+     *
+     * @return false|mixed
+     */
+    private function product($input)
     {
 
         $reference = $input['moloni_reference'];
@@ -970,7 +975,7 @@ class General
         return $productID;
     }
 
-    public function shipping($input)
+    private function shipping($input)
     {
 
         $reference = '';
@@ -1024,7 +1029,7 @@ class General
         return $productID;
     }
 
-    public function wrapping(&$wrapperProduct)
+    private function wrapping(&$wrapperProduct)
     {
         $wrapperReference = 'EMBRULHO';
 
@@ -1045,7 +1050,7 @@ class General
         $wrapperProduct['product_id'] = $wrapperId;
     }
 
-    public function getAttributes($productAttribute)
+    private function getAttributes($productAttribute)
     {
 
         if ($results = Db::getInstance()->ExecuteS('SELECT * FROM ' . _DB_PREFIX_ . "product_attribute_combination WHERE id_product_attribute = '" . (int)$productAttribute . "'")) {
@@ -1056,12 +1061,12 @@ class General
                 );
             }
             return $return;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
-    public function formDescription($attributes = false)
+    private function formDescription($attributes = false)
     {
         if ($attributes) {
             $description = '';
@@ -1075,7 +1080,7 @@ class General
         return false;
     }
 
-    public function getStock($productID, $attributeID = false, $qty = 0)
+    private function getStock($productID, $attributeID = false, $qty = 0)
     {
         $attributeID = ($attributeID == false) ? '0' : $attributeID;
         $stock = Db::getInstance()->getRow('SELECT quantity AS qty FROM ' . _DB_PREFIX_ . "stock_available WHERE id_product = '" . (int)$productID . "' and id_product_attribute = '" . (int)$attributeID . "'");
@@ -1176,7 +1181,7 @@ class General
         return $updated;
     }
 
-    function importProduct($product)
+    private function importProduct($product)
     {
         if (isset($product['name']) && !empty($product['name'])) {
             $newProduct = new Product();
@@ -1215,7 +1220,7 @@ class General
         return false;
     }
 
-    public function importCategories()
+    private function importCategories()
     {
         $rootCategory = Category::getRootCategory();
         $this->categoriesExists['0'] = array('name' => $rootCategory->name, 'ps_id' => $rootCategory->id);
@@ -1269,7 +1274,7 @@ class General
         }
     }
 
-    public function checkCategoryExists($categories, $parentId)
+    private function checkCategoryExists($categories, $parentId)
     {
         foreach ($categories as $moloniCategory) {
             $search = Category::searchByNameAndParentCategoryId($this->default_lang, $moloniCategory['name'], $parentId);
@@ -1388,8 +1393,6 @@ class General
             unset($product);
         }
 
-
-        $error = false;
         unset($attributes);
 
         if ($attributes = Db::getInstance()->ExecuteS($query)) {
@@ -1401,9 +1404,7 @@ class General
                     $productExists = $this->products->getByReference($reference);
 
                     if (!$productExists) {
-                        $product = array();
-
-                        $stockCheck = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "stock_available WHERE id_product = '" . (int)$productID . "' and id_product_attribute = '" . (int)$attribute['id_product_attribute'] . "'");
+                        $product = [];
 
                         $product['category_id'] = $this->products->categories->check($categoryPS->getName());
                         $product['type'] = '1';
@@ -1444,7 +1445,7 @@ class General
                             }
                         }
 
-                        $productID = $this->products->insert($product);
+                        $this->products->insert($product);
                         unset($product);
                     }
                 }
@@ -1454,25 +1455,6 @@ class General
         if (MoloniError::$exists) {
             print_r(MoloniError::$message);
         }
-    }
-
-    private function getNextClientNumber()
-    {
-        $number = 0;
-        $lastNumber = mb_substr($this->entities->customers->getLastNumber(), 0, 20);
-        if (is_numeric($lastNumber)) {
-            $number = $lastNumber + 1;
-        } else {
-            $numberPart = preg_replace('(.+[^0-9])', '', $lastNumber);
-            $stringPart = str_ireplace($numberPart, '', $lastNumber);
-
-            if (!empty($numberPart)) {
-                $number = $stringPart . ($numberPart + 1);
-            } else {
-                $number = $stringPart . '1';
-            }
-        }
-        return mb_substr($number, 0, 30);
     }
 
     /**
@@ -1501,7 +1483,7 @@ class General
     private function getName($name)
     {
         if (!empty($name)) {
-            $name = str_replace(array('<' , '>', ';' , '=', '#' , '{', '}'), '', $name); // Removes special chars.
+            $name = str_replace(array('<', '>', ';', '=', '#', '{', '}'), '', $name); // Removes special chars.
         }
 
         return $name;
@@ -1677,7 +1659,7 @@ class General
         return $discountTotal;
     }
 
-    public function convertPriceFull($amount, Currency $currency_from = null, Currency $currency_to = null)
+    private function convertPriceFull($amount, Currency $currency_from = null, Currency $currency_to = null)
     {
         if ($currency_from === $currency_to) {
             return $amount;
@@ -1696,7 +1678,7 @@ class General
         } else {
             $conversion_rate = ($currency_from->conversion_rate == 0 ? 1 : $currency_from->conversion_rate);
             // Convert amount to default currency (using the old currency rate)
-            $amount = $amount / $conversion_rate;
+            $amount /= $conversion_rate;
             // Convert to new currency
             $amount *= $currency_to->conversion_rate;
         }
