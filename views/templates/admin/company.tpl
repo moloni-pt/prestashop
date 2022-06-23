@@ -25,7 +25,7 @@
 
 <section id="moloni">
 
-    {foreach from=$moloni.ptpanies item=company}
+    {foreach from=$moloni.companies item=company}
 
         <div class="card">
             <div class="card-image waves-effect waves-block waves-light">
