@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 2020 - Moloni.com
+ * 2020 - moloni.pt
  *
  * NOTICE OF LICENSE
  *
@@ -27,7 +27,7 @@ class Moloni extends Module
         $this->name = 'moloni';
         $this->tab = 'administration';
         $this->need_instance = 1;
-        $this->version = '2.3.3';
+        $this->version = '2.3.7';
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
         $this->author = 'Nuno Almeida';
         $this->bootstrap = true;

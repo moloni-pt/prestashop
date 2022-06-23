@@ -1,5 +1,5 @@
 {**
-* 2016 - Moloni.com
+* 2016 - moloni.pt
 *
 * NOTICE OF LICENSE
 *
@@ -8,7 +8,7 @@
 * you accept the licence agreement.
 *
 * You must not modify, adapt or create derivative works of this source code
-* DISCLAIMER 
+* DISCLAIMER
 *
 * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
 * versions in the future. If you wish to customize PrestaShop for your
@@ -25,7 +25,7 @@
 
 <section id="moloni">
 
-    {foreach from=$moloni.companies item=company}
+    {foreach from=$moloni.ptpanies item=company}
 
         <div class="card">
             <div class="card-image waves-effect waves-block waves-light">

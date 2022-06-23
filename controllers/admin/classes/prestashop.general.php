@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 2020 - Moloni.com
+ * 2020 - moloni.pt
  *
  * NOTICE OF LICENSE
  *
@@ -62,7 +62,7 @@ class General
                 'city' => $company['city'],
                 'zip_code' => $company['zip_code'],
                 'form_url' => $this->genURL('MoloniStart', '&company_id=' . $company['company_id']),
-                'image' => ((!empty($company['image'])) ? '<img class="activator" src="https://www.moloni.com/_imagens/?macro=imgAC_iconeEmpresa_s3&img=' . $company['image'] . '">' : "<div class='activator image-text'><span class='activator'>" . $company['name'] . '</span></div>')
+                'image' => ((!empty($company['image'])) ? '<img class="activator" src="https://www.moloni.pt/_imagens/?macro=imgAC_iconeEmpresa_s3&img=' . $company['image'] . '">' : "<div class='activator image-text'><span class='activator'>" . $company['name'] . '</span></div>')
             );
         }
 
@@ -665,7 +665,7 @@ class General
                             'message' => 'Documento inserido e fechado com sucesso! :)',
                             'button' => 'Ver',
                             'tab' => '_BLANK',
-                            'url' => 'https://www.moloni.com/' . $this->me['slug'] . '/' . $documents->currentType() . '/showDetail/' . $documentID . '/'
+                            'url' => 'https://www.moloni.pt/' . $this->me['slug'] . '/' . $documents->currentType() . '/showDetail/' . $documentID . '/'
                         ];
                     }
 
@@ -682,7 +682,7 @@ class General
                         'message' => 'Documento inserido como rascunho! :)',
                         'button' => 'Ver',
                         'tab' => '_BLANK',
-                        'url' => 'https://www.moloni.com/' . $this->me['slug'] . '/' . $documents->currentType() . '/showDetail/' . $documentID . '/'
+                        'url' => 'https://www.moloni.pt/' . $this->me['slug'] . '/' . $documents->currentType() . '/showDetail/' . $documentID . '/'
                     ];
                 }
 
@@ -1299,7 +1299,7 @@ class General
 
                 $date = explode('T', $document['date']);
                 $date = $date[0];
-                $moloniURL = ($documents->currentType($document['document_type']['saft_code'])) ? 'https://www.moloni.com/' . $this->me['slug'] . '/' . $documents->currentType($document['document_type']['saft_code']) . '/showDetail/' . $document['document_id'] . '/' : false;
+                $moloniURL = ($documents->currentType($document['document_type']['saft_code'])) ? 'https://www.moloni.pt/' . $this->me['slug'] . '/' . $documents->currentType($document['document_type']['saft_code']) . '/showDetail/' . $document['document_id'] . '/' : false;
                 $return[] = array(
                     'document_id' => $document['document_id'],
                     'document_type' => $document['document_type']['saft_code'],

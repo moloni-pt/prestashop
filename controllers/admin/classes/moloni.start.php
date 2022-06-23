@@ -3,7 +3,7 @@
 /** @noinspection SqlResolve */
 
 /**
- * 2020 - Moloni.com
+ * 2020 - moloni.pt
  *
  * NOTICE OF LICENSE
  *

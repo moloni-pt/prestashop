@@ -1,5 +1,5 @@
 {**
-* 2016 - Moloni.com
+* 2016 - moloni.pt
 *
 * NOTICE OF LICENSE
 *
@@ -8,7 +8,7 @@
 * you accept the licence agreement.
 *
 * You must not modify, adapt or create derivative works of this source code
-* DISCLAIMER 
+* DISCLAIMER
 *
 * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
 * versions in the future. If you wish to customize PrestaShop for your
@@ -42,7 +42,7 @@
                 </thead>
 
                 <tbody>
-                    
+
                     {foreach from=$moloni.documents item=document}
                         <tr>
                             <td style='width: 150px'><a class="waves-effect waves-light btn blue order" style='cursor: '>{$document.document_type|escape:"html":"UTF-8"} | {$document.document_set_name|escape:"html":"UTF-8"}-{$document.number|escape:"html":"UTF-8"}</a></td>
@@ -59,7 +59,7 @@
                             <td>
                                 {if $document.check != ""}<a href="{$document.check|escape:'html':'UTF-8'}" target='_BLANK' class='waves-effect waves-light btn blue generate'><i class='material-icons'>search</i></a>{/if}
                                 {if $document.download != ""}<a href='{$document.download|escape:'html':'UTF-8'}' target='_BLANK' class='waves-effect waves-light btn green generate'><i class='material-icons'>cloud_download</i></a>{/if}
-                                
+
                             </td>
                         </tr>
                     {/foreach}

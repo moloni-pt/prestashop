@@ -1,5 +1,5 @@
 {**
-* 2016 - Moloni.com
+* 2016 - moloni.pt
 *
 * NOTICE OF LICENSE
 *
@@ -8,7 +8,7 @@
 * you accept the licence agreement.
 *
 * You must not modify, adapt or create derivative works of this source code
-* DISCLAIMER 
+* DISCLAIMER
 *
 * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
 * versions in the future. If you wish to customize PrestaShop for your
@@ -38,7 +38,7 @@
                 </div>
 
                 <div class="messagepop pop">
-                    {l s='Error' mod='moloni'}: {$moloni.message.error.where|escape:'html':'UTF-8'}<br> 
+                    {l s='Error' mod='moloni'}: {$moloni.message.error.where|escape:'html':'UTF-8'}<br>
                     {$moloni.message.error.message|escape:'html':'UTF-8'}<br>
                     {l s='Sent' mod='moloni'}:
                     <pre>{$moloni.message.error.values_sent|@print_r|escape:'html':'UTF-8'}}</pre>
@@ -91,9 +91,9 @@
                             <td><center>
                         <a class='waves-effect waves-light btn green generate' href='{$order.url.create|escape:"html":"UTF-8"}'><i class='material-icons'>note_add</i></a>
                         <a class='waves-effect waves-light btn red discard' href='{$order.url.clean|escape:"html":"UTF-8"}'><i class='material-icons'>delete</i></a>
-                    </center>	
+                    </center>
                     </td></tr>
-                {/foreach}							
+                {/foreach}
 
                 </tbody>
             </table>

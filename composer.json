@@ -6,13 +6,17 @@
   "authors": [
     {
       "name": "Moloni, lda",
-      "email": "apoio@moloni.com"
+      "email": "apoio@moloni.pt"
     }
   ],
   "require": {
   },
   "extra": {
     "changelog": [
+      {
+        "version": "v2.3.7",
+        "title": "Release da versão 2.3.7"
+      },
       {
         "version": "v2.3.5",
         "title": "Release da versão 2.3.5",

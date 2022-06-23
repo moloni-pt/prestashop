@@ -1,5 +1,5 @@
 ﻿{**
-* 2016 - Moloni.com
+* 2016 - moloni.pt
 *
 * NOTICE OF LICENSE
 *
@@ -8,7 +8,7 @@
 * you accept the licence agreement.
 *
 * You must not modify, adapt or create derivative works of this source code
-* DISCLAIMER 
+* DISCLAIMER
 *
 * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
 * versions in the future. If you wish to customize PrestaShop for your
@@ -22,14 +22,14 @@
 <link rel="stylesheet" href="{$moloni.path.css|escape:'html':'UTF-8'}style-login.css">
 
 <form class='moloni-login-form' action = '' method='POST' autocomplete="false">
-    <a href='https://moloni.com' target='_BLANK'><img src='{$moloni.path.img|escape:'html':'UTF-8'}logo.png' class='moloni-logo'></a>
-    
+    <a href='https://moloni.pt' target='_BLANK'><img src='{$moloni.path.img|escape:'html':'UTF-8'}logo.png' class='moloni-logo'></a>
+
     {if isset($moloni_error.login) }
         <div class="group login-error">
           <center> {l s='Email and password don\'t match' mod='moloni'}</center>
         </div>
     {/if}
-        
+
     <div class="group">
         <input type="email" name='mol-username' autocomplete="false" onfocus="this.removeAttribute('readonly');" readonly><span class="bar"></span>
         <label>{l s='Email' mod='moloni'}</label>
