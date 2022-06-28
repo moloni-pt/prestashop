@@ -33,6 +33,8 @@ class Moloni extends Module
         $this->bootstrap = true;
         $this->module_key = 'c1b44ca634a5bc18032f311803470fea';
 
+        $this->autoload();
+
         parent::__construct();
 
         $this->displayName = $this->l('Moloni');
@@ -205,4 +207,11 @@ class Moloni extends Module
         return false;
     }
 
+    /**
+     * Inits Autoload
+     */
+    private function autoload()
+    {
+        require_once __DIR__ . '/vendor/autoload.php';
+    }
 }

@@ -9,6 +9,11 @@
       "email": "apoio@moloni.pt"
     }
   ],
+  "autoload": {
+    "psr-4": {
+      "Moloni\\": "src"
+    }
+  },
   "require": {
   },
   "extra": {

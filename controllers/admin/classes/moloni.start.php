@@ -147,11 +147,11 @@ class Start extends ModuleAdminController
 
         $row = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . 'moloni');
 
-        if (!defined('ACCESS')) {
+        if (!defined('ACCESS') && is_array($row)) {
             define('ACCESS', $row['access_token']);
         }
 
-        if (!defined('COMPANY')) {
+        if (!defined('COMPANY') && is_array($row)) {
             define('COMPANY', $row['company_id']);
         }
     }

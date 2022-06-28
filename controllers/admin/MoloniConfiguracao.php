@@ -1,5 +1,7 @@
 <?php
 
+use Moloni\Services\ProductSyncService;
+
 /**
  * 2020 - moloni.pt
  *
@@ -22,7 +24,6 @@
  */
 class MoloniConfiguracaoController extends ModuleAdminController
 {
-
     public $moloniTpl = null;
 
     public function __construct()
@@ -61,12 +62,11 @@ class MoloniConfiguracaoController extends ModuleAdminController
                 break;
         }
 
-        if ((Tools::getValue('action') == 'forcestocks')) {
-            $syncResult = $functions->syncProducts(true, false);
-        }
-        
-        if ((Tools::getValue('action') == 'importProducts')) {
-            $syncResult = $functions->syncProducts(false, true);
+        if (Tools::getValue('goDo') && Tools::getValue('goDo') === 'synchronize') {
+            $productSyncService = new ProductSyncService();
+            $productSyncService->setImportDate(date('Y-m-d H:i:s', strtotime("-1 week")));
+            $productSyncService->instantiateSyncFilters();
+            $syncResult = $productSyncService->run()->getResults();
         }
 
         $this->context->smarty->assign(array(
@@ -77,7 +77,7 @@ class MoloniConfiguracaoController extends ModuleAdminController
                     'js' => '../modules/moloni/views/js/'
                 ),
                 'companies' => $companies,
-                'message_alert' => ((Tools::getValue('goDo') && Tools::getValue('goDo') == "save" && Tools::getValue('options')) ? "1" : null ),
+                'message_alert' => ((Tools::getValue('goDo') && Tools::getValue('goDo') === "save" && Tools::getValue('options')) ? "1" : null ),
                 'configurations' => $configurations,
                 'syncResult' => $syncResult
             ),
