@@ -65,6 +65,7 @@ class ProductImportService
             $newProduct->price = $this->product['price'];
             $newProduct->ean13 = $this->getEAN($this->product['ean']);
             $newProduct->quantity = ($this->product['has_stock'] ? $this->product['stock'] : 0);
+            $newProduct->description = $this->product['summary'] ?: '';
             $newProduct->id_category = $this->categoriesExists[$this->product['category_id']]['ps_id'];
             $newProduct->id_category_default = $this->categoriesExists[$this->product['category_id']]['ps_id'];
 
