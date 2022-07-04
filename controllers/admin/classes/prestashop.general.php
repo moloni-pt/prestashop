@@ -28,7 +28,6 @@ class General
 
     private $me = [];
     private $countries = [];
-    private $categoriesExists = [];
     private $moloniExchangeId = 0;
     private $moloniExchangeRate = 1;
 
@@ -75,7 +74,7 @@ class General
         $selectedStatus = unserialize(defined('ORDER_STATUS') ? ORDER_STATUS : '[]');
 
         $sWhere = 'WHERE (';
-        if ($selectedStatus[0] <> '') {
+        if (is_array($selectedStatus) && $selectedStatus[0] <> '') {
             foreach ($selectedStatus as $status) {
                 $sWhere .= " current_state = '" . pSQL($status) . "' OR";
             }
@@ -131,6 +130,7 @@ class General
         }
 
         $populated['formSave'] = $this->genURL('MoloniConfiguracao', '&goDo=save');
+        $populated['formToolsSubmit'] = $this->genURL('MoloniConfiguracao', '&goDo=synchronize');
         $populated['logout'] = $this->genURL('MoloniStart', '&MoloniLogout=true');
 
         return ($populated);
@@ -908,7 +908,6 @@ class General
      */
     private function product($input)
     {
-
         $reference = $input['moloni_reference'];
         $productExists = $this->products->getByReference($reference);
 
@@ -1089,203 +1088,6 @@ class General
         return ($total < 0) ? '0' : $total;
     }
 
-    public function syncProducts($syncStocks = true, $syncProducts = false)
-    {
-        $this->products = new Products();
-
-        $dateSince = (Tools::getValue('updateSince')) ? Tools::getValue('updateSince') : date('Y-m-dTH:i:s', strtotime('-1 week'));
-        $values = array();
-        $values['lastmodified'] = $dateSince;
-        $products = $this->products->getModifiedSince($values);
-        $productsCount = count($products);
-
-        if ($syncProducts) {
-            $this->importCategories();
-        }
-
-        $updated = [
-            'header' => [
-                'updated_since' => $dateSince,
-                'products_total' => $productsCount
-            ]
-        ];
-
-        foreach ($products as $moloniProduct) {
-            $reference = trim($moloniProduct['reference']);
-            $stock = round($moloniProduct['stock']);
-
-            $attributeCheck = Db::getInstance()->getRow('SELECT id_product_attribute, id_product FROM ' . _DB_PREFIX_ . "product_attribute WHERE reference = '" . pSQL($reference) . "'");
-
-            if ($attributeCheck) {
-                if ($syncStocks && $moloniProduct['has_stock'] == 1) {
-
-                    // Vamos buscar o stock actual do artigo
-                    $stockCheck = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "stock_available WHERE id_product = '" . (int)$attributeCheck['id_product'] . "' and id_product_attribute = '" . (int)$attributeCheck['id_product_attribute'] . "'");
-
-                    // O artigo tem atributos, vamos actualizar a quantidade do atributo
-                    StockAvailable::setQuantity((int)$attributeCheck['id_product'], (int)$attributeCheck['id_product_attribute'], (int)$stock);
-                    Db::getInstance()->update('stock_available', array('quantity' => (int)$stock), "id_product = '" . (int)$attributeCheck['id_product'] . "' and id_product_attribute = '" . (int)$attributeCheck['id_product_attribute'] . "'");
-
-                    // Actualizamos a quantidade de stock do artigo "pai"
-                    $parent_stock = Db::getInstance()->ExecuteS('SELECT * FROM ' . _DB_PREFIX_ . "stock_available WHERE id_product = '" . (int)$attributeCheck['id_product'] . "' and id_product_attribute > 0 ORDER BY id_shop ASC");
-                    $parent_stock_qty = 0;
-
-                    foreach ($parent_stock as $key => $parent) {
-                        $parent_stock_qty = $parent_stock_qty + $parent['quantity'];
-                        if (isset($parent_stock[$key + 1]) && $parent['id_shop'] <> $parent_stock[$key + 1]['id_shop']) {
-                            break;
-                        }
-                    }
-
-                    StockAvailable::setQuantity((int)$attributeCheck['id_product'], 0, (int)$parent_stock_qty);
-                    Db::getInstance()->update('stock_available', array('quantity' => (int)$parent_stock_qty), "id_product = '" . (int)$attributeCheck['id_product'] . "' and id_product_attribute = '0'");
-
-                    // Verify if stock has been updated
-                    $stockCheckAfter = Db::getInstance()->getRow('SELECT quantity FROM ' . _DB_PREFIX_ . "stock_available WHERE id_product = '" . (int)$attributeCheck['id_product'] . "' and id_product_attribute = '" . (int)$attributeCheck['id_product_attribute'] . "'");
-
-                    if ($stock <> $stockCheckAfter['quantity']) {
-                        $updated['update_error'][] = array('reference' => $reference, 'stock_before' => $stockCheck['quantity'], 'stock_after' => $stock, 'stocl_total' => $parent_stock_qty);
-                    } else {
-                        $updated['with_attributes'][] = array('reference' => $reference, 'stock_before' => $stockCheck['quantity'], 'stock_after' => $stock, 'stocl_total' => $parent_stock_qty);
-                    }
-                }
-            } else {
-                $productCheck = Db::getInstance()->getRow('SELECT id_product FROM ' . _DB_PREFIX_ . "product WHERE reference = '" . pSQL($reference) . "'");
-
-                if ($productCheck) {
-                    $stockCheck = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "stock_available WHERE id_product = '" . (int)$productCheck['id_product'] . "'");
-
-                    if ($syncStocks && $moloniProduct['has_stock'] == 1) {
-
-                        $updated['simple'][] = array('reference' => $reference, 'stock_before' => $stockCheck['quantity'], 'stock_after' => $stock);
-
-                        Db::getInstance()->update('stock_available', array(
-                            'quantity' => (int)$stock
-                        ), "id_product = '" . (int)$productCheck['id_product'] . "' and id_product_attribute = '0'");
-
-                        StockAvailable::setQuantity((int)$productCheck['id_product'], 0, (int)$stock);
-                    }
-                } else {
-                    $updated['not_found'][] = $moloniProduct;
-                    if ($syncProducts) {
-                        if ($this->importProduct($moloniProduct)) {
-                            $updated['insert_success'][] = array('reference' => $moloniProduct['reference'], 'name' => $moloniProduct['name'], 'price' => $moloniProduct['price']);
-                        } else {
-                            $updated['insert_error'][] = array('reference' => $moloniProduct['reference'], 'name' => $moloniProduct['name'], 'price' => $moloniProduct['price']);
-                        }
-                    }
-                }
-            }
-        }
-
-        return $updated;
-    }
-
-    private function importProduct($product)
-    {
-        if (isset($product['name']) && !empty($product['name'])) {
-            $newProduct = new Product();
-            $newProduct->name = [$this->default_lang => $this->getName($product['name'])];
-            $newProduct->reference = $product['reference'];
-            $newProduct->link_rewrite = [$this->default_lang => $this->linkRewrite($product['name'])];
-            $newProduct->price = $product['price'];
-            $newProduct->ean13 = $this->getEAN($product['ean']);
-            $newProduct->quantity = ($product['has_stock'] ? $product['stock'] : 0);
-            $newProduct->id_category = $this->categoriesExists[$product['category_id']]['ps_id'];
-            $newProduct->id_category_default = $this->categoriesExists[$product['category_id']]['ps_id'];
-
-            if ($newProduct->add()) {
-                StockAvailable::setQuantity((int)$newProduct->id, 0, $newProduct->quantity);
-
-                if (!empty($product['image'])) {
-                    $imgUrl = 'https://www.moloni.pt/_imagens/?macro=&img=' . $product['image'];
-                    $image = new Image();
-                    $image->id_product = $newProduct->id;
-                    $image->cover = true;
-
-                    if (($image->validateFields(false, true)) === true
-                        && ($image->validateFieldsLang(false, true)) === true
-                        && $image->add()
-                        && !self::saveImageFromUrl($newProduct->id, $image->id, $imgUrl)) {
-                        $image->delete();
-                    }
-                }
-
-                $newProduct->addToCategories(array($this->categoriesExists[$product['category_id']]['ps_id']));
-
-                return $newProduct->id;
-            }
-        }
-
-        return false;
-    }
-
-    private function importCategories()
-    {
-        $rootCategory = Category::getRootCategory();
-        $this->categoriesExists['0'] = array('name' => $rootCategory->name, 'ps_id' => $rootCategory->id);
-
-        $categories = $this->products->categories->getHierarchy();
-
-        $this->checkCategoryExists($categories, $rootCategory->id);
-
-        foreach ($this->categoriesExists as &$category) {
-
-            if (!$category['ps_id']) {
-                $insertCategory = new Category();
-                $insertCategory->name = [$this->default_lang => $category['name']];
-                $insertCategory->active = 1;
-                $insertCategory->link_rewrite = [$this->default_lang => Tools::link_rewrite($category['name'])];
-                $insertCategory->id_parent = $this->categoriesExists[$category['parent_id']]['ps_id'];
-
-                if ($insertCategory->add()) {
-                    $category['ps_id'] = $insertCategory->id;
-                }
-                try {
-                    // All images bust be placed as JPG
-                    if (isset($category['image'])) {
-                        $images_types = ImageType::getImagesTypes('categories');
-                        $imgExt = explode('.', $category['image']);
-                        $imgUrl = 'https://www.moloni.pt/_imagens/?macro=&img=' . $category['image'];
-                        $imgName = _PS_CAT_IMG_DIR_ . $insertCategory->id . '.' . end($imgExt);
-
-                        file_put_contents($imgName, file_get_contents($imgUrl));
-
-                        if (file_exists($imgName)) {
-                            $images_types = ImageType::getImagesTypes('categories');
-
-                            // Save the image to use as main image 
-                            $infos = getimagesize($imgName);
-                            ImageManager::resize($imgName, _PS_CAT_IMG_DIR_ . $insertCategory->id . '.jpg', (int)$infos[0], (int)$infos[1]);
-
-                            // Save each required image type 
-                            foreach ($images_types as $k => $image_type) {
-                                ImageManager::resize($imgName, _PS_CAT_IMG_DIR_ . $insertCategory->id . '-' . stripslashes($image_type['name']) . '.jpg', (int)$image_type['width'], (int)$image_type['height']);
-                            }
-
-                            $insertCategory->id_image = $insertCategory->id;
-                            $insertCategory->save();
-                        }
-                    }
-                } catch (Exception $exception) {
-
-                }
-            }
-        }
-    }
-
-    private function checkCategoryExists($categories, $parentId)
-    {
-        foreach ($categories as $moloniCategory) {
-            $search = Category::searchByNameAndParentCategoryId($this->default_lang, $moloniCategory['name'], $parentId);
-            $this->categoriesExists[$moloniCategory['category_id']] = array('name' => $moloniCategory['name'], 'ps_id' => $search ? $search['id_category'] : false, 'parent_id' => $moloniCategory['parent_id'], 'image' => $moloniCategory['image']);
-
-            if (isset($moloniCategory['childs']) && count($moloniCategory['childs']) > 0) {
-                $this->checkCategoryExists($moloniCategory['childs'], ($search ? $search['id_category'] : 0));
-            }
-        }
-    }
-
     public function getDocumentsAll()
     {
         require_once('moloni.documents.php');
@@ -1457,56 +1259,8 @@ class General
         }
     }
 
-    /**
-     * Cleans EAN field
-     *
-     * @param string $ean EAN value
-     *
-     * @return string
-     */
-    private function getEAN($ean)
-    {
-        if (!$ean || !preg_match('/^[0-9]{0,13}$/', $ean)) {
-            $ean = '';
-        }
-
-        return $ean;
-    }
-
-    /**
-     * Cleans name field
-     *
-     * @param string $name Name value
-     *
-     * @return string
-     */
-    private function getName($name)
-    {
-        if (!empty($name)) {
-            $name = str_replace(array('<', '>', ';', '=', '#', '{', '}'), '', $name); // Removes special chars.
-        }
-
-        return $name;
-    }
-
-    /**
-     * Cleans link rewrite field
-     *
-     * @param string $name Name value
-     *
-     * @return string
-     */
-    private function linkRewrite($name)
-    {
-        if (!empty($name)) {
-            $name = preg_replace('/[^A-Za-z0-9\-]/', '', $name); // Removes special chars and spaces.
-        }
-
-        return $name;
-    }
-
     //***** Copied from AdminImporterController and modified ******//
-    private static function saveImageFromUrl($id_entity, $id_image = null, $url = '')
+    public static function saveImageFromUrl($id_entity, $id_image = null, $url = '')
     {
         $tmpfile = tempnam(_PS_TMP_IMG_DIR_, 'ps_import');
 

@@ -6,9 +6,30 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit5f3bde11859a527d2ce9e0e968ec3703
 {
+    public static $prefixLengthsPsr4 = array (
+        'M' => 
+        array (
+            'Moloni\\' => 7,
+        ),
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'Moloni\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
+        ),
+    );
+
+    public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
+            $loader->prefixLengthsPsr4 = ComposerStaticInit5f3bde11859a527d2ce9e0e968ec3703::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit5f3bde11859a527d2ce9e0e968ec3703::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit5f3bde11859a527d2ce9e0e968ec3703::$classMap;
 
         }, null, ClassLoader::class);
     }

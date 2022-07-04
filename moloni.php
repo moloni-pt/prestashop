@@ -27,11 +27,13 @@ class Moloni extends Module
         $this->name = 'moloni';
         $this->tab = 'administration';
         $this->need_instance = 1;
-        $this->version = '2.3.7';
+        $this->version = '2.3.8';
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
         $this->author = 'Nuno Almeida';
         $this->bootstrap = true;
         $this->module_key = 'c1b44ca634a5bc18032f311803470fea';
+
+        $this->autoload();
 
         parent::__construct();
 
@@ -205,4 +207,11 @@ class Moloni extends Module
         return false;
     }
 
+    /**
+     * Inits Autoload
+     */
+    private function autoload()
+    {
+        require_once __DIR__ . '/vendor/autoload.php';
+    }
 }
