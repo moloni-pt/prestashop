@@ -19,6 +19,11 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.3.8",
+        "title": "Release da versão 2.3.8",
+        "description": ["Melhorias de importação e sincronização de produtos"]
+      },
+      {
         "version": "v2.3.7",
         "title": "Release da versão 2.3.7"
       },
