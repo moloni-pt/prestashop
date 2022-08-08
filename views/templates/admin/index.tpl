@@ -24,7 +24,7 @@
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="{$moloni.path.css|escape:'html':'UTF-8'}style.css">
     <link rel="stylesheet" type="text/css" href='{$moloni.path.css|escape:'html':'UTF-8'}materialize/materialize.css'>
-    <link rel="stylesheet" type="text/css" href="{$moloni.path.css|escape:'html':'UTF-8'}dataTables/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="{$moloni.path.css|escape:'html':'UTF-8'}datatables/jquery.dataTables.min.css">
 
     <div class="row" style='margin-left: -5px; margin-right: -5px;'>
 

@@ -124,7 +124,7 @@ class FetchPendingOrders
         $offset = $this->request['start'] ?: 0;
         $length = $this->request['length'] ?: 10;
 
-        $condition .= ' LIMIT ' . $offset . ', ' . ($offset + $length);
+        $condition .= ' LIMIT ' . $length . ' OFFSET ' . $offset;
 
         $this->queryCondition = $condition;
     }
