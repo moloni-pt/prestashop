@@ -68,48 +68,6 @@ class General
         return ($companies);
     }
 
-    public function getOrdersAll()
-    {
-        $populated = [];
-        $selectedStatus = unserialize(defined('ORDER_STATUS') ? ORDER_STATUS : '[]');
-
-        $sWhere = 'WHERE (';
-        if (is_array($selectedStatus) && $selectedStatus[0] <> '') {
-            foreach ($selectedStatus as $status) {
-                $sWhere .= " current_state = '" . pSQL($status) . "' OR";
-            }
-            $sWhere = Tools::substr($sWhere, 0, -2);
-        } else {
-            $sWhere .= "current_state LIKE '%%'";
-        }
-
-        $sWhere .= ')';
-
-        if (defined('AFTER_DATE') && !empty(AFTER_DATE)) {
-            $sWhere .= " and date_add  > '" . pSQL(AFTER_DATE) . "' ";
-        }
-
-        $sWhere .= 'and (NOT EXISTS(SELECT order_id FROM ' . _DB_PREFIX_ . 'moloni_invoices WHERE ' . _DB_PREFIX_ . 'moloni_invoices.order_id = ' . _DB_PREFIX_ . 'orders.id_order))';
-
-        if ($orders = Db::getInstance()->ExecuteS('SELECT * FROM ' . _DB_PREFIX_ . 'orders ' . $sWhere . ' ORDER BY id_order DESC')) {
-            foreach ($orders as $order) {
-
-                $populated[] = array(
-                    'info' => $order,
-                    'address' => Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "address  WHERE id_address = '" . (int)$order['id_address_invoice'] . "'"),
-                    'customer' => Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "customer WHERE id_customer = '" . (int)$order['id_customer'] . "'"),
-                    'state' => Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "order_state_lang WHERE id_order_state = '" . (int)$order['current_state'] . "' and id_lang = '" . (int)Configuration::get('PS_LANG_DEFAULT') . "'"),
-                    'url' => array(
-                        'order' => $this->genURL('AdminOrders', '&id_order=' . $order['id_order'] . '&vieworder'),
-                        'create' => $this->genURL('MoloniStart', '&action=create&id_order=' . $order['id_order']),
-                        'clean' => $this->genURL('MoloniStart', '&action=clean&id_order=' . $order['id_order'])
-                    )
-                );
-            }
-        }
-
-        return ($populated);
-    }
 
     public function getConfigsAll()
     {

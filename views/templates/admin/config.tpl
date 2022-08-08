@@ -24,10 +24,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="{$moloni.path.css|escape:'html':'UTF-8'}style.css">
-    <link rel="stylesheet" href='{$moloni.path.css|escape:'html':'UTF-8'}materialize.css'>
-    <script type="text/javascript"
-            src="{$moloni.path.js|escape:'html':'UTF-8'}materialize/js/materialize.min.js"></script>
-
+    <link rel="stylesheet" href='{$moloni.path.css|escape:'html':'UTF-8'}materialize/materialize.css'>
 
     <div class="row" id='configs'>
         {include file="`$smarty.const._PS_MODULE_DIR_`moloni/views/templates/admin/syncResultTable.tpl"}
@@ -232,7 +229,6 @@
 
                 <!-------------------------- Campos que vão ser sincronizados ( Nome / Price / Descrição ) ------------------------------>
 
-
                 <div class='input-field'>
                     <div class="col s3" style="display: flex; flex-direction: column; padding-bottom: 20px">
                         <label style="font-size: 0.8rem;">
@@ -282,45 +278,21 @@
         <div class="LogoutButton">
             <a class="waves-effect waves-light red btn-large right"
                style='color: white' id="formSubmit"
-               href="{$moloni.configurations.logout|escape:'html':'UTF-8'}"
-            >{l s='Logout from account' mod='moloni'}
+               href="{$moloni.configurations.logout|escape:'html':'UTF-8'}">
+                {l s='Logout from account' mod='moloni'}
             </a>
         </div>
     </div>
 </section>
 
+<script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}materialize/materialize.min.js"></script>
+<script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}Settings.js"></script>
 <script>
+    var translations = {
+        save_changes: "{l s='Save Changes' mod='moloni'}"
+    }
 
     $(document).ready(function() {
-        $('select').material_select();
-
-        $('.datepicker').pickadate({
-            selectMonths: true, // Creates a dropdown to control month
-            selectYears: 15, // Creates a dropdown of 15 years to control year
-            formatSubmit: "yyyy-mm-dd",
-            format: 'yyyy-mm-dd'
-
-        });
-
-        $('#toolbar-nav').html('<li><div class="formSave"><a class="waves-effect waves-light red btn-large" id="formSubmit">{l s='Save Changes' mod='moloni'}</a></div></li>');
-
-        $('#formSubmit').click(function() {
-            $("#moloniOptions").submit();
-        });
-
-        $('#formToolsSubmit').click(function() {
-            $("#moloniTools").submit();
-        });
-
-        $('.message_success').click(function() {
-            $(this).hide("slow");
-        });
-
-        $(document).ready(function() {
-            $('.collapsible').collapsible();
-        });
-
-
+        pt.moloni.Settings.init(translations);
     });
-
 </script>

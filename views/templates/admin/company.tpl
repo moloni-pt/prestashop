@@ -21,7 +21,7 @@
 
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <link rel="stylesheet" href="{$moloni.path.css|escape:'html':'UTF-8'}style-company.css">
-<link rel="stylesheet" href='{$moloni.path.css|escape:'html':'UTF-8'}materialize.css'>
+<link rel="stylesheet" href='{$moloni.path.css|escape:'html':'UTF-8'}materialize/materialize.css'>
 
 <section id="moloni">
 
@@ -52,4 +52,4 @@
 
                     </section>
 
-                    <script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}materialize/js/materialize.js"></script>
+                    <script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}materialize/materialize.js"></script>
