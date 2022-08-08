@@ -785,8 +785,8 @@ class General
         }
 
         return [
-            'country_id' => strtoupper($countryId),
-            'country_code' => (int)$countryCode,
+            'country_id' => (int)$countryId,
+            'country_code' => strtoupper($countryCode),
         ];
     }
 
