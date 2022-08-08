@@ -79,8 +79,8 @@ pt.moloni.PendingOrders = (function ($) {
                 "columnDefs": [],
                 "fnDrawCallback": enableTable, // https://datatables.net/reference/option/drawCallback
                 "searchDelay": 2000,
-                "lengthMenu": [3, 10, 25, 50, 75, 100, 250],
-                "pageLength": 3,
+                "lengthMenu": [10, 25, 50, 75, 100, 250],
+                "pageLength": 10,
                 "sDom": '<"DTtop panel"<"MolShowing"l><"MolSearch"f>>tr<"DTbottom panel"<"MolInfo"i><"MolPagination"p>>',
                 "language": {
                     "sLengthMenu": "_MENU_",
