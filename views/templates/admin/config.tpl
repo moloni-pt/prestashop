@@ -131,7 +131,7 @@
                             <option value='{$opt.unit_id|escape:'html':'UTF-8'}' {if $moloni.configurations.measure_unit.value == $opt.unit_id} selected {/if}> {$opt.name|escape:'html':'UTF-8'} </option>
                         {/foreach}
                     </select>
-                    <label>{l s='measure unit' mod='moloni'}</label>
+                    <label>{l s='Measure unit' mod='moloni'}</label>
                 </div>
 
                 <!-------------------------- Prazo de vencimento (from Moloni) ------------------------------>
@@ -179,6 +179,29 @@
                         <option value='0' {if $moloni.configurations.update_customer.value == "0"} selected {/if}>{l s='No' mod='moloni'}</option>
                     </select>
                     <label>{l s='Update client' mod='moloni'}</label>
+                </div>
+
+                <!-------------------------- Zona fiscal (Empresa, Morada envio, Morada faturação) ------------------------------>
+                <div class='input-field col s6' style='margin-top: 50px'>
+                    {assign var="fiscalZoneBasedOn" value=""}
+
+                    {if array_key_exists('fiscal_zone_based_on', $moloni.configurations)}
+                        {assign var="fiscalZoneBasedOn" value=$moloni.configurations.fiscal_zone_based_on.value}
+                    {/if}
+
+                    <select name='options[fiscal_zone_based_on]'>
+                        <option value='' disabled selected>{l s='Taxes Fiscal zone' mod='moloni'}?</option>
+                        <option value='billing' {if $fiscalZoneBasedOn == "billing"} selected {/if}>
+                            {l s='Billing' mod='moloni'}
+                        </option>
+                        <option value='shipping' {if $fiscalZoneBasedOn == "shipping"} selected {/if}>
+                            {l s='Shipping' mod='moloni'}
+                        </option>
+                        <option value='company' {if $fiscalZoneBasedOn == "company"} selected {/if}>
+                            {l s='Company' mod='moloni'}
+                        </option>
+                    </select>
+                    <label>{l s='Taxes Fiscal zone' mod='moloni'}</label>
                 </div>
 
             </div>

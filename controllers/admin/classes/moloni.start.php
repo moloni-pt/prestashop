@@ -181,49 +181,131 @@ class Start extends ModuleAdminController
 
     public function variablesCheck()
     {
-        $defines = array();
-        $defines[] = array('label' => 'document_set', 'name' => 'Série de documentos',
-            'description' => '', 'value' => '');
-        $defines[] = array('label' => 'after_date', 'name' => 'Encomendas desde',
-            'description' => '', 'value' => '');
-        $defines[] = array('label' => 'exemption_reason', 'name' => 'Razão de isenção',
-            'description' => '', 'value' => '');
-        $defines[] = array('label' => 'exemption_reason_shipping', 'name' => 'Razão de isenção portes',
-            'description' => '', 'value' => '');
-        $defines[] = array('label' => 'payment_method', 'name' => 'Método de pagamento',
-            'description' => '', 'value' => '');
-        $defines[] = array('label' => 'measure_unit', 'name' => 'Unidade de medida',
-            'description' => '', 'value' => '');
-        $defines[] = array('label' => 'maturity_date', 'name' => 'Prazo de vencimento',
-            'description' => '', 'value' => '');
-        $defines[] = array('label' => 'update_customer', 'name' => 'Actualizar cliente',
-            'description' => '', 'value' => '');
-        $defines[] = array('label' => 'document_status', 'name' => 'Estado do documento',
-            'description' => '', 'value' => '');
-        $defines[] = array('label' => 'invoice_auto', 'name' => 'Gerar automaticamente',
-            'description' => '', 'value' => '');
-        $defines[] = array('label' => 'email_send', 'name' => 'Enviar email', 'description' => '',
-            'value' => '');
-        $defines[] = array('label' => 'client_prefix', 'name' => 'Prefixo do cliente',
-            'description' => '', 'value' => '');
-        $defines[] = array('label' => 'product_prefix', 'name' => 'Prefixo do artigo',
-            'description' => '', 'value' => '');
-        $defines[] = array('label' => 'document_type', 'name' => 'Tipo de documento',
-            'description' => '', 'value' => '');
-        $defines[] = array('label' => 'order_status', 'name' => 'Estado da Encomenda',
-            'description' => '', 'value' => '');
-        $defines[] = array('label' => 'at_category', 'name' => 'Categoria AT', 'description' => '',
-            'value' => '');
-        $defines[] = array('label' => 'stock_from_moloni', 'name' => 'Importar stock do moloni',
-            'description' => '', 'value' => '0');
-        $defines[] = array('label' => 'stock_from_moloni_last', 'name' => 'Importar stock do moloni',
-            'description' => '', 'value' => '0');
-        $defines[] = array('label' => 'auto_add_product', 'name' => 'Adicionar artigos novos',
-            'description' => '', 'value' => '0');
-
+        $defines = [];
+        $defines[] = [
+            'label' => 'document_set',
+            'name' => 'Série de documentos',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'after_date',
+            'name' => 'Encomendas desde',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'exemption_reason',
+            'name' => 'Razão de isenção',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'exemption_reason_shipping',
+            'name' => 'Razão de isenção portes',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'payment_method',
+            'name' => 'Método de pagamento',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'measure_unit',
+            'name' => 'Unidade de medida',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'maturity_date',
+            'name' => 'Prazo de vencimento',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'update_customer',
+            'name' => 'Actualizar cliente',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'document_status',
+            'name' => 'Estado do documento',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'invoice_auto',
+            'name' => 'Gerar automaticamente',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'email_send',
+            'name' => 'Enviar email',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'client_prefix',
+            'name' => 'Prefixo do cliente',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'product_prefix',
+            'name' => 'Prefixo do artigo',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'document_type',
+            'name' => 'Tipo de documento',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'order_status',
+            'name' => 'Estado da Encomenda',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'at_category',
+            'name' => 'Categoria AT',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'stock_from_moloni',
+            'name' => 'Importar stock do moloni',
+            'description' => '',
+            'value' => '0'
+        ];
+        $defines[] = [
+            'label' => 'stock_from_moloni_last',
+            'name' => 'Importar stock do moloni',
+            'description' => '',
+            'value' => '0'
+        ];
+        $defines[] = [
+            'label' => 'auto_add_product',
+            'name' => 'Adicionar artigos novos',
+            'description' => '',
+            'value' => '0'
+        ];
+        $defines[] = [
+            'label' => 'fiscal_zone_based_on',
+            'name' => 'Zona fiscal do documento',
+            'description' => '',
+            'value' => ''
+        ];
 
         foreach ($defines as $variable) {
             $row = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "moloni_configs WHERE label = '" . pSQL($variable['label']) . "'");
+
             if (!$row) {
                 Db::getInstance()->insert('moloni_configs', array(
                     'label' => pSQL($variable['label']),
