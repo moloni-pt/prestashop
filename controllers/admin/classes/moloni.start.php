@@ -169,13 +169,16 @@ class Start extends ModuleAdminController
 
     public function variablesUpdate()
     {
+        $this->variablesCheck();
 
         $options = Tools::getValue('options');
+
         foreach ($options as $key => $value) {
             $val = (is_array($value) ? serialize($value) : $value);
-            Db::getInstance()->update('moloni_configs', array(
+
+            Db::getInstance()->update('moloni_configs', [
                 'value' => pSQL($val)
-            ), "label = '" . pSQL($key) . "'");
+            ], "label = '" . pSQL($key) . "'");
         }
     }
 

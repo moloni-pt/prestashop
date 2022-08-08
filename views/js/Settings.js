@@ -17,8 +17,8 @@ pt.moloni.Settings = (function ($) {
     function init(_translations) {
         translations = _translations;
 
-        startObservers();
         drawSaveButton();
+        startObservers();
     }
 
     function startObservers() {
@@ -31,15 +31,15 @@ pt.moloni.Settings = (function ($) {
             format: 'yyyy-mm-dd'
         });
 
-        $('#formSubmit').click(function() {
+        $('#formSubmit').on('click', function () {
             $("#moloniOptions").submit();
         });
 
-        $('#formToolsSubmit').click(function() {
+        $('#formToolsSubmit').on('click', function () {
             $("#moloniTools").submit();
         });
 
-        $('.message_success').click(function() {
+        $('.message_success').on('click', function () {
             $(this).hide("slow");
         });
 
