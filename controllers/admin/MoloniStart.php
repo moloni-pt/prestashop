@@ -22,7 +22,7 @@
 
 class MoloniStartController extends ModuleAdminController
 {
-    public $moloniTpl = null;
+    public $moloniTpl;
 
     public function __construct()
     {
@@ -39,65 +39,67 @@ class MoloniStartController extends ModuleAdminController
         $moloni = new Start();
         $functions = new General();
 
-        $this->moloniTpl = $moloni->template;
+        if (!$this->ajax) {
+            $this->moloniTpl = $moloni->template;
 
-        $companies = null;
-        $orders = null;
-        $message = array();
+            $companies = null;
+            $message = array();
 
-        #Gerar o documento
+            #Gerar o documento
 
-        if (Tools::getValue('action') && Tools::getValue('action') === "create" && Tools::getValue('id_order')) {
-            $result = $functions->makeInvoice(Tools::getValue('id_order'));
-            if (MoloniError::$exists) {
-                $message['error'] = MoloniError::$message;
-            } else {
+            if (Tools::getValue('action') && Tools::getValue('action') === "create" && Tools::getValue('id_order')) {
+                $result = $functions->makeInvoice(Tools::getValue('id_order'));
+                if (MoloniError::$exists) {
+                    $message['error'] = MoloniError::$message;
+                } else {
+                    $message['success'] = $result;
+                }
+            }
+
+            if (Tools::getValue('action') && Tools::getValue('action') === "clean" && Tools::getValue('id_order')) {
+                $result = $functions->cleanInvoice(Tools::getValue('id_order'));
                 $message['success'] = $result;
+            }
+
+            if (Tools::getValue('action') && Tools::getValue('action') === "cleanAnulate" && Tools::getValue('id_order')) {
+                $result = $functions->cleanInvoiceAnulate(Tools::getValue('id_order'));
+                $message['success'] = $result;
+            }
+
+            if ($this->moloniTpl === 'company') {
+                $companies = $functions->getCompaniesAll();
+            }
+
+            $this->context->smarty->assign(array(
+                'moloni' => array(
+                    'path' => array(
+                        'img' => '../modules/moloni/views/img/',
+                        'css' => '../modules/moloni/views/css/',
+                        'js' => '../modules/moloni/views/js/'
+                    ),
+                    'companies' => $companies,
+                    'message' => $message
+                ),
+                'html' => $moloni->template
+            ));
+
+            if (defined("MOLONI_ERROR_LOGIN")) {
+                $this->context->smarty->assign(array(
+                    'moloni_error' => array(
+                        'login' => "login-errado"
+                    )
+                ));
             }
         }
 
-        if (Tools::getValue('action') && Tools::getValue('action') === "clean" && Tools::getValue('id_order')) {
-            $result = $functions->cleanInvoice(Tools::getValue('id_order'));
-            $message['success'] = $result;
-        }
-
-        if (Tools::getValue('action') && Tools::getValue('action') === "cleanAnulate" && Tools::getValue('id_order')) {
-            $result = $functions->cleanInvoiceAnulate(Tools::getValue('id_order'));
-            $message['success'] = $result;
-        }
-
-        switch ($this->moloniTpl) {
-            case 'company':
-                $companies = $functions->getCompaniesAll();
-                break;
-            case 'index':
-                $orders = $functions->getOrdersAll();
-                break;
-        }
-
-        $this->context->smarty->assign(array(
-            'moloni' => array(
-                'path' => array(
-                    'img' => '../modules/moloni/views/img/',
-                    'css' => '../modules/moloni/views/css/',
-                    'js' => '../modules/moloni/views/js/'
-                ),
-                'companies' => $companies,
-                'orders' => $orders,
-                'message' => $message
-            ),
-            'html' => $moloni->template
-        ));
-
-        if (defined("MOLONI_ERROR_LOGIN")) {
-            $this->context->smarty->assign(array(
-                'moloni_error' => array(
-                    'login' => "login-errado"
-                )
-            ));
-        }
-
         parent::__construct();
+    }
+
+    public function displayAjax()
+    {
+        require_once(__DIR__ . "/classes/service/FetchPendingOrders.php");
+
+        echo json_encode((new FetchPendingOrders(Tools::getAllValues()))->run());
     }
 
     public function initContent()

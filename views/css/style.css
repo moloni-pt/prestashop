@@ -86,9 +86,12 @@
     color: black !important;
 }
 
+.dataTables--disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
 
 /* ***************************** */
-
 
 .invoice-gen{
     background-color: rgb(244, 244, 244) !important;
@@ -105,9 +108,6 @@
 .btn.order{
     padding: 0px 10px !important;
 }
-
-
-
 
 #moloni #configs .col.s12.z-depth-1{
     background-color: white;

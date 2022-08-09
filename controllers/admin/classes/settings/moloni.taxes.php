@@ -43,7 +43,7 @@ class Taxes extends settings
             if ($tax['fiscal_zone'] === $countryCode && round($rate) === round($tax['value'])) {
                 return $tax['tax_id'];
             }
-        }        
+        }
 
         $values                      = [];
         $values['name']              = 'VAT ' . $countryCode;
@@ -59,14 +59,13 @@ class Taxes extends settings
         return $this->insert($values);
     }
 
-    public function checkEcotax($value)
+    public function checkEcotax($value, $countryCode = 'PT')
     {
-
         $taxes = $this->getAll();
+        $needleName = "Ecotaxa " . $value;
 
         foreach ($taxes as $tax) {
-            if ($tax['name'] === ("Ecotaxa " . $value) &&
-                round($value) === round($tax['value'])) {
+            if ($tax['fiscal_zone'] === $countryCode && $tax['name'] === $needleName && round($value) === round($tax['value'])) {
                 return $tax['tax_id'];
             }
         }
@@ -78,7 +77,7 @@ class Taxes extends settings
         $values['saft_type']         = "3";
         $values['vat_type']          = "OUT";
         $values['stamp_tax']         = "0";
-        $values['fiscal_zone']       = "PT";
+        $values['fiscal_zone']       = $countryCode;
         $values['active_by_default'] = "0";
 
         return $this->insert($values);

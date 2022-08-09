@@ -3250,15 +3250,15 @@
 }
 
 @keyframes indeterminate {
-    #moloni   0% {
+    0% {
         left: -35%;
         right: 100%;
     }
-    #moloni   60% {
+    60% {
         left: 100%;
         right: -90%;
     }
-    #moloni   100% {
+    100% {
         left: 100%;
         right: -90%;
     }
@@ -7472,36 +7472,36 @@
 
 @font-face {
     font-family: "Roboto";
-    src: local(Roboto Thin), url("../fonts/Roboto-Thin.eot");
-    src: url("../fonts/Roboto-Thin.eot?#iefix") format("embedded-opentype"), url("../fonts/Roboto-Thin.woff2") format("woff2"), url("../fonts/Roboto-Thin.woff") format("woff"), url("../fonts/Roboto-Thin.ttf") format("truetype");
+    src: local(Roboto Thin), url("../../fonts/Roboto-Thin.eot");
+    src: url("../../fonts/Roboto-Thin.eot?#iefix") format("embedded-opentype"), url("../../fonts/Roboto-Thin.woff2") format("woff2"), url("../../fonts/Roboto-Thin.woff") format("woff"), url("../../fonts/Roboto-Thin.ttf") format("truetype");
     font-weight: 200;
 }
 
 @font-face {
     font-family: "Roboto";
-    src: local(Roboto Light), url("../fonts/Roboto-Light.eot");
-    src: url("../fonts/Roboto-Light.eot?#iefix") format("embedded-opentype"), url("../fonts/Roboto-Light.woff2") format("woff2"), url("../fonts/Roboto-Light.woff") format("woff"), url("../fonts/Roboto-Light.ttf") format("truetype");
+    src: local(Roboto Light), url("../../fonts/Roboto-Light.eot");
+    src: url("../../fonts/Roboto-Light.eot?#iefix") format("embedded-opentype"), url("../../fonts/Roboto-Light.woff2") format("woff2"), url("../../fonts/Roboto-Light.woff") format("woff"), url("../../fonts/Roboto-Light.ttf") format("truetype");
     font-weight: 300;
 }
 
 @font-face {
     font-family: "Roboto";
-    src: local(Roboto Regular), url("../fonts/Roboto-Regular.eot");
-    src: url("../fonts/Roboto-Regular.eot?#iefix") format("embedded-opentype"), url("../fonts/Roboto-Regular.woff2") format("woff2"), url("../fonts/Roboto-Regular.woff") format("woff"), url("../fonts/Roboto-Regular.ttf") format("truetype");
+    src: local(Roboto Regular), url("../../fonts/Roboto-Regular.eot");
+    src: url("../../fonts/Roboto-Regular.eot?#iefix") format("embedded-opentype"), url("../../fonts/Roboto-Regular.woff2") format("woff2"), url("../../fonts/Roboto-Regular.woff") format("woff"), url("../../fonts/Roboto-Regular.ttf") format("truetype");
     font-weight: 400;
 }
 
 @font-face {
     font-family: "Roboto";
-    src: url("../fonts/Roboto-Medium.eot");
-    src: url("../fonts/Roboto-Medium.eot?#iefix") format("embedded-opentype"), url("../fonts/Roboto-Medium.woff2") format("woff2"), url("../fonts/Roboto-Medium.woff") format("woff"), url("../fonts/Roboto-Medium.ttf") format("truetype");
+    src: url("../../fonts/Roboto-Medium.eot");
+    src: url("../../fonts/Roboto-Medium.eot?#iefix") format("embedded-opentype"), url("../../fonts/Roboto-Medium.woff2") format("woff2"), url("../../fonts/Roboto-Medium.woff") format("woff"), url("../../fonts/Roboto-Medium.ttf") format("truetype");
     font-weight: 500;
 }
 
 @font-face {
     font-family: "Roboto";
-    src: url("../fonts/Roboto-Bold.eot");
-    src: url("../fonts/Roboto-Bold.eot?#iefix") format("embedded-opentype"), url("../fonts/Roboto-Bold.woff2") format("woff2"), url("../fonts/Roboto-Bold.woff") format("woff"), url("../fonts/Roboto-Bold.ttf") format("truetype");
+    src: url("../../fonts/Roboto-Bold.eot");
+    src: url("../../fonts/Roboto-Bold.eot?#iefix") format("embedded-opentype"), url("../../fonts/Roboto-Bold.woff2") format("woff2"), url("../../fonts/Roboto-Bold.woff") format("woff"), url("../../fonts/Roboto-Bold.ttf") format("truetype");
     font-weight: 700;
 }
 
@@ -9925,7 +9925,7 @@ input[type=search] + label:after,
 }
 
 @keyframes container-rotate {
-    #moloni   to {
+    to {
         -webkit-transform: rotate(360deg);
         transform: rotate(360deg);
     }
@@ -10043,7 +10043,7 @@ input[type=search] + label:after,
 }
 
 @keyframes fill-unfill-rotate {
-    #moloni   12.5% {
+    12.5% {
         -webkit-transform: rotate(135deg);
         transform: rotate(135deg);
     }

@@ -23,8 +23,8 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="{$moloni.path.css|escape:'html':'UTF-8'}style.css">
-    <link rel="stylesheet" href='{$moloni.path.css|escape:'html':'UTF-8'}materialize.css'>
-    <link rel="stylesheet" type="text/css" href="{$moloni.path.css|escape:'html':'UTF-8'}/jquery.dataTables.css">
+    <link rel="stylesheet" href='{$moloni.path.css|escape:'html':'UTF-8'}materialize/materialize.css'>
+    <link rel="stylesheet" type="text/css" href="{$moloni.path.css|escape:'html':'UTF-8'}datatables/jquery.dataTables.min.css">
 
     <div class="row" style='margin-left: -5px;   margin-right: -5px;'>
 
@@ -73,8 +73,7 @@
 
 </section>
 
-<script type="text/javascript" src="https://cdn.datatables.net/t/dt/dt-1.10.11/datatables.min.js"></script>
-
+<script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}datatables/jquery.dataTables.min.js"></script>
 <script>
     $(document).ready(function () {
         $('.dataTable').dataTable({

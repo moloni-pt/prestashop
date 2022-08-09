@@ -68,48 +68,6 @@ class General
         return ($companies);
     }
 
-    public function getOrdersAll()
-    {
-        $populated = [];
-        $selectedStatus = unserialize(defined('ORDER_STATUS') ? ORDER_STATUS : '[]');
-
-        $sWhere = 'WHERE (';
-        if (is_array($selectedStatus) && $selectedStatus[0] <> '') {
-            foreach ($selectedStatus as $status) {
-                $sWhere .= " current_state = '" . pSQL($status) . "' OR";
-            }
-            $sWhere = Tools::substr($sWhere, 0, -2);
-        } else {
-            $sWhere .= "current_state LIKE '%%'";
-        }
-
-        $sWhere .= ')';
-
-        if (defined('AFTER_DATE') && !empty(AFTER_DATE)) {
-            $sWhere .= " and date_add  > '" . pSQL(AFTER_DATE) . "' ";
-        }
-
-        $sWhere .= 'and (NOT EXISTS(SELECT order_id FROM ' . _DB_PREFIX_ . 'moloni_invoices WHERE ' . _DB_PREFIX_ . 'moloni_invoices.order_id = ' . _DB_PREFIX_ . 'orders.id_order))';
-
-        if ($orders = Db::getInstance()->ExecuteS('SELECT * FROM ' . _DB_PREFIX_ . 'orders ' . $sWhere . ' ORDER BY id_order DESC')) {
-            foreach ($orders as $order) {
-
-                $populated[] = array(
-                    'info' => $order,
-                    'address' => Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "address  WHERE id_address = '" . (int)$order['id_address_invoice'] . "'"),
-                    'customer' => Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "customer WHERE id_customer = '" . (int)$order['id_customer'] . "'"),
-                    'state' => Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "order_state_lang WHERE id_order_state = '" . (int)$order['current_state'] . "' and id_lang = '" . (int)Configuration::get('PS_LANG_DEFAULT') . "'"),
-                    'url' => array(
-                        'order' => $this->genURL('AdminOrders', '&id_order=' . $order['id_order'] . '&vieworder'),
-                        'create' => $this->genURL('MoloniStart', '&action=create&id_order=' . $order['id_order']),
-                        'clean' => $this->genURL('MoloniStart', '&action=clean&id_order=' . $order['id_order'])
-                    )
-                );
-            }
-        }
-
-        return ($populated);
-    }
 
     public function getConfigsAll()
     {
@@ -120,12 +78,12 @@ class General
 
                 $values = (is_array(@unserialize($row['value'])) ? unserialize($row['value']) : $row['value']);
 
-                $populated[$row['label']] = array(
+                $populated[$row['label']] = [
                     'name' => $row['name'],
                     'description' => $row['description'],
                     'value' => $values,
                     'options' => $this->getConfigsOptions($row['label'])
-                );
+                ];
             }
         }
 
@@ -350,7 +308,11 @@ class General
         $invoice['expiration_date'] = date('d-m-Y');
         $invoice['document_set_id'] = DOCUMENT_SET;
 
+        // Order customer
         $moloniClient = $this->client($order);
+
+        // Set order fiscal zone to be used
+        $order['fiscal_zone'] = $this->getFiscalZone($moloniClient);
 
         $invoice['customer_id'] = $moloniClient['customer_id'];
         $invoice['alternate_address_id'] = (isset($moloniClient['address_id']) ? $moloniClient['address_id'] : '');
@@ -402,11 +364,11 @@ class General
                     $taxRate = round((100 * ($product['unit_price_tax_incl'] - $product['unit_price_tax_excl'])) / $product['unit_price_tax_excl'], 2);
                 }
 
-                $invoice['products'][$x]['taxes'][0]['tax_id'] = $this->settings->taxes->check($taxRate, $moloniClient['billing_country_code']);
+                $invoice['products'][$x]['taxes'][0]['tax_id'] = $this->settings->taxes->check($taxRate, $order['fiscal_zone']['country_code']);
                 $invoice['products'][$x]['taxes'][0]['value'] = $product['unit_price_tax_incl'] - $product['unit_price_tax_excl'];
 
                 if (isset($product['ecotax']) && (float)$product['ecotax'] > 0) {
-                    $invoice['products'][$x]['taxes'][1]['tax_id'] = $this->settings->taxes->checkEcotax($product['ecotax']);
+                    $invoice['products'][$x]['taxes'][1]['tax_id'] = $this->settings->taxes->checkEcotax($product['ecotax'], $order['fiscal_zone']['country_code']);
                     $invoice['products'][$x]['taxes'][1]['value'] = $product['ecotax'];
                     $invoice['products'][$x]['taxes'][1]['order'] = '0';
                     $invoice['products'][$x]['taxes'][1]['cumulative'] = '0';
@@ -445,7 +407,7 @@ class General
                     $invoice['products'][$x]['child_products'][$key]['order'] = $key;
 
                     //If billing country is not PT, change child products taxes to match order taxes
-                    if (isset($moloniClient['billing_country_id']) && (int)$moloniClient['billing_country_id'] > 1) {
+                    if (isset($order['fiscal_zone']['country_id']) && (int)$order['fiscal_zone']['country_id'] > 1) {
                         if (isset($invoice['products'][$x]['exemption_reason'])) {
                             //Delete moloni taxes data
                             unset($invoice['products'][$x]['child_products'][$key]['taxes']);
@@ -497,7 +459,7 @@ class General
             }
 
             if ($order['base']['carrier_tax_rate'] > 0) {
-                $invoice['products'][$x]['taxes'][0]['tax_id'] = $this->settings->taxes->check($order['base']['carrier_tax_rate'], $moloniClient['billing_country_code']);
+                $invoice['products'][$x]['taxes'][0]['tax_id'] = $this->settings->taxes->check($order['base']['carrier_tax_rate'], $order['fiscal_zone']['country_code']);
                 $invoice['products'][$x]['taxes'][0]['value'] = $order['base']['total_shipping_tax_incl'] - $order['base']['total_shipping_tax_excl'];
             } elseif (defined('EXEMPTION_REASON_SHIPPING')) {
                 $invoice['products'][$x]['exemption_reason'] = EXEMPTION_REASON_SHIPPING;
@@ -527,7 +489,7 @@ class General
                 $wrappingTaxValue = $order['base']['total_wrapping_tax_incl'] - $order['base']['total_wrapping_tax_excl'];
                 $wrappingTax = round((100 * ($wrappingTaxValue)) / $order['base']['total_wrapping_tax_excl'], 2);
 
-                $invoice['products'][$x]['taxes'][0]['tax_id'] = $this->settings->taxes->check($wrappingTax, $moloniClient['billing_country_code']);
+                $invoice['products'][$x]['taxes'][0]['tax_id'] = $this->settings->taxes->check($wrappingTax, $order['fiscal_zone']['country_code']);
                 $invoice['products'][$x]['taxes'][0]['value'] = $wrappingTaxValue;
                 $invoice['products'][$x]['taxes'][0]['order'] = '0';
                 $invoice['products'][$x]['taxes'][0]['cumulative'] = '0';
@@ -778,6 +740,56 @@ class General
         return $deliveryMethodId;
     }
 
+    private function getFiscalZone($client)
+    {
+        $countryCode = '';
+        $countryId = 1;
+        $setting = 'billing';
+
+        if (defined('FISCAL_ZONE_BASED_ON')) {
+            $setting = FISCAL_ZONE_BASED_ON;
+        }
+
+        switch ($setting) {
+            case 'billing':
+                if (isset($client['billing_country_id'], $client['billing_country_code'])) {
+                    $countryCode = $client['billing_country_code'];
+                    $countryId = $client['billing_country_id'];
+                }
+
+                break;
+            case 'shipping':
+                if (isset($client['shipping_country_id'], $client['shipping_country_code'])) {
+                    $countryCode = $client['shipping_country_code'];
+                    $countryId = $client['shipping_country_id'];
+                }
+
+                break;
+            case 'company':
+                if (isset($this->me['country']['iso_3166_1'])) {
+                    $countryCode = $this->me['country']['iso_3166_1'];
+                    $countryId = $this->me['country']['country_id'];
+                }
+
+                break;
+        }
+
+        if (empty($countryCode)) {
+            if (isset($this->me['country']['iso_3166_1'])) {
+                $countryCode = $this->me['country']['iso_3166_1'];
+                $countryId = $this->me['country']['country_id'];
+            } else {
+                $countryCode = 'PT';
+                $countryId = 1;
+            }
+        }
+
+        return [
+            'country_id' => (int)$countryId,
+            'country_code' => strtoupper($countryCode),
+        ];
+    }
+
     private function client($order)
     {
         require_once('moloni.entities.php');
@@ -887,6 +899,9 @@ class General
         $return['shipping']['delivery_destination_city'] = $customer['address']['delivery']['city'];
         $return['shipping']['delivery_destination_zip_code'] = ($countryCodeId == '1' ? $this->zipCheck($customer['address']['delivery']['postcode']) : $customer['address']['delivery']['postcode']);
         $return['shipping']['delivery_destination_country'] = $countryCodeId;
+
+        $return['shipping_country_id'] = $countryCodeId;
+        $return['shipping_country_code'] = $countryCode;
 
         return $return;
     }

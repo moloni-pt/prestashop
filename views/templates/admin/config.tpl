@@ -24,10 +24,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="{$moloni.path.css|escape:'html':'UTF-8'}style.css">
-    <link rel="stylesheet" href='{$moloni.path.css|escape:'html':'UTF-8'}materialize.css'>
-    <script type="text/javascript"
-            src="{$moloni.path.js|escape:'html':'UTF-8'}materialize/js/materialize.min.js"></script>
-
+    <link rel="stylesheet" href='{$moloni.path.css|escape:'html':'UTF-8'}materialize/materialize.css'>
 
     <div class="row" id='configs'>
         {include file="`$smarty.const._PS_MODULE_DIR_`moloni/views/templates/admin/syncResultTable.tpl"}
@@ -134,7 +131,7 @@
                             <option value='{$opt.unit_id|escape:'html':'UTF-8'}' {if $moloni.configurations.measure_unit.value == $opt.unit_id} selected {/if}> {$opt.name|escape:'html':'UTF-8'} </option>
                         {/foreach}
                     </select>
-                    <label>{l s='measure unit' mod='moloni'}</label>
+                    <label>{l s='Measure unit' mod='moloni'}</label>
                 </div>
 
                 <!-------------------------- Prazo de vencimento (from Moloni) ------------------------------>
@@ -182,6 +179,29 @@
                         <option value='0' {if $moloni.configurations.update_customer.value == "0"} selected {/if}>{l s='No' mod='moloni'}</option>
                     </select>
                     <label>{l s='Update client' mod='moloni'}</label>
+                </div>
+
+                <!-------------------------- Zona fiscal (Empresa, Morada envio, Morada faturação) ------------------------------>
+                <div class='input-field col s6' style='margin-top: 50px'>
+                    {assign var="fiscalZoneBasedOn" value=""}
+
+                    {if array_key_exists('fiscal_zone_based_on', $moloni.configurations)}
+                        {assign var="fiscalZoneBasedOn" value=$moloni.configurations.fiscal_zone_based_on.value}
+                    {/if}
+
+                    <select name='options[fiscal_zone_based_on]'>
+                        <option value='' disabled selected>{l s='Taxes Fiscal zone' mod='moloni'}?</option>
+                        <option value='billing' {if $fiscalZoneBasedOn == "billing"} selected {/if}>
+                            {l s='Billing' mod='moloni'}
+                        </option>
+                        <option value='shipping' {if $fiscalZoneBasedOn == "shipping"} selected {/if}>
+                            {l s='Shipping' mod='moloni'}
+                        </option>
+                        <option value='company' {if $fiscalZoneBasedOn == "company"} selected {/if}>
+                            {l s='Company' mod='moloni'}
+                        </option>
+                    </select>
+                    <label>{l s='Taxes Fiscal zone' mod='moloni'}</label>
                 </div>
 
             </div>
@@ -232,7 +252,6 @@
 
                 <!-------------------------- Campos que vão ser sincronizados ( Nome / Price / Descrição ) ------------------------------>
 
-
                 <div class='input-field'>
                     <div class="col s3" style="display: flex; flex-direction: column; padding-bottom: 20px">
                         <label style="font-size: 0.8rem;">
@@ -282,45 +301,21 @@
         <div class="LogoutButton">
             <a class="waves-effect waves-light red btn-large right"
                style='color: white' id="formSubmit"
-               href="{$moloni.configurations.logout|escape:'html':'UTF-8'}"
-            >{l s='Logout from account' mod='moloni'}
+               href="{$moloni.configurations.logout|escape:'html':'UTF-8'}">
+                {l s='Logout from account' mod='moloni'}
             </a>
         </div>
     </div>
 </section>
 
+<script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}materialize/materialize.min.js"></script>
+<script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}Settings.js"></script>
 <script>
+    var translations = {
+        save_changes: "{l s='Save Changes' mod='moloni'}"
+    }
 
     $(document).ready(function() {
-        $('select').material_select();
-
-        $('.datepicker').pickadate({
-            selectMonths: true, // Creates a dropdown to control month
-            selectYears: 15, // Creates a dropdown of 15 years to control year
-            formatSubmit: "yyyy-mm-dd",
-            format: 'yyyy-mm-dd'
-
-        });
-
-        $('#toolbar-nav').html('<li><div class="formSave"><a class="waves-effect waves-light red btn-large" id="formSubmit">{l s='Save Changes' mod='moloni'}</a></div></li>');
-
-        $('#formSubmit').click(function() {
-            $("#moloniOptions").submit();
-        });
-
-        $('#formToolsSubmit').click(function() {
-            $("#moloniTools").submit();
-        });
-
-        $('.message_success').click(function() {
-            $(this).hide("slow");
-        });
-
-        $(document).ready(function() {
-            $('.collapsible').collapsible();
-        });
-
-
+        pt.moloni.Settings.init(translations);
     });
-
 </script>

@@ -19,6 +19,14 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.3.9",
+        "title": "Release da versão 2.3.9",
+        "description": [
+          "Melhorias na performance da listagem de encomendas pendentes",
+          "Nova definição para escolha da zona fiscal a aplicar"
+        ]
+      },
+      {
         "version": "v2.3.8",
         "title": "Release da versão 2.3.8",
         "description": ["Melhorias de importação e sincronização de produtos"]

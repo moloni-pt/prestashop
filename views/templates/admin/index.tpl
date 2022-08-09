@@ -20,12 +20,11 @@
 *}
 
 <section id="moloni">
-
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="{$moloni.path.css|escape:'html':'UTF-8'}style.css">
-    <link rel="stylesheet" href="{$moloni.path.css|escape:'html':'UTF-8'}materialize.css">
-    <link rel="stylesheet" type="text/css" href="{$moloni.path.css|escape:'html':'UTF-8'}/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="{$moloni.path.css|escape:'html':'UTF-8'}style.css">
+    <link rel="stylesheet" type="text/css" href='{$moloni.path.css|escape:'html':'UTF-8'}materialize/materialize.css'>
+    <link rel="stylesheet" type="text/css" href="{$moloni.path.css|escape:'html':'UTF-8'}datatables/jquery.dataTables.min.css">
 
     <div class="row" style='margin-left: -5px; margin-right: -5px;'>
 
@@ -59,42 +58,32 @@
 
             <table class='dataTable highlight panel'>
                 <thead>
-                    <tr>
-                        <th data-field="id" style='width: 70px'>{l s='Number' mod='moloni'}</th>
-                        <th data-field="name">{l s='Client' mod='moloni'}</th>
-                        <th data-field="email" style='width: 200px'>{l s='Email' mod='moloni'}</th>
-                        <th data-field="date" style='width: 200px'>{l s='Order date' mod='moloni'}</th>
-                        <th data-field="status" style='width: 120px'>{l s='Status' mod='moloni'}</th>
-                        <th data-field="total" style='width: 120px'>{l s='Total' mod='moloni'}</th>
-                        <th data-field="acts" style='width: 150px'><center>{l s='Actions' mod='moloni'}</center></th>
+                <tr>
+                    <th style='width: 70px'>{l s='Number' mod='moloni'}</th>
+                    <th>{l s='Client' mod='moloni'}</th>
+                    <th style='width: 200px'>{l s='Email' mod='moloni'}</th>
+                    <th style='width: 200px'>{l s='Order date' mod='moloni'}</th>
+                    <th style='width: 120px'>{l s='Status' mod='moloni'}</th>
+                    <th style='width: 120px'>{l s='Total' mod='moloni'}</th>
+                    <th style='width: 150px'>
+                        <center>{l s='Actions' mod='moloni'}</center>
+                    </th>
                 </tr>
                 </thead>
-
                 <tbody>
-
-                    {foreach from=$moloni.orders item=order}
-
-                        <tr>
-                            <td><a class='waves-effect waves-light btn blue order' href='{$order.url.order|escape:"html":"UTF-8"}'>#{$order.info.id_order|escape:'html':'UTF-8'}</a></td>
-                            <td>
-                                <b>{$order.address.firstname|escape:'html':'UTF-8'} {$order.address.lastname|escape:'html':'UTF-8'} {if $order.address.company != ""} - {$order.address.company|escape:'html':'UTF-8'} {/if}</b><br>
-                                <span style='font-size: 10px'>
-                                    {if $order.address.address1 != ""} {$order.address.address1|escape:'html':'UTF-8'} <br> {/if}
-                                    {if $order.address.vat_number != ""} {$order.address.vat_number|escape:'html':'UTF-8'} <br> {/if}
-                                </span>
-
-                            </td>
-                            <td>{$order.customer.email|escape:'html':'UTF-8'}</td>
-                            <td>{$order.info.date_add|escape:'html':'UTF-8'}</td>
-                            <td>{$order.state.name|escape:'html':'UTF-8'}</td>
-                            <td>{$order.info.total_paid|string_format:"%.2f"|escape:'html':'UTF-8'}€</td>
-                            <td><center>
-                        <a class='waves-effect waves-light btn green generate' href='{$order.url.create|escape:"html":"UTF-8"}'><i class='material-icons'>note_add</i></a>
-                        <a class='waves-effect waves-light btn red discard' href='{$order.url.clean|escape:"html":"UTF-8"}'><i class='material-icons'>delete</i></a>
-                    </center>
-                    </td></tr>
-                {/foreach}
-
+                    <tr>
+                        <td colspan="100%"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="100%">
+                            <center>
+                                {l s='Please wait, fetching data' mod='moloni'}
+                            </center>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="100%"></td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -104,57 +93,24 @@
 
 </section>
 
-<script type="text/javascript" src="https://cdn.datatables.net/t/dt/dt-1.10.11/datatables.min.js"></script>
+<script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}PendingOrders.js"></script>
 
 <script>
+    var translations = {
+        "sZeroRecords": "{l s='No results found' mod='moloni'}",
+        "sInfo": "{l s='Showing' mod='moloni'} <b>_START_</b> - <b>_END_</b> {l s='of' mod='moloni'} <b>_TOTAL_</b> {l s='orders' mod='moloni'}",
+        "sInfoEmpty": "{l s='Nothing to show' mod='moloni'}",
+        "sInfoFiltered": "({l s='Filtered from' mod='moloni'} _MAX_)",
+        "sSearchPlaceholder": "{l s='Search' mod='moloni'}...",
+        "sFirst": "{l s='Start' mod='moloni'}",
+        "sPrevious": "{l s='Back' mod='moloni'}",
+        "sNext": "{l s='Next' mod='moloni'}",
+        "sLast": "{l s='Last' mod='moloni'}",
+    };
+    var currentAction = "{Context::getContext()->link->getAdminLink('MoloniStart', true)}";
+
     $(document).ready(function () {
-        $('.dataTable').dataTable({
-            "aaSorting": [[0, "asc"]],
-            "sPaginationType": "full_numbers",
-            "sDom": '<"DTtop panel"<"MolShowing"l><"MolSearch"f>>rt<"DTbottom panel"<"MolInfo"i><"MolPagination"p>><"clear">',
-            "oLanguage": {
-                "sLengthMenu": "_MENU_",
-                "sZeroRecords": "{l s='No results found' mod='moloni'}",
-                "sInfo": "{l s='Showing' mod='moloni'} <b>_START_</b> - <b>_END_</b> {l s='of' mod='moloni'} <b>_TOTAL_</b> {l s='orders' mod='moloni'}",
-                "sInfoEmpty": "{l s='Nothing to show' mod='moloni'}",
-                "sInfoFiltered": "({l s='Filtered from' mod='moloni'} _MAX_)",
-                "sSearch": "",
-                "sSearchPlaceholder": "{l s='Search' mod='moloni'}...",
-                "oPaginate": {
-                    "sFirst": "{l s='Start' mod='moloni'}",
-                    "sPrevious": "{l s='Back' mod='moloni'}",
-                    "sNext": "{l s='Next' mod='moloni'}",
-                    "sLast": "{l s='Last' mod='moloni'}"
-                }
-            }
-        })
-
-        function deselect(e) {
-            $('.pop').slideFadeToggle(function () {
-                e.removeClass('selected');
-            });
-        }
-
-        $(function () {
-            $('.check_error').on('click', function () {
-                if ($(this).hasClass('selected')) {
-                    deselect($(this));
-                } else {
-                    $(this).addClass('selected');
-                    $('.pop').slideFadeToggle();
-                }
-                return false;
-            });
-
-            $('.close').on('click', function () {
-                deselect($('.check_error'));
-                return false;
-            });
-        });
-
-        $.fn.slideFadeToggle = function (easing, callback) {
-            return this.animate({ opacity: 'toggle', height: 'toggle' }, 'fast', easing, callback);
-        };
-
+        pt.moloni.PendingOrders.init(translations, currentAction);
     });
 </script>
