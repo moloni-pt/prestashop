@@ -1,217 +1,18 @@
+/* Login */
 
-.moloni-login-form {
-    width: 380px;
-    margin: 4em auto;
-    padding: 3em 2em 2em 2em;
-    background: #fafafa;
-    border: 1px solid #ebebeb;
-    box-shadow: rgba(0,0,0,0.14902) 0px 1px 1px 0px,rgba(0,0,0,0.09804) 0px 1px 2px 0px;
+.moloni-login--wrapper {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
 }
 
-.moloni-login-form .group { 
-    position: relative; 
-    margin-bottom: 45px; 
+.moloni-login--card {
+    width: 30rem;
+    padding: 2.5rem;
 }
 
-.moloni-login-form input {
-    font-size: 18px;
-    padding: 10px 10px 10px 5px;
-    -webkit-appearance: none;
-    display: block;
-    background: #fafafa !important;
-    color: #636363;
-    width: 100%;
-    border: none !important;
-    border-radius: 0;
-    border-bottom: 1px solid #757575 !important;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0) !important;
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0) !important;
-}
-
-.moloni-login-form input:focus { outline: none; }
-
-
-/* Label */
-
-.moloni-login-form label {
-    color: #999; 
-    font-size: 18px;
-    font-weight: normal;
-    position: absolute;
-    pointer-events: none;
-    left: 5px;
-    top: 10px;
-    transition: all 0.2s ease;
-}
-
-
-/* active */
-
-.moloni-login-form input:focus ~ label, input.used ~ label {
-    top: -25px;
-    transform: scale(.75); 
-    left: -2px;
-    /*font-size: 14px; */
-    color: #4a89dc;
-}
-label.pwd-fix{
-    top: -3px;
-}
-.moloni-login-form input:focus ~ label.pwd-fix, input.used ~ label.pwd-fix{
-    left: -10px !important;
-    top: -25px;
-}
-
-
-/* Underline */
-
-.moloni-login-form .bar {
-    position: relative;
-    display: block;
-    width: 100%;
-}
-
-.moloni-login-form .bar:before, .bar:after {
-    content: '';
-    height: 2px; 
-    width: 0;
-    bottom: 1px; 
-    position: absolute;
-    background: #4a89dc; 
-    transition: all 0.2s ease;
-}
-
-.moloni-login-form .bar:before { left: 50%; }
-
-.moloni-login-form .bar:after { right: 50%; }
-
-
-/* active */
-
-.moloni-login-form input:focus ~ .bar:before, .moloni-login-form input:focus ~ .bar:after { width: 50%; }
-
-
-/* Highlight */
-
-.moloni-login-form .highlight {
-    position: absolute;
-    height: 60%; 
-    width: 100px; 
-    top: 25%; 
-    left: 0;
-    pointer-events: none;
-    opacity: 0.5;
-}
-
-
-/* active */
-
-.moloni-login-form input:focus ~ .highlight {
-    animation: inputHighlighter 0.3s ease;
-}
-
-
-/* Animations */
-
-@keyframes inputHighlighter {
-    from { background: #4a89dc; }
-    to 	{ width: 0; background: transparent; }
-}
-
-
-/* Button */
-
-.moloni-login-form .button {
-    position: relative;
-    display: inline-block;
-    padding: 12px 24px;
-    margin: .3em 0 1em 0;
-    width: 100%;
-    vertical-align: middle;
-    color: #fff;
-    font-size: 16px;
-    line-height: 20px;
-    -webkit-font-smoothing: antialiased;
-    text-align: center;
-    letter-spacing: 1px;
-    background: transparent;
-    border: 0;
-    border-bottom: 2px solid #3160B6;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-.moloni-login-form .button:focus { outline: 0; }
-
-
-/* Button modifiers */
-
-.moloni-login-form .buttonBlue {
-    background: #3399FF;
-    text-shadow: 1px 1px 0 rgba(39, 110, 204, .5);
-}
-
-.moloni-login-form .buttonBlue:hover { background: #357bd8; }
-
-
-/* Ripples container */
-
-.moloni-login-form .ripples {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: transparent;
-}
-
-
-/* Ripples circle */
-
-.moloni-login-form .ripplesCircle {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.25);
-}
-
-.moloni-login-form .ripples.is-active .ripplesCircle {
-    animation: ripples .4s ease-in;
-}
-
-
-/* Ripples animation */
-
-@keyframes ripples {
-    0% { opacity: 0; }
-
-    25% { opacity: 1; }
-
-    100% {
-        width: 200%;
-        padding-bottom: 200%;
-        opacity: 0;
-    }
-}
-
-.moloni-logo{
-    position:relative;
-    width: 230px;
-    margin-left: 35px;
-    margin-top: -15px;
-    margin-bottom: 45px;
-}
-
-.pwd-fix{
-
-}
-
-.login-error{
+.moloni-login--error {
     font-size: 12px;
     text-align: center;
     padding-top: 10px;
@@ -226,24 +27,25 @@ label.pwd-fix{
     cursor: pointer
 }
 
-.login-error:hover {
-    transition:box-shadow .25s;
-    box-shadow:0 8px 17px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19)
+.moloni-login--block {
+    margin-top: 2rem;
 }
 
-input:-webkit-autofill {
-    -webkit-box-shadow:0 0 0 50px #FAFAFA inset; /* Change the color to your own background color */
-    -webkit-text-fill-color: #333;
+.moloni-login--block:first-child {
+    margin-top: 0;
 }
 
-input:-webkit-autofill:focus {
-    -webkit-box-shadow: /*your box-shadow*/0 0 0 50px #FAFAFA inset;
-    -webkit-text-fill-color: #333;
-}  
+.moloni-login--image {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+}
 
-.login-error{
-    color: white;
-    font-size: 12px;
-    background-color: #F44336;
-    padding: 5px;
+.moloni-login--button {
+    width: 100%;
 }

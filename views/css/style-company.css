@@ -9,9 +9,6 @@
 .moloni-company--wrapper {
   gap: 1rem;
 
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex;
   align-content: center;
   justify-content: center;

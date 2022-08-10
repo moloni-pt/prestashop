@@ -10,7 +10,7 @@
                         <div class="panel-heading">
                             {$company.name|escape:'html':'UTF-8'}
                         </div>
-                            <div style="flex: 1;" class="panel-body">
+                        <div class="panel-body" style="flex: 1;">
                                 <div class="moloni-company--image">
                                     {if $company.image}
                                         <img height="auto"
