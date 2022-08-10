@@ -22,40 +22,48 @@ pt.moloni.Settings = (function ($) {
     }
 
     function startObservers() {
-        $('select').material_select();
-
-        $('.datepicker').pickadate({
-            selectMonths: true, // Creates a dropdown to control month
-            selectYears: 15, // Creates a dropdown of 15 years to control year
-            formatSubmit: "yyyy-mm-dd",
-            format: 'yyyy-mm-dd'
+        // Init "fancy" datepicker
+        $(".datepicker").datepicker({
+            format: 'yyyy-mm-dd',
+            dateFormat: 'yy-mm-dd',
         });
 
+        // Save settings
         $('#formSubmit').on('click', function () {
             $("#moloniOptions").submit();
         });
 
+        // Start product sync
         $('#formToolsSubmit').on('click', function () {
             $("#moloniTools").submit();
         });
 
-        $('.message_success').on('click', function () {
+        // Close success message
+        $('.moloni-message__success').on('click', function () {
             $(this).hide("slow");
         });
 
-        $('.collapsible').collapsible();
+        // Toggle tools results
+        $('.collapsible-header').on('click', function () {
+            var body = $(this).next('.collapsible-body');
+            var icon = $(this).find('.collapsible-icon');
+
+            if (body.length && icon.length) {
+                if (body.height() > 0) {
+                    icon.addClass('collapsible-icon--open');
+                } else {
+                    icon.removeClass('collapsible-icon--open');
+                }
+            }
+        });
     }
 
     function drawSaveButton() {
         var html = '';
 
-        html += '<li>';
-        html += '   <div class="formSave">';
-        html += '       <a class="waves-effect waves-light red btn-large" id="formSubmit">';
-        html += '           ' + translations.save_changes;
-        html += '       </a>';
-        html += '   </div>';
-        html += '</li>';
+        html += '<button class="btn btn-primary btn-lg" id="formSubmit">';
+        html += '   ' + translations.save_changes;
+        html += '</button>';
 
         $('#toolbar-nav').html(html);
     }

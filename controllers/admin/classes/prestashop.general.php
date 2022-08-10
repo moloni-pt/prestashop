@@ -61,7 +61,7 @@ class General
                 'city' => $company['city'],
                 'zip_code' => $company['zip_code'],
                 'form_url' => $this->genURL('MoloniStart', '&company_id=' . $company['company_id']),
-                'image' => ((!empty($company['image'])) ? '<img class="activator" src="https://www.moloni.pt/_imagens/?macro=imgAC_iconeEmpresa_s3&img=' . $company['image'] . '">' : "<div class='activator image-text'><span class='activator'>" . $company['name'] . '</span></div>')
+                'image' => $company['image'] ?: ''
             );
         }
 
