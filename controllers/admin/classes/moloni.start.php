@@ -173,6 +173,12 @@ class Start extends ModuleAdminController
 
         $options = Tools::getValue('options');
 
+        if (empty($options['order_status'])) {
+            $options['order_status'] = [];
+        } else {
+            $options['order_status'] = array_keys($options['order_status']);
+        }
+
         foreach ($options as $key => $value) {
             $val = (is_array($value) ? serialize($value) : $value);
 

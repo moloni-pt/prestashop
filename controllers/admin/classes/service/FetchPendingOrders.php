@@ -67,36 +67,37 @@ class FetchPendingOrders
             $condition .= ' or';
             $condition .= ' A.lastname like "%' . $search . '%"';
             $condition .= ')';
+
+            $condition .= ' AND';
+        } else {
+            $condition .= ' WHERE';
         }
+
+        // Do not bring orders that already have been processed by the plugin
+        $condition .= '  (NOT EXISTS(SELECT order_id FROM ' . _DB_PREFIX_ . 'moloni_invoices WHERE ' . _DB_PREFIX_ . 'moloni_invoices.order_id = O.id_order))';
 
         // Active status to show
-        $selectedStatus = unserialize(defined('ORDER_STATUS') ? ORDER_STATUS : '[]');
-
-        if (!empty($search)) { // if search has value, whe need to append condition, not initialize
-            $condition .= ' AND (';
+        if (defined('ORDER_STATUS')) {
+            $selectedStatus = unserialize(ORDER_STATUS);
         } else {
-            $condition .= ' WHERE (';
+            $selectedStatus = [];
         }
 
-        if (is_array($selectedStatus) && $selectedStatus[0] !== '') {
+        if (!empty($selectedStatus)) {
+            $condition .= ' AND (';
+
             foreach ($selectedStatus as $status) {
                 $condition .= " O.current_state = '" . pSQL($status) . "' OR";
             }
 
             $condition = Tools::substr($condition, 0, -2);
-        } else {
-            $condition .= "O.current_state LIKE '%%'";
+            $condition .= ')';
         }
-
-        $condition .= ')';
 
         // If in settings is defined a date to filter out older orders
         if (defined('AFTER_DATE') && !empty(AFTER_DATE)) {
             $condition .= " AND O.date_add  > '" . pSQL(AFTER_DATE) . "' ";
         }
-
-        // Do not bring orders that already have been processed by the plugin
-        $condition .= ' AND (NOT EXISTS(SELECT order_id FROM ' . _DB_PREFIX_ . 'moloni_invoices WHERE ' . _DB_PREFIX_ . 'moloni_invoices.order_id = O.id_order))';
 
         // Direction and order
         $column = isset($this->request['order'][0]['column']) ? (int)$this->request['order'][0]['column'] : 0;
