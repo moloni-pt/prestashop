@@ -9,7 +9,7 @@
                     <div class="moloni-login--image">
                         <a href="https://www.moloni.es/" target="_blank">
                             <img src="{$moloni.path.img|escape:'html':'UTF-8'}logo.svg"
-                                 alt="Logo" width="140px" height="60px">
+                                 alt="Logo" width="240px" height="60px">
                         </a>
                     </div>
                 </div>
