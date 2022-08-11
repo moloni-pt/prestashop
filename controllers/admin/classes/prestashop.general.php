@@ -841,8 +841,20 @@ class General
 
         $MoloniCustomer['name'] = $name;
         $MoloniCustomer['email'] = $customer['base']['email'];
-        $MoloniCustomer['phone'] = $customer['address']['invoice']['phone'];
 
+        switch (true) {
+            case !empty($customer['address']['invoice']['phone']):
+                $phoneNumber = $customer['address']['invoice']['phone'];
+                break;
+            case !empty($customer['address']['invoice']['phone_mobile']):
+                $phoneNumber = $customer['address']['invoice']['phone_mobile'];
+                break;
+            default:
+                $phoneNumber = '';
+                break;
+        }
+
+        $MoloniCustomer['phone'] = $phoneNumber;
         $MoloniCustomer['address'] = $customer['address']['invoice']['address1'] . (empty($customer['address']['invoice']['address2']) ? '' : ' - ' . $customer['address']['invoice']['address2']);
         $MoloniCustomer['zip_code'] = ((int)$countryCodeId === 1 ? $this->zipCheck($customer['address']['invoice']['postcode']) : $customer['address']['invoice']['postcode']);
         $MoloniCustomer['city'] = $customer['address']['invoice']['city'];
@@ -860,7 +872,6 @@ class General
         if (!empty($customer['address']['invoice']['company'])) {
             $MoloniCustomer['contact_name'] = $customer['address']['invoice']['firstname'] . ' ' . $customer['address']['invoice']['lastname'];
             $MoloniCustomer['contact_email'] = $customer['base']['email'];
-            $MoloniCustomer['contact_phone'] = $customer['address']['invoice']['phone_mobile'];
         }
 
         $MoloniCustomer['maturity_date_id'] = 0;
