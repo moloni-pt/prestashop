@@ -63,10 +63,8 @@
             </thead>
             <tbody>
             <tr>
-                <td colspan="100%">
-                    <center>
-                        {l s='Please wait, fetching data' mod='moloni'}
-                    </center>
+                <td colspan="100%" class="dataTables_empty">
+                    {l s='Please wait, fetching data' mod='moloni'}
                 </td>
             </tr>
             </tbody>

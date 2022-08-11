@@ -28,3 +28,15 @@
     display: flex;
   }
 }
+
+#moloni {
+  .dataTables {
+    &_processing {
+      top: calc(50% + 21px) !important;
+    }
+
+    &_empty {
+      padding: 40px !important;
+    }
+  }
+}
