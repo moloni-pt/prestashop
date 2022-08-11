@@ -1,97 +1,53 @@
-﻿{**
-* 2016 - moloni.pt
-*
-* NOTICE OF LICENSE
-*
-* This file is licenced under the Software License Agreement.
-* With the purchase or the installation of the software in your application
-* you accept the licence agreement.
-*
-* You must not modify, adapt or create derivative works of this source code
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
-* versions in the future. If you wish to customize PrestaShop for your
-* needs please refer to http://www.prestashop.com for more information.
-*
-*  @author    Nuno Almeida
-*  @copyright Nuno Almeida
-*  @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
-*}
+﻿<link rel="stylesheet" type="text/css" href="{$moloni.path.css|escape:'html':'UTF-8'}compiled.min.css">
 
-<link rel="stylesheet" href="{$moloni.path.css|escape:'html':'UTF-8'}style-login.css">
+<section id="moloni">
+    <div class="moloni-login--wrapper">
+        <form class='moloni-login-form' action='' method='POST' autocomplete="false">
 
-<form class='moloni-login-form' action = '' method='POST' autocomplete="false">
-    <a href='https://moloni.pt' target='_BLANK'><img src='{$moloni.path.img|escape:'html':'UTF-8'}logo.png' class='moloni-logo'></a>
+            <div class="panel moloni-login--card">
+                <div class="moloni-login--block">
+                    <div class="moloni-login--image">
+                        <a href="https://www.moloni.es/" target="_blank">
+                            <img src="{$moloni.path.img|escape:'html':'UTF-8'}logo.svg"
+                                 alt="Logo" width="240px" height="60px">
+                        </a>
+                    </div>
+                </div>
 
-    {if isset($moloni_error.login) }
-        <div class="group login-error">
-          <center> {l s='Email and password don\'t match' mod='moloni'}</center>
-        </div>
-    {/if}
+                {if isset($moloni_error.login) }
+                    <div class="moloni-login--block moloni-login--error">
+                        <center>
+                            {l s='Email and password don\'t match' mod='moloni'}
+                        </center>
+                    </div>
+                {/if}
 
-    <div class="group">
-        <input type="email" name='mol-username' autocomplete="false" onfocus="this.removeAttribute('readonly');" readonly><span class="bar"></span>
-        <label>{l s='Email' mod='moloni'}</label>
+                <div class="moloni-login--block">
+                    <div class="form-group">
+                        <label for="mol-username">
+                            {l s='Email' mod='moloni'}
+                        </label>
+                        <input type="email" class="form-control" name='mol-username' autocomplete="false" id="mol-username">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">
+                            {l s='Password' mod='moloni'}
+                        </label>
+                        <input type="password" class="form-control" name="mol-password" id="mol-password">
+                    </div>
+                </div>
+                <div class="moloni-login--block">
+                    <button type="submit" class="btn btn-lg btn-primary moloni-login--button">
+                        {l s='Login' mod='moloni'}
+                    </button>
+                </div>
+        </form>
     </div>
+</section>
 
-    <div class="group">
-        <input id='mol-pwd' type="password" name='mol-password' autocomplete="false" onfocus="this.removeAttribute('readonly');" readonly><span class="bar"></span>
-        <label class='pwd-fix'>{l s='Password' mod='moloni'}</label>
-    </div>
-
-
-    <button type="button" class="button buttonBlue">{l s='Login' mod='moloni'}
-        <div class="ripples buttonRipples"><span class="ripplesCircle"></span></div>
-    </button>
-</form>
-
-{literal}
-    <script>
-        $(window, document, undefined).ready(function () {
-
-            $('input').blur(function () {
-                var $this = $(this);
-                if ($this.val())
-                    $this.addClass('used');
-                else
-                    $this.removeClass('used');
-            });
-
-            var $ripples = $('.ripples');
-
-            $ripples.on('click.Ripples', function (e) {
-
-                var $this = $(this);
-                var $offset = $this.parent().offset();
-                var $circle = $this.find('.ripplesCircle');
-
-                var x = e.pageX - $offset.left;
-                var y = e.pageY - $offset.top;
-
-                $circle.css({
-                    top: y + 'px',
-                    left: x + 'px'
-                });
-
-                $this.addClass('is-active');
-
-            });
-
-            $ripples.on('animationend webkitAnimationEnd mozAnimationEnd oanimationend MSAnimationEnd', function (e) {
-                $(this).removeClass('is-active');
-            });
-
-
-
-        });
-
-        $(".moloni-login-form .button").click(function () {
-            $(".moloni-login-form").submit();
-        });
-
-        $(".login-error").click(function () {
-            $(this).slideUp(500);
-        });
-    </script>
-{/literal}
+<script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}compiled.min.js"></script>
+<script>
+    $(window, document, undefined).ready(function () {
+        pt.moloni.Login.init();
+    });
+</script>

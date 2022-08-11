@@ -1,55 +1,70 @@
-{**
-* 2016 - moloni.pt
-*
-* NOTICE OF LICENSE
-*
-* This file is licenced under the Software License Agreement.
-* With the purchase or the installation of the software in your application
-* you accept the licence agreement.
-*
-* You must not modify, adapt or create derivative works of this source code
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
-* versions in the future. If you wish to customize PrestaShop for your
-* needs please refer to http://www.prestashop.com for more information.
-*
-*  @author    Nuno Almeida
-*  @copyright Nuno Almeida
-*  @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
-*}
-
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<link rel="stylesheet" href="{$moloni.path.css|escape:'html':'UTF-8'}style-company.css">
-<link rel="stylesheet" href='{$moloni.path.css|escape:'html':'UTF-8'}materialize/materialize.css'>
+<link rel="stylesheet" type="text/css" href="{$moloni.path.css|escape:'html':'UTF-8'}compiled.min.css">
 
 <section id="moloni">
+    <div class="moloni-company--wrapper">
+        {if $moloni.companies AND $moloni.companies|@count > 1}
+            {foreach from=$moloni.companies item=company}
+                {if $company.company_id != 5}
+                    <div class="panel moloni-company--card">
+                        <div class="panel-heading">
+                            {$company.name|escape:'html':'UTF-8'}
+                        </div>
+                        <div class="panel-body" style="flex: 1;">
+                                <div class="moloni-company--image">
+                                    {if $company.image}
+                                        <img height="auto"
+                                             alt="Company logo"
+                                             src="https://www.moloni.pt/_imagens/?macro=imgAC_iconeEmpresa_s3&img={$company.image}">
+                                    {else}
+                                        <img height="auto"
+                                             alt="Company logo"
+                                             src="{$moloni.path.img|escape:'html':'UTF-8'}companyDefault.png">
+                                    {/if}
+                                </div>
+                                <div class="moloni-company--information">
+                                    {if $company.address}
+                                        <p style="white-space: normal;">
+                                            {l s='Address' mod='moloni'}
+                                            : {$company.address|escape:'html':'UTF-8'}
+                                        </p>
+                                    {/if}
 
-    {foreach from=$moloni.companies item=company}
+                                    {if $company.city}
+                                        <p>
+                                            {l s='City' mod='moloni'}
+                                            : {$company.city|escape:'html':'UTF-8'}
+                                        </p>
+                                    {/if}
 
-        <div class="card">
-            <div class="card-image waves-effect waves-block waves-light">
+                                    {if $company.zip_code}
+                                        <p>
+                                            {l s='Zip-Code' mod='moloni'}
+                                            : {$company.zip_code|escape:'html':'UTF-8'}
+                                        </p>
+                                    {/if}
 
-                {html_entity_decode($company.image|escape:'htmlall':'UTF-8')}
-
+                                    {if $company.vat}
+                                        <p>
+                                            {l s='VAT' mod='moloni'}
+                                            : {$company.vat|escape:'html':'UTF-8'}
+                                        </p>
+                                    {/if}
+                                </div>
+                            </div>
+                        <div class="panel-footer">
+                            <button class="btn btn-primary"
+                                    onclick='window.location = "{$company.form_url|escape:'html':'UTF-8'}"'>
+                                {l s='Select this company' mod='moloni'}
+                            </button>
+                        </div>
+                    </div>
+                {/if}
+            {/foreach}
+        {else}
+            <div>
+                {l s='Your account does not have access to any eligible company.' mod='moloni'}
             </div>
-            <div class="card-content">
-                <span class="card-title activator grey-text text-darken-4">{$company.name|escape:'html':'UTF-8'}</span>
-                <span><i class="material-icons right " onclick='window.location = "{$company.form_url|escape:'html':'UTF-8'}"'>input</i></span>
-                <span class="activator"><i class="material-icons right ">more_vert</i><span>
-                        <p><a>{$company.vat|escape:'html':'UTF-8'}</a></p>
-                        </div>
-                        <div class="card-reveal">
-                            <span class="card-title grey-text text-darken-4">{$company.name|escape:'html':'UTF-8'}<i class="material-icons right">close</i></span>
-                            <br>
-                            <p>{$company.address|escape:'html':'UTF-8'}<br>
-                                {$company.city|escape:'html':'UTF-8'}<br>
-                                {$company.zip_code|escape:'html':'UTF-8'}</p>
-                        </div>
-                        </div>
-
-                    {/foreach}
-
-                    </section>
-
-                    <script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}materialize/materialize.js"></script>
+        {/if}
+    </div>
+</section>

@@ -1,0 +1,21 @@
+/* Buttons */
+
+.moloni-icon {
+  text-decoration: none !important;
+
+  &__blue {
+    color: #25b9d7;
+  }
+
+  &__green {
+    color: #4CAF50;
+  }
+
+  &__red {
+    color: #F44336;
+  }
+}
+
+.moloni-icon + .moloni-icon {
+  margin-left: 10px;
+}

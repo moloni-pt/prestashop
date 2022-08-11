@@ -1,7 +1,3 @@
-$.fn.slideFadeToggle = function (easing, callback) {
-    return this.animate({ opacity: 'toggle', height: 'toggle' }, 'fast', easing, callback);
-};
-
 if (pt === undefined) {
     var pt = {};
 }
@@ -76,12 +72,21 @@ pt.moloni.PendingOrders = (function ($) {
                         render: renderActionsCol
                     }
                 ],
-                "columnDefs": [],
+                "columnDefs": [
+                    {
+                        className: "dt-center",
+                        targets: [0, 6]
+                    },
+                    {
+                        className: "dt-right",
+                        targets: 5
+                    },
+                ],
                 "fnDrawCallback": enableTable, // https://datatables.net/reference/option/drawCallback
                 "searchDelay": 2000,
                 "lengthMenu": [10, 25, 50, 75, 100, 250],
                 "pageLength": 10,
-                "sDom": '<"DTtop panel"<"MolShowing"l><"MolSearch"f>>tr<"DTbottom panel"<"MolInfo"i><"MolPagination"p>>',
+                "sDom": '<"dataTable--header panel"<l><"dataTable--search"f>>tr<"dataTable--footer panel"<i><"dataTable--pagination" p>>',
                 "language": {
                     "sLengthMenu": "_MENU_",
                     "sZeroRecords": translations.sZeroRecords,
@@ -137,11 +142,11 @@ pt.moloni.PendingOrders = (function ($) {
     }
 
     function disableTable() {
-        $('.dataTable').addClass('dataTables--disabled');
+        $('.dataTable').addClass('dataTable--disabled');
     }
 
     function enableTable() {
-        $('.dataTable').removeClass('dataTables--disabled');
+        $('.dataTable').removeClass('dataTable--disabled');
     }
 
     //       RENDERS       //
@@ -149,14 +154,12 @@ pt.moloni.PendingOrders = (function ($) {
     function renderActionsCol(data, type, row, meta) {
         var html = "";
 
-        html += '<center>';
-        html += "   <a class='waves-effect waves-light btn green generate' href='" + row.url.create + "'>";
-        html += "       <i class='material-icons'>note_add</i>";
-        html += "   </a>";
-        html += "   <a class='waves-effect waves-light btn red discard' href='" + row.url.clean + "'>";
-        html += "       <i class='material-icons'>delete</i></a>";
-        html += "   </a>";
-        html += '</center>';
+        html += "<a class='moloni-icon' href='" + row.url.create + "'>";
+        html += "   <i class='moloni-icon__blue material-icons'>note_add</i>";
+        html += "</a>";
+        html += "<a class='moloni-icon' href='" + row.url.clean + "'>";
+        html += "   <i class='moloni-icon__red material-icons'>delete</i>";
+        html += "</a>";
 
         return html;
     }
@@ -184,7 +187,7 @@ pt.moloni.PendingOrders = (function ($) {
     function renderOrderCol(data, type, row, meta) {
         var html = "";
 
-        html += "<a class='waves-effect waves-light btn blue order' target='_blank' href='" + row.url.order + "'>";
+        html += "<a target='_blank' href='" + row.url.order + "'>";
         html += "    #" + data;
         html += "</a>";
 

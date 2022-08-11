@@ -1,0 +1,29 @@
+/* Collapsible */
+
+.collapsible {
+  cursor: pointer;
+  border-bottom: 1px solid;
+
+  &:not(:last-child) {
+    margin-bottom: 10px;
+  }
+  &-wrapper {}
+  &-title {
+    margin-bottom: 10px;
+  }
+  &-header {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+  }
+  &-body {}
+  &-icon {
+    margin-left: auto;
+    transition: .3s ease-out;
+
+    &--open {
+      transform: rotate(180deg);
+    }
+  }
+}
