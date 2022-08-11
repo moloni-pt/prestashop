@@ -1,0 +1,30 @@
+/* DataTables */
+
+.dataTable {
+  &--disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  &--slimed {
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    padding: 0px !important;
+  }
+
+  &--search {
+    margin-left: auto;
+  }
+
+  &--pagination {
+    margin-left: auto;
+  }
+
+  &--header{
+    display: flex;
+  }
+
+  &--footer {
+    display: flex;
+  }
+}

@@ -1,8 +1,7 @@
 <section id="moloni">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="{$moloni.path.css|escape:'html':'UTF-8'}style.css">
-    <link rel="stylesheet" type="text/css" href="{$moloni.path.css|escape:'html':'UTF-8'}datatables/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="{$moloni.path.css|escape:'html':'UTF-8'}compiled.min.css">
 
     <div class="row">
         <table class='dataTable display dataTable--slimed panel'>
@@ -59,9 +58,7 @@
     </div>
 </section>
 
-<script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}datatables/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}Movements.js"></script>
-
+<script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}compiled.min.js"></script>
 <script>
     $(document).ready(function () {
         var translations = {

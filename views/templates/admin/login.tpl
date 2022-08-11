@@ -1,4 +1,4 @@
-﻿<link rel="stylesheet" href="{$moloni.path.css|escape:'html':'UTF-8'}style-login.css">
+﻿<link rel="stylesheet" type="text/css" href="{$moloni.path.css|escape:'html':'UTF-8'}compiled.min.css">
 
 <section id="moloni">
     <div class="moloni-login--wrapper">
@@ -45,7 +45,7 @@
     </div>
 </section>
 
-<script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}Login.js"></script>
+<script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}compiled.min.js"></script>
 <script>
     $(window, document, undefined).ready(function () {
         pt.moloni.Login.init();

@@ -1,5 +1,5 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<link rel="stylesheet" href="{$moloni.path.css|escape:'html':'UTF-8'}style-company.css">
+<link rel="stylesheet" type="text/css" href="{$moloni.path.css|escape:'html':'UTF-8'}compiled.min.css">
 
 <section id="moloni">
     <div class="moloni-company--wrapper">

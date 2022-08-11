@@ -1,18 +1,19 @@
 /* Login */
 
-.moloni-login--wrapper {
+.moloni-login {
+  &--wrapper {
     display: flex;
     align-content: center;
     justify-content: center;
     align-items: center;
-}
+  }
 
-.moloni-login--card {
+  &--card {
     width: 30rem;
     padding: 2.5rem;
-}
+  }
 
-.moloni-login--error {
+  &--error {
     font-size: 12px;
     text-align: center;
     padding-top: 10px;
@@ -25,17 +26,17 @@
     box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
     transition: box-shadow .25s;
     cursor: pointer
-}
+  }
 
-.moloni-login--block {
+  &--block {
     margin-top: 2rem;
-}
 
-.moloni-login--block:first-child {
-    margin-top: 0;
-}
+    &:first-child {
+      margin-top: 0;
+    }
+  }
 
-.moloni-login--image {
+  &--image {
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -44,8 +45,9 @@
     -webkit-justify-content: center;
     -ms-flex-pack: center;
     justify-content: center;
-}
+  }
 
-.moloni-login--button {
+  &--button {
     width: 100%;
+  }
 }

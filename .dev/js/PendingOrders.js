@@ -1,7 +1,3 @@
-$.fn.slideFadeToggle = function (easing, callback) {
-    return this.animate({ opacity: 'toggle', height: 'toggle' }, 'fast', easing, callback);
-};
-
 if (pt === undefined) {
     var pt = {};
 }
@@ -146,11 +142,11 @@ pt.moloni.PendingOrders = (function ($) {
     }
 
     function disableTable() {
-        $('.dataTable').addClass('dataTables--disabled');
+        $('.dataTable').addClass('dataTable--disabled');
     }
 
     function enableTable() {
-        $('.dataTable').removeClass('dataTables--disabled');
+        $('.dataTable').removeClass('dataTable--disabled');
     }
 
     //       RENDERS       //
