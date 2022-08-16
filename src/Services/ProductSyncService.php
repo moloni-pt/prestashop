@@ -256,7 +256,7 @@ class ProductSyncService
             $this->syncAttributeProductPrice();
         }
 
-        if ($this->shouldSyncEAN) {
+        if ($this->shouldSyncEAN && $this->isEan13Valid($this->moloniProduct['ean'])) {
             $this->syncAttributeProductEAN();
         }
     }
@@ -491,7 +491,7 @@ class ProductSyncService
             $changeFlag = true;
         }
 
-        if ($this->shouldSyncEAN) {
+        if ($this->shouldSyncEAN && $this->isEan13Valid($this->moloniProduct['ean'])) {
             try {
                 $ean = new Ean13($this->moloniProduct['ean']);
 
@@ -660,5 +660,26 @@ class ProductSyncService
         foreach ($array as $key => $value) {
             $this->updatedResult['with_attributes'][$reference][$key] = $value;
         }
+    }
+
+    /** Verificações */
+
+    private function isEan13Valid($value)
+    {
+        /**
+         * Valid ean regex pattern
+         */
+        $validPattern = '/^[0-9]{0,13}$/';
+
+        /**
+         * Maximum allowed symbols
+         */
+        $maxLength = 13;
+
+        if (strlen($value) <= $maxLength && preg_match($validPattern, $value)) {
+            return true;
+        }
+
+        return false;
     }
 }
