@@ -129,8 +129,9 @@
                             {l s='Exemption reason' mod='moloni'}
                         </label>
                         <select name='options[exemption_reason]'>
-                            <option value='' disabled
-                                    selected>{l s='Used in case the order has no taxes' mod='moloni'}</option>
+                            <option value='' selected>
+                                {l s='Select an option' mod='moloni'}
+                            </option>
                             {foreach from=$moloni.configurations.exemption_reason.options item=opt}
                                 <option value='{$opt.code|escape:'html':'UTF-8'}' {if $moloni.configurations.exemption_reason.value == $opt.code} selected {/if}> {$opt.name|escape:'html':'UTF-8'} </option>
                             {/foreach}
@@ -143,8 +144,9 @@
                             {l s='Shipping exemption reason' mod='moloni'}
                         </label>
                         <select name='options[exemption_reason_shipping]'>
-                            <option value='' disabled
-                                    selected>{l s='Used in case shipping has no taxes' mod='moloni'}</option>
+                            <option value='' selected>
+                                {l s='Select an option' mod='moloni'}
+                            </option>
                             {foreach from=$moloni.configurations.exemption_reason.options item=opt}
                                 <option value='{$opt.code|escape:'html':'UTF-8'}' {if $moloni.configurations.exemption_reason_shipping.value == $opt.code} selected {/if}> {$opt.name|escape:'html':'UTF-8'} </option>
                             {/foreach}

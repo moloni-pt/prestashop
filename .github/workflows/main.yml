@@ -34,7 +34,7 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-suggest --no-dev
 
       - name: Create Release Folder
-        run: rsync -arv --exclude '.git/' --exclude '.github/' --exclude '.gitignore'  --exclude '.php_cs.dist' --exclude 'docs' . ./moloni
+        run: rsync -arv --exclude '.git/' --exclude '.dev/' --exclude '.github/' --exclude '.gitignore'  --exclude '.php_cs.dist' --exclude 'docs' . ./moloni
 
       - name: Zip realease folder
         run: zip -r moloni.zip ./moloni

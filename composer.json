@@ -19,6 +19,14 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.4.0",
+        "title": "Release da versão 2.4.0",
+        "description": [
+          "Correção no número de telefone do cliente",
+          "Validação do campo EAN13 antes de ser atualizado"
+        ]
+      },
+      {
         "version": "v2.3.9",
         "title": "Release da versão 2.3.9",
         "description": [
