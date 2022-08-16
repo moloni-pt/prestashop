@@ -664,6 +664,10 @@ class ProductSyncService
 
     /** Verificações */
 
+    /**
+     * @param string|int $value
+     * @return bool
+     */
     private function isEan13Valid($value)
     {
         /**
