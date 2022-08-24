@@ -19,6 +19,13 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.4.1",
+        "title": "Release da versão 2.4.1",
+        "description": [
+          "Correção na apresentação das empresas disponíveis"
+        ]
+      },
+      {
         "version": "v2.4.0",
         "title": "Release da versão 2.4.0",
         "description": [
