@@ -3,9 +3,13 @@
 
 <section id="moloni">
     <div class="moloni-company--wrapper">
-        {if $moloni.companies AND $moloni.companies|@count > 1}
+        {assign var="hasValidCompany" value=false}
+
+        {if $moloni.companies AND $moloni.companies|@count > 0}
             {foreach from=$moloni.companies item=company}
                 {if $company.company_id != 5}
+                    {assign var="hasValidCompany" value=true}
+
                     <div class="panel moloni-company--card">
                         <div class="panel-heading">
                             {$company.name|escape:'html':'UTF-8'}
@@ -61,7 +65,9 @@
                     </div>
                 {/if}
             {/foreach}
-        {else}
+        {/if}
+
+        {if $hasValidCompany == false}
             <div>
                 {l s='Your account does not have access to any eligible company.' mod='moloni'}
             </div>
