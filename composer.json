@@ -19,6 +19,13 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.4.2",
+        "title": "Release da versão 2.4.2",
+        "description": [
+          "Criação de produto para envio como serviço"
+        ]
+      },
+      {
         "version": "v2.4.1",
         "title": "Release da versão 2.4.1",
         "description": [
