@@ -1028,7 +1028,7 @@ class General
 
         $reference = Tools::strtoupper(trim($reference, '.'));
 
-        if (trim($reference) == '') {
+        if (trim($reference) === '') {
             $reference = 'PORTES';
         }
 
@@ -1040,9 +1040,9 @@ class General
 
             $taxRate = $input['carrier_tax_rate'];
 
-            $product = array();
+            $product = [];
             $product['category_id'] = $this->products->categories->check('Portes');
-            $product['type'] = '1';
+            $product['type'] = '2';
             $product['name'] = $input['carrier_name'];
             $product['summary'] = ($input['tracking_number'] <> '') ? 'Tracking: ' . $input['tracking_number'] : '';
             $product['reference'] = $reference;
