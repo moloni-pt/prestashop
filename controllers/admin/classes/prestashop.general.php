@@ -960,7 +960,6 @@ class General
         if ($productExists) {
             $productID = $productExists['product_id'];
         } else {
-
             $productPS = new Product($input['product_id'], 1, Configuration::get('PS_LANG_DEFAULT'));
             $categoryPS = new Category((int)$productPS->id_category_default);
 
@@ -984,7 +983,7 @@ class General
             $product['price'] = $input['unit_price_tax_excl'];
             $product['unit_id'] = defined('MEASURE_UNIT') ? MEASURE_UNIT : 0;
             $product['has_stock'] = (defined('AT_CATEGORY') && AT_CATEGORY == 'SS') ? '0' : '1';
-            $product['stock'] = $this->getStock($input['id_product'], $input['product_attribute_id'], $input['product_quantity']);
+            $product['stock'] = $this->getStock($input['product_id'], $input['product_attribute_id'], $input['product_quantity']);
             $product['pos_favorite'] = '0';
             $product['at_product_category'] = defined('AT_CATEGORY') ? AT_CATEGORY : 'M';
 
