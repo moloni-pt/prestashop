@@ -285,7 +285,7 @@ class General
         }
 
         $orderPS = new Order($order['base']['id_order']);
-        $order['products'] = $orderPS->getProducts();
+        $order['products'] = $orderPS->getOrderDetailList();
         $order['shipping'] = $orderPS->getShipping();
 
         $order['shipping'][0]['carrier_tax_rate'] = $orderPS->carrier_tax_rate;
@@ -358,11 +358,7 @@ class General
             $invoice['products'][$x]['order'] = $x;
 
             if ($product['unit_price_tax_incl'] != $product['unit_price_tax_excl']) {
-                $taxRate = $product['tax_rate'];
-
-                if ((int)$product['tax_rate'] !== 23) {
-                    $taxRate = round((100 * ($product['unit_price_tax_incl'] - $product['unit_price_tax_excl'])) / $product['unit_price_tax_excl'], 2);
-                }
+                $taxRate = $this->getOrderProductTax($product);
 
                 $invoice['products'][$x]['taxes'][0]['tax_id'] = $this->settings->taxes->check($taxRate, $order['fiscal_zone']['country_code']);
                 $invoice['products'][$x]['taxes'][0]['value'] = $product['unit_price_tax_incl'] - $product['unit_price_tax_excl'];
@@ -790,6 +786,18 @@ class General
         ];
     }
 
+    private function getOrderProductTax($product)
+    {
+        $taxValue = (float)$product['tax_rate'];
+
+        if ((int)$taxValue === 0) {
+            $taxValue = (100 * ($product['unit_price_tax_incl'] - $product['unit_price_tax_excl'])) / $product['unit_price_tax_excl'];
+            $taxValue = round($taxValue, 2);
+        }
+
+        return $taxValue;
+    }
+
     private function client($order)
     {
         require_once('moloni.entities.php');
@@ -952,13 +960,12 @@ class General
         if ($productExists) {
             $productID = $productExists['product_id'];
         } else {
-
             $productPS = new Product($input['product_id'], 1, Configuration::get('PS_LANG_DEFAULT'));
             $categoryPS = new Category((int)$productPS->id_category_default);
 
-            $taxRate = ($input['tax_rate'] <> '23') ? round((100 * ($input['unit_price_tax_incl'] - $input['unit_price_tax_excl'])) / $input['unit_price_tax_excl'], 2) : $input['tax_rate'];
+            $taxRate = $this->getOrderProductTax($input);
 
-            $product = array();
+            $product = [];
 
             $categoryName = !empty($categoryPS->getName()) ? $categoryPS->getName() : 'Loja Online';
             $categoryId = $this->products->categories->check($categoryName);
@@ -976,7 +983,7 @@ class General
             $product['price'] = $input['unit_price_tax_excl'];
             $product['unit_id'] = defined('MEASURE_UNIT') ? MEASURE_UNIT : 0;
             $product['has_stock'] = (defined('AT_CATEGORY') && AT_CATEGORY == 'SS') ? '0' : '1';
-            $product['stock'] = $this->getStock($input['id_product'], $input['product_attribute_id'], $input['product_quantity']);
+            $product['stock'] = $this->getStock($input['product_id'], $input['product_attribute_id'], $input['product_quantity']);
             $product['pos_favorite'] = '0';
             $product['at_product_category'] = defined('AT_CATEGORY') ? AT_CATEGORY : 'M';
 
