@@ -51,6 +51,7 @@ pt.moloni.PendingOrders = (function ($) {
                     },
                     {
                         data: 'customer.email',
+                        defaultContent: '',
                         orderable: false,
                     },
                     {
