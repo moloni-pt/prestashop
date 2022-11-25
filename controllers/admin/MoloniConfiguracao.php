@@ -76,7 +76,7 @@ class MoloniConfiguracaoController extends ModuleAdminController
                     'css' => '../modules/moloni/views/css/',
                     'js' => '../modules/moloni/views/js/'
                 ],
-                'version' => defined('_MOLONI_MODULE_VERSION_') ? _MOLONI_MODULE_VERSION_ : 0,
+                'version' => Module::getInstanceByName('moloni')->version,
                 'companies' => $companies,
                 'message_alert' => ((Tools::getValue('goDo') && Tools::getValue('goDo') === "save" && Tools::getValue('options')) ? "1" : null ),
                 'configurations' => $configurations,

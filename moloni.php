@@ -27,7 +27,7 @@ class Moloni extends Module
         $this->name = 'moloni';
         $this->tab = 'administration';
         $this->need_instance = 1;
-        $this->version = '2.4.5';
+        $this->version = '2.4.6';
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
         $this->author = 'Nuno Almeida';
         $this->bootstrap = true;
@@ -39,10 +39,6 @@ class Moloni extends Module
 
         $this->displayName = $this->l('Moloni');
         $this->description = $this->l('Transform all your orders in verified documents without any effort and focus on selling!');
-
-        if (!defined('_MOLONI_MODULE_VERSION_')) {
-            define('_MOLONI_MODULE_VERSION_', $this->version);
-        }
     }
 
     /**

@@ -19,8 +19,8 @@
   "extra": {
     "changelog": [
       {
-        "version": "v2.4.5",
-        "title": "Release da versão 2.4.4",
+        "version": "v2.4.6",
+        "title": "Release da versão 2.4.6",
         "description": [
           "Prevenir erro quando o cliente não existe ou não tem e-mail definido"
         ]

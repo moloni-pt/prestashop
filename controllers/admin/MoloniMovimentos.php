@@ -62,7 +62,7 @@ class MoloniMovimentosController extends ModuleAdminController
                     'css' => '../modules/moloni/views/css/',
                     'js' => '../modules/moloni/views/js/'
                 ],
-                'version' => defined('_MOLONI_MODULE_VERSION_') ? _MOLONI_MODULE_VERSION_ : 0,
+                'version' => Module::getInstanceByName('moloni')->version,
                 'documents' => $documents,
                 'companies' => $companies
             ]
