@@ -39,6 +39,10 @@ class Moloni extends Module
 
         $this->displayName = $this->l('Moloni');
         $this->description = $this->l('Transform all your orders in verified documents without any effort and focus on selling!');
+
+        if (!defined('_MOLONI_MODULE_VERSION_')) {
+            define('_MOLONI_MODULE_VERSION_', $this->version);
+        }
     }
 
     /**

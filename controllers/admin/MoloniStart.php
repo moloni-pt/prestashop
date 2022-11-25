@@ -70,25 +70,26 @@ class MoloniStartController extends ModuleAdminController
                 $companies = $functions->getCompaniesAll();
             }
 
-            $this->context->smarty->assign(array(
-                'moloni' => array(
-                    'path' => array(
+            $this->context->smarty->assign([
+                'moloni' => [
+                    'path' => [
                         'img' => '../modules/moloni/views/img/',
                         'css' => '../modules/moloni/views/css/',
                         'js' => '../modules/moloni/views/js/'
-                    ),
+                    ],
                     'companies' => $companies,
-                    'message' => $message
-                ),
+                    'message' => $message,
+                    'version' => defined('_MOLONI_MODULE_VERSION_') ? _MOLONI_MODULE_VERSION_ : 0,
+                ],
                 'html' => $moloni->template
-            ));
+            ]);
 
             if (defined("MOLONI_ERROR_LOGIN")) {
-                $this->context->smarty->assign(array(
-                    'moloni_error' => array(
+                $this->context->smarty->assign([
+                    'moloni_error' => [
                         'login' => "login-errado"
-                    )
-                ));
+                    ]
+                ]);
             }
         }
 

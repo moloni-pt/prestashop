@@ -367,7 +367,7 @@
     </div>
 </section>
 
-<script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}compiled.min.js"></script>
+<script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}compiled.min.js?v={$moloni.version|escape:'html':'UTF-8'}"></script>
 <script>
     var translations = {
         save_changes: "{l s='Save Changes' mod='moloni'}"

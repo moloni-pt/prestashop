@@ -69,20 +69,21 @@ class MoloniConfiguracaoController extends ModuleAdminController
             $syncResult = $productSyncService->run()->getResults();
         }
 
-        $this->context->smarty->assign(array(
-            'moloni' => array(
-                'path' => array(
+        $this->context->smarty->assign([
+            'moloni' => [
+                'path' => [
                     'img' => '../modules/moloni/views/img/',
                     'css' => '../modules/moloni/views/css/',
                     'js' => '../modules/moloni/views/js/'
-                ),
+                ],
+                'version' => defined('_MOLONI_MODULE_VERSION_') ? _MOLONI_MODULE_VERSION_ : 0,
                 'companies' => $companies,
                 'message_alert' => ((Tools::getValue('goDo') && Tools::getValue('goDo') === "save" && Tools::getValue('options')) ? "1" : null ),
                 'configurations' => $configurations,
                 'syncResult' => $syncResult
-            ),
+            ],
             'html' => $moloni->template
-        ));
+        ]);
 
         parent::__construct();
     }
