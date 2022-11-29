@@ -27,7 +27,7 @@ class Moloni extends Module
         $this->name = 'moloni';
         $this->tab = 'administration';
         $this->need_instance = 1;
-        $this->version = '2.4.6';
+        $this->version = '2.4.7';
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
         $this->author = 'Nuno Almeida';
         $this->bootstrap = true;
