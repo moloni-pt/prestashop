@@ -285,7 +285,9 @@ class General
         }
 
         $orderPS = new Order($order['base']['id_order']);
+
         $order['products'] = $orderPS->getOrderDetailList();
+        $order['productsTaxes'] = $orderPS->getProductTaxesDetails($order['products']);
         $order['shipping'] = $orderPS->getShipping();
 
         $order['shipping'][0]['carrier_tax_rate'] = $orderPS->carrier_tax_rate;
@@ -333,13 +335,15 @@ class General
                 $product['unit_price_tax_excl'] /= 1.23;
             }
 
+            $taxRate = $this->getOrderProductTax($product, $order['productsTaxes']);
+
             $product['moloni_reference'] = Tools::substr($product['product_reference'], 0, 25);
 
             if (empty($product['moloni_reference'])) {
                 $product['moloni_reference'] = 'PS' . mt_rand(10000, 100000);
             }
 
-            $moloniProductId = $this->product($product);
+            $moloniProductId = $this->product($product, $taxRate);
             $moloni_product = $this->products->getOne(['product_id' => $moloniProductId]);
 
             $invoice['products'][$x]['product_id'] = isset($moloni_product['product_id']) ? $moloni_product['product_id'] : 0;
@@ -358,8 +362,6 @@ class General
             $invoice['products'][$x]['order'] = $x;
 
             if ($product['unit_price_tax_incl'] != $product['unit_price_tax_excl']) {
-                $taxRate = $this->getOrderProductTax($product);
-
                 $invoice['products'][$x]['taxes'][0]['tax_id'] = $this->settings->taxes->check($taxRate, $order['fiscal_zone']['country_code']);
                 $invoice['products'][$x]['taxes'][0]['value'] = $product['unit_price_tax_incl'] - $product['unit_price_tax_excl'];
 
@@ -535,7 +537,7 @@ class General
 
         $invoiceExists = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "moloni_invoices WHERE order_id = '" . (int)$order_id . "'");
 
-        if (!MoloniError::$exists && !$invoiceExists) {
+        if (!MoloniError::$exists && (!$invoiceExists || !empty($_GET['force']))) {
 
             $documents = new Documents();
             $documentID = $documents->insertInvoice($invoice);
@@ -786,11 +788,23 @@ class General
         ];
     }
 
-    private function getOrderProductTax($product)
+    private function getOrderProductTax($product, $orderProductsTaxes = [])
     {
         $taxValue = (float)$product['tax_rate'];
 
-        if ((int)$taxValue === 0) {
+        if ($taxValue > 0) {
+            return $taxValue;
+        }
+
+        if (!empty($orderProductsTaxes)) {
+            foreach ($orderProductsTaxes as $productsTax) {
+                if ((int)$product['id_order_detail'] === (int)$productsTax['id_order_detail']) {
+                    return (float)$productsTax['tax_rate'];
+                }
+            }
+        }
+
+        if ($product['unit_price_tax_incl'] <> $product['unit_price_tax_excl']) {
             $taxValue = (100 * ($product['unit_price_tax_incl'] - $product['unit_price_tax_excl'])) / $product['unit_price_tax_excl'];
             $taxValue = round($taxValue, 2);
         }
@@ -949,10 +963,11 @@ class General
 
     /**
      * @param array $input
+     * @param float $taxRate
      *
      * @return false|mixed
      */
-    private function product($input)
+    private function product($input, $taxRate)
     {
         $reference = $input['moloni_reference'];
         $productExists = $this->products->getByReference($reference);
@@ -962,8 +977,6 @@ class General
         } else {
             $productPS = new Product($input['product_id'], 1, Configuration::get('PS_LANG_DEFAULT'));
             $categoryPS = new Category((int)$productPS->id_category_default);
-
-            $taxRate = $this->getOrderProductTax($input);
 
             $product = [];
 
