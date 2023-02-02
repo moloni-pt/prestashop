@@ -507,7 +507,12 @@ class General
             $invoice['delivery_departure_address'] = $this->me['address'];
             $invoice['delivery_departure_city'] = $this->me['city'];
             $invoice['delivery_departure_zip_code'] = $this->me['zip_code'];
-            $invoice['delivery_departure_country'] = $this->me['country_id'];
+
+            if (isset($this->me['fiscal_country_id']) && (int)$this->me['fiscal_country_id'] > 0) {
+                $invoice['delivery_departure_country'] = $this->me['fiscal_country_id'];
+            } else {
+                $invoice['delivery_departure_country'] = $this->me['country_id'];
+            }
 
             $invoice['delivery_destination_address'] = $moloniClient['shipping']['address'];
             $invoice['delivery_destination_city'] = $moloniClient['shipping']['delivery_destination_city'];

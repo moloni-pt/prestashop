@@ -19,6 +19,13 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.4.8",
+        "title": "Release da versão 2.4.8",
+        "description": [
+          "Usar país fiscal caso aplicável"
+        ]
+      },
+      {
         "version": "v2.4.7",
         "title": "Release da versão 2.4.7",
         "description": [
