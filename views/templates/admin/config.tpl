@@ -133,7 +133,9 @@
                                 {l s='Select an option' mod='moloni'}
                             </option>
                             {foreach from=$moloni.configurations.exemption_reason.options item=opt}
-                                <option value='{$opt.code|escape:'html':'UTF-8'}' {if $moloni.configurations.exemption_reason.value == $opt.code} selected {/if}> {$opt.name|escape:'html':'UTF-8'} </option>
+                                <option value='{$opt.code|escape:'html':'UTF-8'}' {if $moloni.configurations.exemption_reason.value == $opt.code} selected {/if}>
+                                    {$opt.name|escape:'html':'UTF-8'} ({$opt.code|escape:'html':'UTF-8'})
+                                </option>
                             {/foreach}
                         </select>
                     </div>
@@ -148,7 +150,9 @@
                                 {l s='Select an option' mod='moloni'}
                             </option>
                             {foreach from=$moloni.configurations.exemption_reason.options item=opt}
-                                <option value='{$opt.code|escape:'html':'UTF-8'}' {if $moloni.configurations.exemption_reason_shipping.value == $opt.code} selected {/if}> {$opt.name|escape:'html':'UTF-8'} </option>
+                                <option value='{$opt.code|escape:'html':'UTF-8'}' {if $moloni.configurations.exemption_reason_shipping.value == $opt.code} selected {/if}>
+                                    {$opt.name|escape:'html':'UTF-8'} ({$opt.code|escape:'html':'UTF-8'})
+                                </option>
                             {/foreach}
                         </select>
                     </div>
