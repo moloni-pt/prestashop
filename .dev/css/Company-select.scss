@@ -36,3 +36,40 @@
     object-fit: contain;
   }
 }
+
+.no-companies {
+  &__wrapper {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    margin-top: 10rem;
+    margin-bottom: 3rem;
+  }
+
+  &__image {
+    width: 250px;
+  }
+
+  &__title {
+    font-size: 1.3em;
+    margin-top: 1rem;
+    font-weight: bold;
+  }
+
+  &__message {
+    margin-top: 0.5rem;
+    font-size: 1rem;
+  }
+
+  &__help {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+}

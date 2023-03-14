@@ -68,8 +68,19 @@
         {/if}
 
         {if $hasValidCompany == false}
-            <div>
-                {l s='Your account does not have access to any eligible company.' mod='moloni'}
+            <div class="no-companies__wrapper">
+                <img class="no-companies__image" src="{$moloni.path.img|escape:'html':'UTF-8'}no_companies.svg" height="auto" alt="Company logo">
+
+                <div class="no-companies__title">
+                    {l s='Your account does not have access to any eligible company.' mod='moloni'}
+                </div>
+                <div class="no-companies__message">
+                    {l s='Please confirm that your account has access to an active company with a plan that allows you to access the plugins.' mod='moloni'}
+                </div>
+                <div class="no-companies__help">
+                    {l s='Learn more about our plans at:' mod='moloni'}
+                    <a href="https://www.moloni.pt/planos/" target="_blank">https://www.moloni.pt/planos/</a>
+                </div>
             </div>
         {/if}
     </div>
