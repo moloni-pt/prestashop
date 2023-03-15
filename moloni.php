@@ -55,7 +55,6 @@ class Moloni extends Module
         return parent::install()
             && $this->dbInstall()
             && $this->registerHook('actionPaymentConfirmation')
-            && $this->registerHook('displayFooter')
             && $this->registerHook('DisplayBackOfficeHeader')
             && $this->registerHook('actionOrderStatusPostUpdate') //after order status is changed
             && $this->registerHook('actionProductSave');
