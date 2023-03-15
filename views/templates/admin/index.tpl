@@ -15,21 +15,23 @@
                 </button>
             </div>
 
-            <div class="messagepop pop">
-                {l s='Error' mod='moloni'}: {$moloni.message.error.where|escape:'html':'UTF-8'}
-                <br>
-                {$moloni.message.error.message|escape:'html':'UTF-8'}
-                <br>
-                {l s='Sent' mod='moloni'}:
-                <pre>
+            <div class="messagepop--wrapper">
+                <div class="messagepop pop">
+                    {l s='Error' mod='moloni'}: {$moloni.message.error.where|escape:'html':'UTF-8'}
+                    <br>
+                    {$moloni.message.error.message|escape:'html':'UTF-8'}
+                    <br>
+                    {l s='Sent' mod='moloni'}:
+                    <pre>
                     {$moloni.message.error.values_sent|@print_r|escape:'html':'UTF-8'}}
                 </pre>
-                {l s='Received' mod='moloni'}:
-                <pre>
+                    {l s='Received' mod='moloni'}:
+                    <pre>
                     {$moloni.message.error.values_receive|@print_r|escape:'html':'UTF-8'}}
                 </pre>
-                <br>
-                <a class="close" href="/">{l s='Close' mod='moloni'}</a>
+                    <br>
+                    <a class="close" href="/">{l s='Close' mod='moloni'}</a>
+                </div>
             </div>
         {/if}
 
