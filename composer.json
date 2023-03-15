@@ -19,6 +19,14 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.5.0",
+        "title": "Release da versão 2.5.0",
+        "description": [
+          "Adicionado suporte para Prestashop 8",
+          "Nova definição para escolher inclusão de informações de envio"
+        ]
+      },
+      {
         "version": "v2.4.8",
         "title": "Release da versão 2.4.8",
         "description": [
