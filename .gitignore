@@ -1,2 +1,4 @@
 .idea
 .dev/node_modules
+/vendor/
+/logs/

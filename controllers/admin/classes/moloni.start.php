@@ -246,6 +246,12 @@ class Start extends ModuleAdminController
             'value' => ''
         ];
         $defines[] = [
+            'label' => 'show_shipping_information',
+            'name' => 'Informações de envio',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
             'label' => 'invoice_auto',
             'name' => 'Gerar automaticamente',
             'description' => '',

@@ -27,7 +27,7 @@ class Moloni extends Module
         $this->name = 'moloni';
         $this->tab = 'administration';
         $this->need_instance = 1;
-        $this->version = '2.4.8';
+        $this->version = '2.5.0';
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
         $this->author = 'Nuno Almeida';
         $this->bootstrap = true;
@@ -55,7 +55,6 @@ class Moloni extends Module
         return parent::install()
             && $this->dbInstall()
             && $this->registerHook('actionPaymentConfirmation')
-            && $this->registerHook('displayFooter')
             && $this->registerHook('DisplayBackOfficeHeader')
             && $this->registerHook('actionOrderStatusPostUpdate') //after order status is changed
             && $this->registerHook('actionProductSave');

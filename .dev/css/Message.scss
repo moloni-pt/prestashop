@@ -50,6 +50,9 @@
   width: 500px;
   z-index: 50;
   padding: 25px 25px 20px;
-  top: 59px;
   right: 12px;
+
+  &--wrapper {
+    position: relative;
+  }
 }

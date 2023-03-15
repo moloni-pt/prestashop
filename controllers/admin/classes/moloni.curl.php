@@ -23,7 +23,16 @@
 class Curl
 {
 
-    // CURL à API do moloni enviando por exemplo invoices/insert
+    /**
+     * CURL à API do moloni enviando por exemplo invoices/insert
+     *
+     * @param $action
+     * @param $values
+     * @param $return
+     * @param $print
+     *
+     * @return false|mixed|void
+     */
     public static function simple($action, $values = false, $return = false, $print = false)
     {
         $con = curl_init();
@@ -62,7 +71,11 @@ class Curl
         return $return ? $res_txt : false;
     }
 
-    // Testar a ligação para verificar se existe algum erro
+    /**
+     * Testar a ligação para verificar se existe algum erro
+     *
+     * @return bool
+     */
     public static function test()
     {
         $con = curl_init();
@@ -85,7 +98,14 @@ class Curl
         return (false);
     }
 
-    // Login com as credênciais do utilizador
+    /**
+     * Login com as credênciais do utilizador
+     *
+     * @param $user
+     * @param $pass
+     *
+     * @return false|mixed
+     */
     public static function login($user, $pass)
     {
         $con = curl_init();
@@ -100,6 +120,7 @@ class Curl
         curl_close($con);
 
         $res_txt = json_decode($res_curl, true);
+
         if (!isset($res_txt['error'])) {
             return ($res_txt);
         }
@@ -121,7 +142,8 @@ class Curl
         $res_curl = curl_exec($con);
         curl_close($con);
 
-        $res_txt = Tools::jsonDecode($res_curl, true);
+        $res_txt = json_decode($res_curl, true);
+
         if (!isset($res_txt['error'])) {
             return ($res_txt);
         }

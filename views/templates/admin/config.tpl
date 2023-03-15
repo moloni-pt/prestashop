@@ -61,6 +61,30 @@
                             <option value='1' {if $moloni.configurations.document_status.value == '1'} selected {/if}>{l s='Closed' mod='moloni'}</option>
                         </select>
                     </div>
+
+                    <!-------------------------- Show shipping information (yes/no) ------------------------------>
+                    <div class="col-sm-6">
+                        <label>
+                            {l s='Shipping information' mod='moloni'}
+                        </label>
+                        <select name='options[show_shipping_information]'>
+                            {if 'show_shipping_information'|array_key_exists:$moloni.configurations}
+                                {assign var="showShippingInformation" value=$moloni.configurations.show_shipping_information.value}
+                            {else}
+                                {assign var="showShippingInformation" value=""}
+                            {/if}
+
+                            <option value='' disabled selected>
+                                {l s='Show shipping information' mod='moloni'}
+                            </option>
+                            <option value='1' {if $showShippingInformation == "1"} selected {/if}>
+                                {l s='Yes' mod='moloni'}
+                            </option>
+                            <option value='0' {if $showShippingInformation == "0"} selected {/if}>
+                                {l s='No' mod='moloni'}
+                            </option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -133,7 +157,9 @@
                                 {l s='Select an option' mod='moloni'}
                             </option>
                             {foreach from=$moloni.configurations.exemption_reason.options item=opt}
-                                <option value='{$opt.code|escape:'html':'UTF-8'}' {if $moloni.configurations.exemption_reason.value == $opt.code} selected {/if}> {$opt.name|escape:'html':'UTF-8'} </option>
+                                <option value='{$opt.code|escape:'html':'UTF-8'}' {if $moloni.configurations.exemption_reason.value == $opt.code} selected {/if}>
+                                    {$opt.name|escape:'html':'UTF-8'} ({$opt.code|escape:'html':'UTF-8'})
+                                </option>
                             {/foreach}
                         </select>
                     </div>
@@ -148,7 +174,9 @@
                                 {l s='Select an option' mod='moloni'}
                             </option>
                             {foreach from=$moloni.configurations.exemption_reason.options item=opt}
-                                <option value='{$opt.code|escape:'html':'UTF-8'}' {if $moloni.configurations.exemption_reason_shipping.value == $opt.code} selected {/if}> {$opt.name|escape:'html':'UTF-8'} </option>
+                                <option value='{$opt.code|escape:'html':'UTF-8'}' {if $moloni.configurations.exemption_reason_shipping.value == $opt.code} selected {/if}>
+                                    {$opt.name|escape:'html':'UTF-8'} ({$opt.code|escape:'html':'UTF-8'})
+                                </option>
                             {/foreach}
                         </select>
                     </div>

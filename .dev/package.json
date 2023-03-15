@@ -13,28 +13,28 @@
   "author": "Moloni, lda",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.15.0",
-    "@babel/preset-env": "^7.15.0",
-    "autoprefixer": "^10.3.1",
+    "@babel/core": "^7.21.3",
+    "@babel/preset-env": "^7.20.2",
+    "autoprefixer": "^10.4.14",
     "gulp": "^4.0.2",
     "gulp-babel": "^8.0.0",
     "gulp-clean-css": "^4.3.0",
     "gulp-concat": "^2.6.1",
     "gulp-cssimport": "^7.0.0",
     "gulp-plumber": "^1.2.1",
-    "gulp-postcss": "^9.0.0",
-    "gulp-purgecss": "^4.0.3",
+    "gulp-postcss": "^9.0.1",
+    "gulp-purgecss": "^5.0.0",
     "gulp-rename": "^2.0.0",
-    "gulp-sass": "^5.0.0",
+    "gulp-sass": "^5.1.0",
     "gulp-sourcemaps": "^3.0.0",
     "gulp-uglify": "^3.0.2",
-    "postcss": "^8.3.6",
+    "postcss": "^8.4.21",
     "postcss-combine-media-query": "^1.0.1",
-    "postcss-sort-media-queries": "^3.6.5",
-    "sass": "^1.37.5"
+    "postcss-sort-media-queries": "^4.3.0",
+    "sass": "^1.59.3"
   },
   "dependencies": {
-    "datatables.net": "^1.10.25",
+    "datatables.net": "^1.13.4",
     "datatables.net-dt": "*"
   },
   "browserslist": [

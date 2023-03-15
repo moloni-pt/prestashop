@@ -68,7 +68,6 @@ class General
         return ($companies);
     }
 
-
     public function getConfigsAll()
     {
         $populated = null;
@@ -498,26 +497,29 @@ class General
             $this->wrapping($invoice['products'][$x]);
         }
 
-        $deliveryMethodId = $this->parseDeliveryMethodId($order['shipping'][0]['carrier_name']);
+        // Shipping info
+        if ($this->shouldShowShippingInfo()) {
+            $deliveryMethodId = $this->parseDeliveryMethodId($order['shipping'][0]['carrier_name']);
 
-        if ($deliveryMethodId > 0) {
-            $invoice['delivery_method_id'] = $deliveryMethodId;
-            $invoice['delivery_datetime'] = date('Y-m-d h:m:s');
+            if ($deliveryMethodId > 0) {
+                $invoice['delivery_method_id'] = $deliveryMethodId;
+                $invoice['delivery_datetime'] = date('Y-m-d h:m:s');
 
-            $invoice['delivery_departure_address'] = $this->me['address'];
-            $invoice['delivery_departure_city'] = $this->me['city'];
-            $invoice['delivery_departure_zip_code'] = $this->me['zip_code'];
+                $invoice['delivery_departure_address'] = $this->me['address'];
+                $invoice['delivery_departure_city'] = $this->me['city'];
+                $invoice['delivery_departure_zip_code'] = $this->me['zip_code'];
 
-            if (isset($this->me['fiscal_country_id']) && (int)$this->me['fiscal_country_id'] > 0) {
-                $invoice['delivery_departure_country'] = $this->me['fiscal_country_id'];
-            } else {
-                $invoice['delivery_departure_country'] = $this->me['country_id'];
+                if (isset($this->me['fiscal_country_id']) && (int)$this->me['fiscal_country_id'] > 0) {
+                    $invoice['delivery_departure_country'] = $this->me['fiscal_country_id'];
+                } else {
+                    $invoice['delivery_departure_country'] = $this->me['country_id'];
+                }
+
+                $invoice['delivery_destination_address'] = $moloniClient['shipping']['address'];
+                $invoice['delivery_destination_city'] = $moloniClient['shipping']['delivery_destination_city'];
+                $invoice['delivery_destination_zip_code'] = $moloniClient['shipping']['delivery_destination_zip_code'];
+                $invoice['delivery_destination_country'] = $moloniClient['shipping']['delivery_destination_country'];
             }
-
-            $invoice['delivery_destination_address'] = $moloniClient['shipping']['address'];
-            $invoice['delivery_destination_city'] = $moloniClient['shipping']['delivery_destination_city'];
-            $invoice['delivery_destination_zip_code'] = $moloniClient['shipping']['delivery_destination_zip_code'];
-            $invoice['delivery_destination_country'] = $moloniClient['shipping']['delivery_destination_country'];
         }
 
         $orderPayments = $orderPS->getOrderPayments();
@@ -1323,6 +1325,7 @@ class General
     }
 
     //***** Copied from AdminImporterController and modified ******//
+
     public static function saveImageFromUrl($id_entity, $id_image = null, $url = '')
     {
         $tmpfile = tempnam(_PS_TMP_IMG_DIR_, 'ps_import');
@@ -1432,6 +1435,7 @@ class General
     }
 
     //***** Copied from AdminImporterController and modified ******//
+
     private function getDiscountPercentage($order)
     {
         $cartRules = $order->getDiscounts();
@@ -1503,4 +1507,15 @@ class General
         return Tools::ps_round($amount, 5);
     }
 
+    //***** Auxiliary ******//
+
+    private function shouldShowShippingInfo()
+    {
+        /** Fallback for users that upgraded and did not set this setting */
+        if (!defined('SHOW_SHIPPING_INFORMATION') || SHOW_SHIPPING_INFORMATION === '') {
+            return true;
+        }
+
+        return (bool)SHOW_SHIPPING_INFORMATION;
+    }
 }
