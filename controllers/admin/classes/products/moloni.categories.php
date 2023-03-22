@@ -66,6 +66,16 @@ class Categories
         return curl::simple("productCategories/getByName", $values);
     }
 
+    public function getOne($categoryId = 0)
+    {
+        $values = [
+            'company_id' => COMPANY,
+            'category_id' => $categoryId
+        ];
+
+        return curl::simple("productCategories/getOne", $values);
+    }
+
     public function getAll($parentId = '0')
     {
         $values = [];

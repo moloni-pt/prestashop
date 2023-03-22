@@ -154,9 +154,6 @@ class ProductSyncService
         $modifiedProducts = $this->getModifiedProducts($this->date);
         $productsCount = count($modifiedProducts);
 
-        $categories = new CategoryImportService();
-        $categories->run();
-
         $this->addHeader($productsCount);
 
         if ($modifiedProducts && is_array($modifiedProducts)) {

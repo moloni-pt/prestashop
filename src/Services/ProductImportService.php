@@ -25,6 +25,7 @@ namespace Moloni\Services;
 use Configuration;
 use General;
 use Image;
+use Moloni\Services\Product\GetCategoryFromMoloniProduct;
 use PrestaShopDatabaseException;
 use PrestaShopException;
 use Product;
@@ -33,10 +34,11 @@ use StockAvailable;
 class ProductImportService
 {
     private $product;
-    private $categoriesExists;
     private $default_lang;
 
     /**
+     * Constructor
+     *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
@@ -45,13 +47,13 @@ class ProductImportService
         if (is_array($productToImport) && !empty($productToImport)) {
             $this->product = $productToImport;
         }
-        $categories = new CategoryImportService();
-        $this->categoriesExists = $categories->run();
 
         $this->default_lang = Configuration::get('PS_LANG_DEFAULT');
     }
 
     /**
+     * Runner
+     *
      * @throws PrestaShopException
      * @throws PrestaShopDatabaseException
      */
@@ -66,8 +68,14 @@ class ProductImportService
             $newProduct->ean13 = $this->getEAN($this->product['ean']);
             $newProduct->quantity = ($this->product['has_stock'] ? $this->product['stock'] : 0);
             $newProduct->description = $this->product['summary'] ?: '';
-            $newProduct->id_category = $this->categoriesExists[$this->product['category_id']]['ps_id'];
-            $newProduct->id_category_default = $this->categoriesExists[$this->product['category_id']]['ps_id'];
+
+            $service = new GetCategoryFromMoloniProduct($this->product);
+            $service->run();
+
+            $prestashopCategories = $service->getCategories();
+
+            $newProduct->id_category = $prestashopCategories[0];
+            $newProduct->id_category_default = $prestashopCategories[0];
 
             if ($newProduct->add()) {
                 StockAvailable::setQuantity((int)$newProduct->id, 0, $newProduct->quantity);
@@ -86,7 +94,7 @@ class ProductImportService
                     }
                 }
 
-                $newProduct->addToCategories([$this->categoriesExists[$this->product['category_id']]['ps_id']]);
+                $newProduct->addToCategories($prestashopCategories);
 
                 return $newProduct->id;
             }
@@ -95,6 +103,26 @@ class ProductImportService
         return false;
     }
 
+    //          Privates          //
+
+    /**
+     * Cleans link rewrite field
+     *
+     * @param string $name Name value
+     *
+     * @return string
+     */
+    private function linkRewrite($name)
+    {
+        if (!empty($name)) {
+            $name = preg_replace('/[^A-Za-z0-9\-]/', '', $name); // Removes special chars and spaces.
+        }
+
+        return $name;
+    }
+
+    //          Getters          //
+
     /**
      * Cleans EAN field
      *
@@ -102,7 +130,7 @@ class ProductImportService
      *
      * @return string
      */
-    private function getEAN(string $ean): string
+    private function getEAN($ean)
     {
         if (!$ean || !preg_match('/^[0-9]{0,13}$/', $ean)) {
             $ean = '';
@@ -118,26 +146,10 @@ class ProductImportService
      *
      * @return string
      */
-    private function getName(string $name): string
+    private function getName($name)
     {
         if (!empty($name)) {
             $name = str_replace(['<', '>', ';', '=', '#', '{', '}'], '', $name); // Removes special chars.
-        }
-
-        return $name;
-    }
-
-    /**
-     * Cleans link rewrite field
-     *
-     * @param string $name Name value
-     *
-     * @return string
-     */
-    private function linkRewrite(string $name): string
-    {
-        if (!empty($name)) {
-            $name = preg_replace('/[^A-Za-z0-9\-]/', '', $name); // Removes special chars and spaces.
         }
 
         return $name;
