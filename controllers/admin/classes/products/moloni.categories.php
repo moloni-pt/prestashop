@@ -22,26 +22,20 @@
  */
 class Categories
 {
-    public function __construct()
-    {
-        
-    }
-
     public function check($name)
     {
+        $categories = $this->getByName($name, 0);
 
-        $categories = $this->getAll();
-        foreach ($categories as $category) {
-            if (mb_strtolower($name) == mb_strtolower($category['name'])) {
-                return $category['category_id'];
-            }
+        if (!empty($categories) && is_array($categories) && isset($categories[0]['category_id'])) {
+            return $categories[0]['category_id'];
         }
 
-        $values = array();
-        $values['parent_id'] = "0";
-        $values['name'] = $name;
-        $values['description'] = "";
-        $values['pos_enabled'] = "1";
+        $values = [
+            'parent_id' => '0',
+            'name' => $name,
+            'description' => '',
+            'pos_enabled' => '1',
+        ];
 
         return $this->insert($values);
     }
@@ -49,6 +43,7 @@ class Categories
     public function getHierarchy($parentId = '0')
     {
         $categories = $this->getAll($parentId);
+
         foreach ($categories as &$category) {
             if ($category['num_categories'] > 0) {
                 $category['childs'] = $this->getHierarchy($category['category_id']);
@@ -57,9 +52,23 @@ class Categories
         return $categories;
     }
 
+    //          Requests          //
+
+    public function getByName($name = '', $parentId = 0)
+    {
+        $values = [
+            'company_id' => COMPANY,
+            'parent_id' => $parentId,
+            'name' => $name,
+            'exact' => 1
+        ];
+
+        return curl::simple("productCategories/getByName", $values);
+    }
+
     public function getAll($parentId = '0')
     {
-        $values = array();
+        $values = [];
         $values['company_id'] = COMPANY;
         $values['parent_id'] = $parentId;
         $result = curl::simple("productCategories/getAll", $values);
@@ -91,5 +100,4 @@ class Categories
         $result = curl::simple("productCategories/delete", $values);
         return($result);
     }
-
 }
