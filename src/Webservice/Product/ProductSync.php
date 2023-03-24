@@ -2,6 +2,7 @@
 
 namespace Moloni\Webservice\Product;
 
+use Moloni\Classes\Start;
 use Moloni\Services\ProductSyncService;
 use PrestaShopDatabaseException;
 use PrestaShopException;
@@ -12,13 +13,7 @@ class ProductSync
 
     public function __construct()
     {
-        require_once(_PS_MODULE_DIR_ . 'moloni/controllers/admin/classes/moloni.curl.php');
-        require_once(_PS_MODULE_DIR_ . 'moloni/controllers/admin/classes/moloni.start.php');
-        require_once(_PS_MODULE_DIR_ . 'moloni/controllers/admin/classes/moloni.products.php');
-        require_once(_PS_MODULE_DIR_ . 'moloni/controllers/admin/classes/moloni.settings.php');
-        require_once(_PS_MODULE_DIR_ . 'moloni/controllers/admin/classes/prestashop.general.php');
-
-        new \Start();
+        new Start();
 
         if (defined('ENABLE_PRODUCT_SYNC_WEBSERVICE')) {
             $productSyncService = new ProductSyncService();

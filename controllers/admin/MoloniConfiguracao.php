@@ -1,8 +1,4 @@
 <?php
-
-use Moloni\Services\ProductSyncService;
-use Moloni\Webservice\Webservices;
-
 /**
  * 2020 - moloni.pt
  *
@@ -13,7 +9,7 @@ use Moloni\Webservice\Webservices;
  * you accept the licence agreement.
  *
  * You must not modify, adapt or create derivative works of this source code
- * DISCLAIMER 
+ * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
  * versions in the future. If you wish to customize PrestaShop for your
@@ -23,6 +19,12 @@ use Moloni\Webservice\Webservices;
  *  @copyright Nuno Almeida
  *  @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  */
+
+use Moloni\Classes\General;
+use Moloni\Classes\Start;
+use Moloni\Services\ProductSyncService;
+use Moloni\Webservice\Webservices;
+
 class MoloniConfiguracaoController extends ModuleAdminController
 {
     public $moloniTpl = null;
@@ -32,14 +34,6 @@ class MoloniConfiguracaoController extends ModuleAdminController
         $this->bootstrap = true;
         $this->className = 'Moloni';
         $this->context = Context::getContext();
-
-        require_once("classes/error.class.php");
-        require_once("classes/moloni.curl.php");
-        require_once("classes/moloni.start.php");
-        require_once("classes/moloni.settings.php");
-        require_once("classes/moloni.global.php");
-        require_once("classes/moloni.products.php");
-        require_once("classes/prestashop.general.php");
 
         $moloni = new Start();
         $functions = new General();

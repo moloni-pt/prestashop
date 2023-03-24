@@ -28,12 +28,12 @@ namespace Moloni\Services;
 use Combination;
 use Configuration;
 use Db;
+use Moloni\Classes\Products;
 use PrestaShop\PrestaShop\Core\Domain\Product\Exception\ProductConstraintException;
 use PrestaShop\PrestaShop\Core\Domain\Product\ValueObject\Ean13;
 use PrestaShopDatabaseException;
 use PrestaShopException;
 use Product;
-use Products;
 use StockAvailable;
 use Tools;
 

@@ -26,8 +26,8 @@ use Category;
 use Configuration;
 use ImageManager;
 use ImageType;
+use Moloni\Classes\Products;
 use PrestaShopDatabaseException;
-use Products;
 use Tools;
 
 class GetCategoryFromMoloniProduct

@@ -23,8 +23,8 @@
 namespace Moloni\Services;
 
 use Configuration;
-use General;
 use Image;
+use Moloni\Classes\General;
 use Moloni\Services\Product\GetCategoryFromMoloniProduct;
 use PrestaShopDatabaseException;
 use PrestaShopException;

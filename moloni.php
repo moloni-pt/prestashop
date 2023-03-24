@@ -20,6 +20,10 @@
  * @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  */
 
+use Moloni\Classes\General;
+use Moloni\Classes\MoloniError;
+use Moloni\Classes\Start;
+
 include_once _PS_MODULE_DIR_ . 'moloni/src/Webservice/WebserviceSpecificManagementMoloniResource.php';
 
 class Moloni extends Module
@@ -31,7 +35,7 @@ class Moloni extends Module
         $this->need_instance = 1;
         $this->version = '2.6.0';
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
-        $this->author = 'Nuno Almeida';
+        $this->author = 'Moloni';
         $this->bootstrap = true;
         $this->module_key = 'c1b44ca634a5bc18032f311803470fea';
 
@@ -85,16 +89,13 @@ class Moloni extends Module
      * */
     public function hookActionPaymentConfirmation($params)
     {
-        include_once(__DIR__ . '/controllers/admin/classes/error.class.php');
-        include_once(__DIR__ . '/controllers/admin/classes/moloni.curl.php');
-        include_once(__DIR__ . '/controllers/admin/classes/moloni.start.php');
-        include_once(__DIR__ . '/controllers/admin/classes/prestashop.general.php');
-
         new Start();
+
         if (defined('INVOICE_AUTO') && (int)INVOICE_AUTO === 1) {
             $functions = new General();
 
             $functions->makeInvoice($params['id_order']);
+
             if (MoloniError::$exists) {
                 MoloniError::$message;
             }
