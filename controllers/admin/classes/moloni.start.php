@@ -2,6 +2,8 @@
 /** @noinspection SqlNoDataSourceInspection */
 /** @noinspection SqlResolve */
 
+use Moloni\Webservice\Webservices;
+
 /**
  * 2020 - moloni.pt
  *
@@ -30,7 +32,6 @@ class Start extends ModuleAdminController
 
     public function __construct()
     {
-
         if (Tools::getValue('goDo') && Tools::getValue('goDo') === 'save' && Tools::getValue('options')) {
             $this->variablesUpdate();
         }
@@ -179,6 +180,12 @@ class Start extends ModuleAdminController
             $options['order_status'] = array_keys($options['order_status']);
         }
 
+        if ((int)$options['enable_product_sync_webservice'] === 1) {
+            (new Webservices())->enable();
+        } else {
+            (new Webservices())->disable();
+        }
+
         foreach ($options as $key => $value) {
             $val = (is_array($value) ? serialize($value) : $value);
 
@@ -248,6 +255,12 @@ class Start extends ModuleAdminController
         $defines[] = [
             'label' => 'show_shipping_information',
             'name' => 'Informações de envio',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'enable_product_sync_webservice',
+            'name' => 'Ativar webservice para sincronização de artigos',
             'description' => '',
             'value' => ''
         ];

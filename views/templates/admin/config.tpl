@@ -331,6 +331,56 @@
                 </div>
             </div>
         </div>
+
+        <div class="panel">
+            <div class="panel-heading">
+                {l s='Advanced' mod='moloni'}
+            </div>
+            <div class="panel-body">
+                <div class="form-group row">
+                    <!-------------------------- Criar webservice de sincronização de artigos (Sim/Não) ------------------------------>
+                    <div class="col-sm-6">
+                        <label>
+                            {l s='Create webservice to allow product syncronization with cron' mod='moloni'}
+                        </label>
+
+                        {assign var="enableProductSyncWebservice" value=""}
+
+                        {if array_key_exists('enable_product_sync_webservice', $moloni.configurations)}
+                            {assign var="enableProductSyncWebservice" value=$moloni.configurations.enable_product_sync_webservice.value}
+                        {/if}
+
+                        <select name='options[enable_product_sync_webservice]'>
+                            <option value='' selected>
+                                {l s='Create webservice to allow product syncronization' mod='moloni'}
+                            </option>
+                            <option value='0' {if $enableProductSyncWebservice == "0"} selected {/if}>
+                                {l s='No' mod='moloni'}
+                            </option>
+                            <option value='1' {if $enableProductSyncWebservice == "1"} selected {/if}>
+                                {l s='Yes' mod='moloni'}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-------------------------- Mostrar URL do webservice de sincronização de artigos  ------------------------------>
+                    {if $enableProductSyncWebservice == "1"}
+                        <div class="col-sm-6">
+                            <label>
+                                {l s='Webservice url' mod='moloni'}
+                            </label>
+                            <br />
+
+                            <button type="button" class="btn btn-primary" id="showProductSyncWebservice">
+                                {l s='Show URL' mod='moloni'}
+                            </button>
+
+                            <input type="text" disabled value='HERE' style="display: none;" id="productSyncWebserviceUrl">
+                        </div>
+                    {/if}
+                </div>
+            </div>
+        </div>
     </form>
 
     <form method='POST' id='moloniTools' action='{$moloni.configurations.formToolsSubmit|escape:'html':'UTF-8'}'>
@@ -401,7 +451,9 @@
         save_changes: "{l s='Save Changes' mod='moloni'}"
     }
 
+    var currentAction = "{Context::getContext()->link->getAdminLink('MoloniConfiguracao', true)}";
+
     $(document).ready(function() {
-        pt.moloni.Settings.init(translations);
+        pt.moloni.Settings.init(translations, currentAction);
     });
 </script>

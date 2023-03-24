@@ -13,9 +13,12 @@ if (pt.moloni.Settings === undefined) {
 
 pt.moloni.Settings = (function ($) {
     var translations;
+    var currentPageAction;
+    var doingAjax = false;
 
-    function init(_translations) {
+    function init(_translations, _currentPageAction) {
         translations = _translations;
+        currentPageAction = _currentPageAction;
 
         drawSaveButton();
         startObservers();
@@ -55,6 +58,34 @@ pt.moloni.Settings = (function ($) {
                     icon.removeClass('collapsible-icon--open');
                 }
             }
+        });
+
+        // Show Product sync webservice URl
+        var showProductSyncWebserviceBtn = $('#showProductSyncWebservice');
+        var productSyncWebserviceInput = $('#productSyncWebserviceUrl');
+
+        showProductSyncWebserviceBtn.on('click', function () {
+            var url = currentPageAction + '&operation=getWebserviceProductSyncUrl&ajax=true';
+
+            if (doingAjax) {
+                return;
+            }
+
+            doingAjax = true;
+
+            showProductSyncWebserviceBtn.prop('disabled', true);
+
+            fetch(url, { method: "GET" }).then(
+                response => response.json()
+            ).then((data) => {
+                if (data && data.valid) {
+                    showProductSyncWebserviceBtn.hide();
+                    productSyncWebserviceInput.val(data.url);
+                    productSyncWebserviceInput.show();
+                } else {
+                    alert('Something went wrong');
+                }
+            });
         });
     }
 

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 2020 - moloni.pt
  *
@@ -20,6 +19,9 @@
  * @copyright Nuno Almeida
  * @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  */
+
+include_once _PS_MODULE_DIR_ . 'moloni/src/Webservice/WebserviceSpecificManagementMoloniResource.php';
+
 class Moloni extends Module
 {
     public function __construct()
@@ -56,6 +58,7 @@ class Moloni extends Module
             && $this->dbInstall()
             && $this->registerHook('actionPaymentConfirmation')
             && $this->registerHook('DisplayBackOfficeHeader')
+            && $this->registerHook('addWebserviceResources')
             && $this->registerHook('actionOrderStatusPostUpdate') //after order status is changed
             && $this->registerHook('actionProductSave');
     }
@@ -145,6 +148,21 @@ class Moloni extends Module
                 }
             }
         }
+    }
+
+    /**
+     * Add endpoints to Prestashop Webservices
+     *
+     * @return array[]
+     */
+    public function hookAddWebserviceResources()
+    {
+        return [
+            'moloniresource' => [
+                'description' => 'Moloni sync resource',
+                'specific_management' => true,
+            ],
+        ];
     }
 
     /**

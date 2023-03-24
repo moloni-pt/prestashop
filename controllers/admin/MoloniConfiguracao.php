@@ -1,6 +1,7 @@
 <?php
 
 use Moloni\Services\ProductSyncService;
+use Moloni\Webservice\Webservices;
 
 /**
  * 2020 - moloni.pt
@@ -43,49 +44,69 @@ class MoloniConfiguracaoController extends ModuleAdminController
         $moloni = new Start();
         $functions = new General();
 
-        $this->moloniTpl = $moloni->template;
+        if (!$this->ajax) {
+            $this->moloniTpl = $moloni->template;
 
-        $companies = null;
-        $syncResult = null;
-        $configurations = null;
+            $companies = null;
+            $syncResult = null;
+            $configurations = null;
 
-        switch ($this->moloniTpl) {
+            switch ($this->moloniTpl) {
 
-            case 'company':
-                $companies = $functions->getCompaniesAll();
-                break;
+                case 'company':
+                    $companies = $functions->getCompaniesAll();
+                    break;
 
-            case 'index':
-                $configurations = $functions->getConfigsAll();
-                $configurations['updateStocksSince'] = date('Y-m-d H:i:s', strtotime("-1 week"));
-                $this->moloniTpl = "config";
-                break;
-        }
+                case 'index':
+                    $configurations = $functions->getConfigsAll();
 
-        if (Tools::getValue('goDo') && Tools::getValue('goDo') === 'synchronize') {
-            $productSyncService = new ProductSyncService();
-            $productSyncService->setImportDate(date('Y-m-d H:i:s', strtotime("-1 week")));
-            $productSyncService->instantiateSyncFilters();
-            $syncResult = $productSyncService->run()->getResults();
-        }
+                    $this->moloniTpl = "config";
+                    break;
+            }
 
-        $this->context->smarty->assign([
-            'moloni' => [
-                'path' => [
-                    'img' => '../modules/moloni/views/img/',
-                    'css' => '../modules/moloni/views/css/',
-                    'js' => '../modules/moloni/views/js/'
+            if (Tools::getValue('goDo') && Tools::getValue('goDo') === 'synchronize') {
+                $productSyncService = new ProductSyncService();
+                $productSyncService->setImportDate(date('Y-m-d H:i:s', strtotime("-1 week")));
+                $productSyncService->instantiateSyncFilters();
+                $syncResult = $productSyncService->run()->getResults();
+            }
+
+            $this->context->smarty->assign([
+                'moloni' => [
+                    'path' => [
+                        'img' => '../modules/moloni/views/img/',
+                        'css' => '../modules/moloni/views/css/',
+                        'js' => '../modules/moloni/views/js/'
+                    ],
+                    'version' => Module::getInstanceByName('moloni')->version,
+                    'companies' => $companies,
+                    'message_alert' => ((Tools::getValue('goDo') && Tools::getValue('goDo') === "save" && Tools::getValue('options')) ? "1" : null ),
+                    'configurations' => $configurations,
+                    'syncResult' => $syncResult
                 ],
-                'version' => Module::getInstanceByName('moloni')->version,
-                'companies' => $companies,
-                'message_alert' => ((Tools::getValue('goDo') && Tools::getValue('goDo') === "save" && Tools::getValue('options')) ? "1" : null ),
-                'configurations' => $configurations,
-                'syncResult' => $syncResult
-            ],
-            'html' => $moloni->template
-        ]);
+                'html' => $moloni->template
+            ]);
+        }
 
         parent::__construct();
+    }
+
+    public function displayAjax()
+    {
+        $params = Tools::getAllValues();
+        $response = [
+            'valid' => 1,
+            'message' => ''
+        ];
+
+        switch ($params['operation']) {
+            case 'getWebserviceProductSyncUrl':
+                $response['url'] = (new Webservices())->getWebserviceProductSyncUrl();
+
+                break;
+        }
+
+        echo json_encode($response);
     }
 
     public function initContent()
