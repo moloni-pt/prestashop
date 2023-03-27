@@ -98,7 +98,7 @@ class GetCategoryFromMoloniProduct
         }
 
         foreach ($moloniCategories as $moloniCategory) {
-            $query = Category::searchByNameAndParentCategoryId($this->default_lang, $moloniCategory, $parentId);
+            $query = Category::searchByNameAndParentCategoryId($this->default_lang, $moloniCategory['name'], $parentId);
 
             if (empty($query)) {
                 $insertCategory = new Category();
@@ -113,12 +113,12 @@ class GetCategoryFromMoloniProduct
 
                 $insertCategory->save();
 
-                array_unshift($prestashopCategoryIds, $insertCategory->id);
+                $parentId = $insertCategory->id;
             } else {
                 $parentId = $query['id_category'];
-
-                array_unshift($prestashopCategoryIds, $query['id_category']);
             }
+
+            array_unshift($prestashopCategoryIds, $parentId);
         }
 
         $this->prestashopCategories = $prestashopCategoryIds;
