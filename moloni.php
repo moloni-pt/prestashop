@@ -109,15 +109,9 @@ class Moloni extends Module
      */
     public function hookActionProductSave($params)
     {
-        include_once(__DIR__ . '/controllers/admin/classes/error.class.php');
-        include_once(__DIR__ . '/controllers/admin/classes/moloni.curl.php');
-        include_once(__DIR__ . '/controllers/admin/classes/moloni.start.php');
-        include_once(__DIR__ . '/controllers/admin/classes/moloni.products.php');
-        include_once(__DIR__ . '/controllers/admin/classes/moloni.settings.php');
-        include_once(__DIR__ . '/controllers/admin/classes/prestashop.general.php');
-
         new Start();
         $functions = new General();
+
         if (defined('AUTO_ADD_PRODUCT') && AUTO_ADD_PRODUCT == 1) {
             $functions->productCreate($params);
         }
@@ -131,11 +125,6 @@ class Moloni extends Module
      */
     public function hookActionOrderStatusPostUpdate($params)
     {
-        include_once(__DIR__ . '/controllers/admin/classes/error.class.php');
-        include_once(__DIR__ . '/controllers/admin/classes/moloni.curl.php');
-        include_once(__DIR__ . '/controllers/admin/classes/moloni.start.php');
-        include_once(__DIR__ . '/controllers/admin/classes/prestashop.general.php');
-
         new Start();
 
         if (defined('INVOICE_AUTO') && (int)INVOICE_AUTO === 2) {
