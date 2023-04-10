@@ -100,12 +100,26 @@ class Customers extends Entities
 
     public function getByEmail($email, $companyID = COMPANY)
     {
-        $values = array();
+        $values = [];
         $values['company_id'] = $companyID;
         $values['exact'] = "1";
         $values['email'] = $email;
+
         $result = Curl::simple("customers/getByEmail", $values, true);
-        return (isset($result[0]['customer_id']) ? $result[0] : false);
+
+        if (is_array($result) && !empty($result)) {
+            foreach ($result as $customer) {
+                if (!isset($customer['customer_id']) || !isset($customer['vat'])) {
+                    continue;
+                }
+
+                if ($customer['vat'] === '999999990') {
+                    return $customer;
+                }
+            }
+        }
+
+        return false;
     }
 
     public function countByNumber($values, $companyID = COMPANY)
