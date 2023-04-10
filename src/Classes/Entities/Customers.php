@@ -102,7 +102,6 @@ class Customers extends Entities
     {
         $values = [];
         $values['company_id'] = $companyID;
-        $values['exact'] = "1";
         $values['email'] = $email;
 
         $result = Curl::simple("customers/getByEmail", $values, true);
