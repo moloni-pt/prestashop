@@ -29,6 +29,7 @@ use Db;
 use Tools;
 use ModuleAdminController;
 use Moloni\Webservice\Webservices;
+use Moloni\Classes\Curl;
 
 class Start extends ModuleAdminController
 {
@@ -47,7 +48,7 @@ class Start extends ModuleAdminController
 
         if (Tools::getValue('mol-username') && Tools::getValue('mol-password')) {
             #Tentativa de Login
-            $validate = curl::login(Tools::getValue('mol-username'), Tools::getValue('mol-password'));
+            $validate = Curl::login(Tools::getValue('mol-username'), Tools::getValue('mol-password'));
             if (!$validate) {
                 #Utilizador/password errada
                 $this->template = 'login';
@@ -106,16 +107,16 @@ class Start extends ModuleAdminController
                     #Login feito, e empresa seleccionada
                     #Tentar refresh se for preciso
                     if ($row['date_expire'] < time()) {
-                        $refresh = curl::refresh($row['refresh_token']);
+                        $refresh = Curl::refresh($row['refresh_token']);
 
                         if (!$refresh) {
                             sleep(2000);
-                            $refresh = curl::refresh($row['refresh_token']);
+                            $refresh = Curl::refresh($row['refresh_token']);
                         }
 
                         if (!$refresh) {
                             sleep(2000);
-                            $refresh = curl::refresh($row['refresh_token']);
+                            $refresh = Curl::refresh($row['refresh_token']);
                         }
 
                         if (!$refresh) {
