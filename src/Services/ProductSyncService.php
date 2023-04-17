@@ -29,7 +29,6 @@ use Combination;
 use Configuration;
 use Db;
 use PrestaShop\PrestaShop\Core\Domain\Product\Exception\ProductConstraintException;
-use PrestaShop\PrestaShop\Core\Domain\Product\ValueObject\Ean13;
 use PrestaShopDatabaseException;
 use PrestaShopException;
 use Product;
@@ -277,21 +276,15 @@ class ProductSyncService
             $this->currentSyncAttributeProduct['id_product_attribute']
         );
 
-        try {
-            $ean = new Ean13($this->moloniProduct['ean']);
+        $ean = $this->moloniProduct['ean'] ?? '';
 
-            if ($ean->getValue() && $ean->getValue() !== $product->ean13) {
-                $this->addUpdateAttributes([
-                    'ean_before' => $product->ean13,
-                    'ean_after' => $this->moloniProduct['ean'],
-                    'shouldSyncStock' => $this->shouldSyncStock
-                ]);
-                $product->ean13 = $this->moloniProduct['ean'];
-                $product->update();
-            }
-
-        } catch (ProductConstraintException $ex) {
-            $product->ean13 = '';
+        if (!empty($ean) && $ean !== $product->ean13) {
+            $this->addUpdateAttributes([
+                'ean_before' => $product->ean13,
+                'ean_after' => $this->moloniProduct['ean'],
+                'shouldSyncStock' => $this->shouldSyncStock
+            ]);
+            $product->ean13 = $this->moloniProduct['ean'];
             $product->update();
         }
     }
@@ -492,19 +485,14 @@ class ProductSyncService
         }
 
         if ($this->shouldSyncEAN && $this->isEan13Valid($this->moloniProduct['ean'])) {
-            try {
-                $ean = new Ean13($this->moloniProduct['ean']);
+            $ean = $this->moloniProduct['ean'] ?? '';
 
-                if ($ean->getValue() && $ean->getValue() !== $product->ean13) {
-                    $this->addUpdateSimple([
-                        'ean_before' => $product->ean13,
-                        'ean_after' => $this->moloniProduct['ean']
-                    ]);
-                    $product->ean13 = $this->moloniProduct['ean'];
-                    $changeFlag = true;
-                }
-            } catch (ProductConstraintException $ex) {
-                $product->ean13 = '';
+            if (!empty($ean) && $ean !== $product->ean13) {
+                $this->addUpdateSimple([
+                    'ean_before' => $product->ean13,
+                    'ean_after' => $this->moloniProduct['ean']
+                ]);
+                $product->ean13 = $this->moloniProduct['ean'];
                 $changeFlag = true;
             }
         }
