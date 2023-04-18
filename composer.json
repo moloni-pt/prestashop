@@ -19,6 +19,13 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.5.2",
+        "title": "Release da versão 2.5.2",
+        "description": [
+          "Remoção de código descontinuado"
+        ]
+      },
+      {
         "version": "v2.5.0",
         "title": "Release da versão 2.5.0",
         "description": [
