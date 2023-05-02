@@ -25,7 +25,7 @@ use Moloni\Classes\Start;
 use Moloni\Services\ProductSyncService;
 use Moloni\Webservice\Webservices;
 
-class MoloniConfiguracaoController extends ModuleAdminController
+class MoloniToolsController extends ModuleAdminController
 {
     public $moloniTpl = null;
 
@@ -51,9 +51,7 @@ class MoloniConfiguracaoController extends ModuleAdminController
                     break;
 
                 case 'index':
-                    $configurations = $functions->getConfigsAll();
-
-                    $this->moloniTpl = "config";
+                    $this->moloniTpl = "tools";
                     break;
             }
 
@@ -66,7 +64,6 @@ class MoloniConfiguracaoController extends ModuleAdminController
                     ],
                     'version' => Module::getInstanceByName('moloni')->version,
                     'companies' => $companies,
-                    'message_alert' => ((Tools::getValue('goDo') && Tools::getValue('goDo') === "save" && Tools::getValue('options')) ? "1" : null ),
                     'configurations' => $configurations,
                 ],
                 'html' => $moloni->template
@@ -85,8 +82,29 @@ class MoloniConfiguracaoController extends ModuleAdminController
         ];
 
         switch ($params['operation']) {
-            case 'getWebserviceProductSyncUrl':
-                $response['url'] = (new Webservices())->getWebserviceProductSyncUrl();
+            case 'syncProducts':
+                $since = Tools::getValue('since', '');
+                $page = Tools::getValue('page', 1);
+
+                $productSyncService = new ProductSyncService();
+                $productSyncService->setImportDate($since);
+                $productSyncService->setPage($page);
+                $productSyncService->instantiateSyncFilters();
+                $productSyncService->run();
+
+                $hasMore = $productSyncService->getTotalProducts() >= $productSyncService->getPerPage();
+                $processedProducts = ($productSyncService->getPage() - 1) * $productSyncService->getPerPage();
+                $processedProducts += $productSyncService->getTotalProducts();
+
+                $this->context->smarty->assign([
+                    'processedProducts' => $processedProducts,
+                    'hasMore' => $hasMore
+                ]);
+
+                $response['hasMore'] = $hasMore;
+                $response['results'] = $productSyncService->getResults();
+
+                $response['overlayContent'] = $this->module->display(_PS_MODULE_DIR_ . 'moloni', 'views/templates/admin/tools/blocks/productSyncContent.tpl');
 
                 break;
         }

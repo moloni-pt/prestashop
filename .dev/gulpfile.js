@@ -46,6 +46,8 @@ gulp.task('js:prod', () => {
         './js/Movements.js',
         './js/PendingOrders.js',
         './js/Settings.js',
+        './js/Tools/Tools.js',
+        './js/Tools/Overlays/SyncProducts.js',
     ];
 
     return (

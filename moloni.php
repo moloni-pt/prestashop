@@ -52,11 +52,11 @@ class Moloni extends Module
      * */
     public function install()
     {
-
         $this->setMenu('MoloniTab', $this->l('Moloni'), (_PS_VERSION_ > 1.6) ? Tab::getIdFromClassName('SELL') : '0');
         $this->setMenu('MoloniStart', $this->l('Moloni'), Tab::getIdFromClassName('MoloniTab'));
         $this->setMenu('MoloniMovimentos', $this->l('Documents'), Tab::getIdFromClassName('MoloniTab'));
         $this->setMenu('MoloniConfiguracao', $this->l('Settings'), Tab::getIdFromClassName('MoloniTab'));
+        $this->setMenu('MoloniTools', $this->l('Tools'), Tab::getIdFromClassName('MoloniTab'));
 
         return parent::install()
             && $this->dbInstall()
@@ -77,6 +77,7 @@ class Moloni extends Module
         $this->delMenu('MoloniStart');
         $this->delMenu('MoloniMovimentos');
         $this->delMenu('MoloniConfiguracao');
+        $this->delMenu('MoloniTools');
 
         return parent::uninstall() && $this->dbUninstall();
     }

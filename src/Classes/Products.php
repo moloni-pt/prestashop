@@ -121,21 +121,11 @@ class Products extends ModuleAdminController
         return ($result);
     }
 
-    public function getModifiedSince($values, $offset = 0, $stop = 0)
+    public function getModifiedSince($values)
     {
         $values['company_id'] = COMPANY;
-        $values['offset'] = $offset;
-        $result = Curl::simple('products/getModifiedSince', $values);
-        $counter = count($result);
-        while ($counter == 50) {
-            $values['offset'] += 50;
-            $result2 = Curl::simple('products/getModifiedSince', $values);
-            $result = array_merge($result, $result2);
-            $counter = count($result2);
-            unset($result2);
-        }
 
-        return ($result);
+        return Curl::simple('products/getModifiedSince', $values);
     }
 
     public function insert($values)
