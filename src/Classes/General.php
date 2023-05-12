@@ -1447,33 +1447,36 @@ class General
 
     private function getDiscountPercentage($order)
     {
-        $cartRules = $order->getDiscounts();
-        $discount = 0;
-        $discountTotal = 0;
+        $productDiscount = 0;
 
-        if (!empty($cartRules) && is_array($cartRules)) {
-            if (count($cartRules) == 1) {
-                $singleCartRule = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "cart_rule WHERE id_cart_rule = '" . (int)$cartRules[0]['id_cart_rule'] . "'");
-                if (!empty($singleCartRule) && is_array($singleCartRule)) {
-                    if ($singleCartRule['free_shipping'] == 1) {
-                        $this->freeShipping = true;
-                    } elseif ($singleCartRule['reduction_percent'] > 0) {
-                        $discount = $singleCartRule['reduction_percent'];
-                    } else {
-                        $discountTotal = $this->getCartRulesTotal($cartRules);
-                    }
+        $cartRules = $order->getCartRules();
+
+        if (!empty($cartRules)) {
+            $accumulatedDiscount = 0;
+
+            foreach ($cartRules as $cartRule) {
+                if ((int)$cartRule['free_shipping'] === 1) {
+                    $this->freeShipping = true;
+
+                    continue;
                 }
-            } else {
-                $discountTotal = $this->getCartRulesTotal($cartRules);
+
+                $accumulatedDiscount += (float)$cartRule['value_tax_excl'];
             }
+
+            $productDiscount = ($accumulatedDiscount / (float)$order->total_products) * 100;
         }
 
-        if ($discountTotal != '0') {
-            $discount = round(($discountTotal * 100) / $order->total_products, 5);
-            $discount = ($discount > 100) ? 100 : $discount;
+        switch (true) {
+            case $productDiscount > 100:
+                $productDiscount = 100;
+                break;
+            case $productDiscount < 0:
+                $productDiscount = 0;
+                break;
         }
 
-        return $discount;
+        return $productDiscount;
     }
 
     private function getCartRulesTotal(array $cartRules)
