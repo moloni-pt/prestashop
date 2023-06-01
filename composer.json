@@ -19,6 +19,16 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.6.0",
+        "title": "Release da versão 2.6.0",
+        "description": [
+          "Melhorias na importação de produtos do Moloni",
+          "Adicionado webservices de sincronização de artigos para usar, por exemplo, com crons",
+          "Atualização do logotipo Moloni",
+          "Usados novos endpoints para categorias Moloni"
+        ]
+      },
+      {
         "version": "v2.5.2",
         "title": "Release da versão 2.5.2",
         "description": [

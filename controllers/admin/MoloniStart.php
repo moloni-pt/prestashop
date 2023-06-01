@@ -20,6 +20,11 @@
  * @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  */
 
+use Moloni\Classes\General;
+use Moloni\Classes\MoloniError;
+use Moloni\Classes\Service\FetchPendingOrders;
+use Moloni\Classes\Start;
+
 class MoloniStartController extends ModuleAdminController
 {
     public $moloniTpl;
@@ -30,11 +35,6 @@ class MoloniStartController extends ModuleAdminController
         $this->bootstrap = true;
         $this->className = 'Moloni';
         $this->context = Context::getContext();
-
-        require_once(__DIR__ . "/classes/error.class.php");
-        require_once(__DIR__ . "/classes/moloni.curl.php");
-        require_once(__DIR__ . "/classes/moloni.start.php");
-        require_once(__DIR__ . "/classes/prestashop.general.php");
 
         $moloni = new Start();
         $functions = new General();
@@ -98,8 +98,6 @@ class MoloniStartController extends ModuleAdminController
 
     public function displayAjax()
     {
-        require_once(__DIR__ . "/classes/service/FetchPendingOrders.php");
-
         echo json_encode((new FetchPendingOrders(Tools::getAllValues()))->run());
     }
 

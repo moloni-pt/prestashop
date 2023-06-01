@@ -28,11 +28,11 @@ namespace Moloni\Services;
 use Combination;
 use Configuration;
 use Db;
+use Moloni\Classes\Products;
 use PrestaShop\PrestaShop\Core\Domain\Product\Exception\ProductConstraintException;
 use PrestaShopDatabaseException;
 use PrestaShopException;
 use Product;
-use Products;
 use StockAvailable;
 use Tools;
 
@@ -43,7 +43,12 @@ class ProductSyncService
     private $shouldSyncName = false;
     private $shouldSyncDescription = false;
     private $shouldSyncEAN = false;
-    private $date;
+
+    private $date = null;
+    private $page = null;
+    private $perPage = 20;
+
+    private $totalProducts = 0;
 
     /**
      * Produto atributo
@@ -62,82 +67,7 @@ class ProductSyncService
 
     private $updatedResult = [];
 
-    /**
-     * Filtros de sincronização - Settings - Tools
-     *
-     * @return void
-     */
-    public function instantiateSyncFilters(): void
-    {
-        if (Tools::getValue('sync_fields') === false) {
-            return;
-        }
-
-        if (in_array('stock', Tools::getValue('sync_fields'), true)) {
-            $this->enableStockSync();
-        }
-
-        if (in_array('price', Tools::getValue('sync_fields'), true)) {
-            $this->enablePriceSync();
-        }
-
-        if (in_array('name', Tools::getValue('sync_fields'), true)) {
-            $this->enableNameSync();
-        }
-
-        if (in_array('description', Tools::getValue('sync_fields'), true)) {
-            $this->enableDescriptionSync();
-        }
-
-        if (in_array('ean', Tools::getValue('sync_fields'), true)) {
-            $this->enableEANSync();
-        }
-    }
-
-    /**
-     * @return void
-     */
-    private function enableStockSync(): void
-    {
-        $this->shouldSyncStock = true;
-    }
-
-    /**
-     * @return void
-     */
-    private function enablePriceSync(): void
-    {
-        $this->shouldSyncPrice = true;
-    }
-
-    /**
-     * @return void
-     */
-    private function enableNameSync(): void
-    {
-        $this->shouldSyncName = true;
-    }
-
-    /**
-     * @return void
-     */
-    private function enableDescriptionSync(): void
-    {
-        $this->shouldSyncDescription = true;
-    }
-
-    /**
-     * @return void
-     */
-    private function enableEANSync(): void
-    {
-        $this->shouldSyncEAN = true;
-    }
-
-    public function setImportDate($date): void
-    {
-        $this->date = $date;
-    }
+    /** Public's */
 
     /**
      * @throws PrestaShopException
@@ -150,13 +80,10 @@ class ProductSyncService
         }
 
         /** Vamos buscar todos */
-        $modifiedProducts = $this->getModifiedProducts($this->date);
-        $productsCount = count($modifiedProducts);
+        $modifiedProducts = $this->getModifiedProducts();
+        $this->totalProducts = count($modifiedProducts);
 
-        $categories = new CategoryImportService();
-        $categories->run();
-
-        $this->addHeader($productsCount);
+        $this->addHeader();
 
         if ($modifiedProducts && is_array($modifiedProducts)) {
             foreach ($modifiedProducts as $product) {
@@ -170,23 +97,113 @@ class ProductSyncService
         return $this;
     }
 
+    /** Sets */
+
+    public function instantiateSyncFilters(): void
+    {
+        $syncFields = Tools::getValue('sync_fields');
+
+        if ($syncFields === false) {
+            return;
+        }
+
+        if (is_string($syncFields)) {
+            $syncFields = explode(',', $syncFields);
+        }
+
+        if (in_array('stock', $syncFields, true)) {
+            $this->enableStockSync();
+        }
+
+        if (in_array('price', $syncFields, true)) {
+            $this->enablePriceSync();
+        }
+
+        if (in_array('name', $syncFields, true)) {
+            $this->enableNameSync();
+        }
+
+        if (in_array('description', $syncFields, true)) {
+            $this->enableDescriptionSync();
+        }
+
+        if (in_array('ean', $syncFields, true)) {
+            $this->enableEANSync();
+        }
+    }
+
+    public function setImportDate($date): void
+    {
+        $this->date = $date;
+    }
+
+    public function setPage($page)
+    {
+        $this->page = (int)$page;
+    }
+
+    /** Gets */
+
+    public function getPage()
+    {
+        return $this->page;
+    }
+
+    public function getPerPage(): int
+    {
+        return $this->perPage;
+    }
+
     public function getResults(): ?array
     {
         return $this->updatedResult;
     }
 
+    public function getTotalProducts(): int
+    {
+        return $this->totalProducts;
+    }
+
+    /** Privates */
+
     /**
      * Produtos modificados a partir de cada data ( Pedido a api na classe Products)
      *
-     * @param $date
      * @return false|mixed|void
      */
-    private function getModifiedProducts($date)
+    private function getModifiedProducts()
     {
-        $values = [];
-        $values['lastmodified'] = $date;
+        $api = new Products();
 
-        return (new Products())->getModifiedSince($values);
+        $values = [
+            'lastmodified' => $this->date,
+            'qty' => $this->perPage,
+            'offset' => 0
+        ];
+
+        if (empty($this->page)) {
+            $cycles = 0;
+            $products = [];
+
+            while ($cycles < 1000) {
+                $query = $api->getModifiedSince($values);
+
+                $products = array_merge($products, $query);
+
+                if (count($query) !== $this->perPage) {
+                    break;
+                }
+
+                $values['offset'] += $this->perPage;
+                $cycles++;
+            }
+        } else {
+            $values['offset'] = $this->perPage * ($this->page - 1);
+
+            $products = $api->getModifiedSince($values);
+        }
+
+        return $products;
     }
 
     /**
@@ -589,12 +606,12 @@ class ProductSyncService
 
     /** Metodos que adicionam meensagens de Erro ou Sucesso ao array de resultados*/
 
-    private function addHeader(int $productsCount): void
+    private function addHeader(): void
     {
         $this->updatedResult = [
             'header' => [
                 'updated_since' => $this->date,
-                'products_total' => $productsCount
+                'products_total' => $this->totalProducts
             ]
         ];
     }
@@ -650,7 +667,7 @@ class ProductSyncService
         }
     }
 
-    /** Verificações */
+    /** Auxiliary */
 
     /**
      * @param string|int $value
@@ -673,5 +690,45 @@ class ProductSyncService
         }
 
         return false;
+    }
+
+    /**
+     * @return void
+     */
+    private function enableStockSync(): void
+    {
+        $this->shouldSyncStock = true;
+    }
+
+    /**
+     * @return void
+     */
+    private function enablePriceSync(): void
+    {
+        $this->shouldSyncPrice = true;
+    }
+
+    /**
+     * @return void
+     */
+    private function enableNameSync(): void
+    {
+        $this->shouldSyncName = true;
+    }
+
+    /**
+     * @return void
+     */
+    private function enableDescriptionSync(): void
+    {
+        $this->shouldSyncDescription = true;
+    }
+
+    /**
+     * @return void
+     */
+    private function enableEANSync(): void
+    {
+        $this->shouldSyncEAN = true;
     }
 }

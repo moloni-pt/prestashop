@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 2020 - moloni.pt
  *
@@ -20,6 +19,13 @@
  * @copyright Nuno Almeida
  * @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  */
+
+use Moloni\Classes\General;
+use Moloni\Classes\MoloniError;
+use Moloni\Classes\Start;
+
+include_once _PS_MODULE_DIR_ . 'moloni/src/Webservice/WebserviceSpecificManagementMoloniResource.php';
+
 class Moloni extends Module
 {
     public function __construct()
@@ -27,9 +33,9 @@ class Moloni extends Module
         $this->name = 'moloni';
         $this->tab = 'administration';
         $this->need_instance = 1;
-        $this->version = '2.5.2';
+        $this->version = '2.6.0';
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
-        $this->author = 'Nuno Almeida';
+        $this->author = 'Moloni';
         $this->bootstrap = true;
         $this->module_key = 'c1b44ca634a5bc18032f311803470fea';
 
@@ -46,16 +52,17 @@ class Moloni extends Module
      * */
     public function install()
     {
-
         $this->setMenu('MoloniTab', $this->l('Moloni'), (_PS_VERSION_ > 1.6) ? Tab::getIdFromClassName('SELL') : '0');
         $this->setMenu('MoloniStart', $this->l('Moloni'), Tab::getIdFromClassName('MoloniTab'));
         $this->setMenu('MoloniMovimentos', $this->l('Documents'), Tab::getIdFromClassName('MoloniTab'));
         $this->setMenu('MoloniConfiguracao', $this->l('Settings'), Tab::getIdFromClassName('MoloniTab'));
+        $this->setMenu('MoloniTools', $this->l('Tools'), Tab::getIdFromClassName('MoloniTab'));
 
         return parent::install()
             && $this->dbInstall()
             && $this->registerHook('actionPaymentConfirmation')
             && $this->registerHook('DisplayBackOfficeHeader')
+            && $this->registerHook('addWebserviceResources')
             && $this->registerHook('actionOrderStatusPostUpdate') //after order status is changed
             && $this->registerHook('actionProductSave');
     }
@@ -70,6 +77,7 @@ class Moloni extends Module
         $this->delMenu('MoloniStart');
         $this->delMenu('MoloniMovimentos');
         $this->delMenu('MoloniConfiguracao');
+        $this->delMenu('MoloniTools');
 
         return parent::uninstall() && $this->dbUninstall();
     }
@@ -82,16 +90,13 @@ class Moloni extends Module
      * */
     public function hookActionPaymentConfirmation($params)
     {
-        include_once(__DIR__ . '/controllers/admin/classes/error.class.php');
-        include_once(__DIR__ . '/controllers/admin/classes/moloni.curl.php');
-        include_once(__DIR__ . '/controllers/admin/classes/moloni.start.php');
-        include_once(__DIR__ . '/controllers/admin/classes/prestashop.general.php');
-
         new Start();
+
         if (defined('INVOICE_AUTO') && (int)INVOICE_AUTO === 1) {
             $functions = new General();
 
             $functions->makeInvoice($params['id_order']);
+
             if (MoloniError::$exists) {
                 MoloniError::$message;
             }
@@ -105,15 +110,9 @@ class Moloni extends Module
      */
     public function hookActionProductSave($params)
     {
-        include_once(__DIR__ . '/controllers/admin/classes/error.class.php');
-        include_once(__DIR__ . '/controllers/admin/classes/moloni.curl.php');
-        include_once(__DIR__ . '/controllers/admin/classes/moloni.start.php');
-        include_once(__DIR__ . '/controllers/admin/classes/moloni.products.php');
-        include_once(__DIR__ . '/controllers/admin/classes/moloni.settings.php');
-        include_once(__DIR__ . '/controllers/admin/classes/prestashop.general.php');
-
         new Start();
         $functions = new General();
+
         if (defined('AUTO_ADD_PRODUCT') && AUTO_ADD_PRODUCT == 1) {
             $functions->productCreate($params);
         }
@@ -127,11 +126,6 @@ class Moloni extends Module
      */
     public function hookActionOrderStatusPostUpdate($params)
     {
-        include_once(__DIR__ . '/controllers/admin/classes/error.class.php');
-        include_once(__DIR__ . '/controllers/admin/classes/moloni.curl.php');
-        include_once(__DIR__ . '/controllers/admin/classes/moloni.start.php');
-        include_once(__DIR__ . '/controllers/admin/classes/prestashop.general.php');
-
         new Start();
 
         if (defined('INVOICE_AUTO') && (int)INVOICE_AUTO === 2) {
@@ -145,6 +139,21 @@ class Moloni extends Module
                 }
             }
         }
+    }
+
+    /**
+     * Add endpoints to Prestashop Webservices
+     *
+     * @return array[]
+     */
+    public function hookAddWebserviceResources()
+    {
+        return [
+            'moloniresource' => [
+                'description' => 'Moloni sync resource',
+                'specific_management' => true,
+            ],
+        ];
     }
 
     /**

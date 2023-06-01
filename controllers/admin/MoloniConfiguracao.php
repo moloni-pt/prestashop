@@ -1,7 +1,4 @@
 <?php
-
-use Moloni\Services\ProductSyncService;
-
 /**
  * 2020 - moloni.pt
  *
@@ -12,7 +9,7 @@ use Moloni\Services\ProductSyncService;
  * you accept the licence agreement.
  *
  * You must not modify, adapt or create derivative works of this source code
- * DISCLAIMER 
+ * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
  * versions in the future. If you wish to customize PrestaShop for your
@@ -22,6 +19,12 @@ use Moloni\Services\ProductSyncService;
  *  @copyright Nuno Almeida
  *  @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  */
+
+use Moloni\Classes\General;
+use Moloni\Classes\Start;
+use Moloni\Services\ProductSyncService;
+use Moloni\Webservice\Webservices;
+
 class MoloniConfiguracaoController extends ModuleAdminController
 {
     public $moloniTpl = null;
@@ -32,60 +35,63 @@ class MoloniConfiguracaoController extends ModuleAdminController
         $this->className = 'Moloni';
         $this->context = Context::getContext();
 
-        require_once("classes/error.class.php");
-        require_once("classes/moloni.curl.php");
-        require_once("classes/moloni.start.php");
-        require_once("classes/moloni.settings.php");
-        require_once("classes/moloni.global.php");
-        require_once("classes/moloni.products.php");
-        require_once("classes/prestashop.general.php");
-
         $moloni = new Start();
         $functions = new General();
 
-        $this->moloniTpl = $moloni->template;
+        if (!$this->ajax) {
+            $this->moloniTpl = $moloni->template;
 
-        $companies = null;
-        $syncResult = null;
-        $configurations = null;
+            $companies = null;
+            $configurations = null;
 
-        switch ($this->moloniTpl) {
+            switch ($this->moloniTpl) {
 
-            case 'company':
-                $companies = $functions->getCompaniesAll();
-                break;
+                case 'company':
+                    $companies = $functions->getCompaniesAll();
+                    break;
 
-            case 'index':
-                $configurations = $functions->getConfigsAll();
-                $configurations['updateStocksSince'] = date('Y-m-d H:i:s', strtotime("-1 week"));
-                $this->moloniTpl = "config";
-                break;
-        }
+                case 'index':
+                    $configurations = $functions->getConfigsAll();
 
-        if (Tools::getValue('goDo') && Tools::getValue('goDo') === 'synchronize') {
-            $productSyncService = new ProductSyncService();
-            $productSyncService->setImportDate(date('Y-m-d H:i:s', strtotime("-1 week")));
-            $productSyncService->instantiateSyncFilters();
-            $syncResult = $productSyncService->run()->getResults();
-        }
+                    $this->moloniTpl = "config";
+                    break;
+            }
 
-        $this->context->smarty->assign([
-            'moloni' => [
-                'path' => [
-                    'img' => '../modules/moloni/views/img/',
-                    'css' => '../modules/moloni/views/css/',
-                    'js' => '../modules/moloni/views/js/'
+            $this->context->smarty->assign([
+                'moloni' => [
+                    'path' => [
+                        'img' => '../modules/moloni/views/img/',
+                        'css' => '../modules/moloni/views/css/',
+                        'js' => '../modules/moloni/views/js/'
+                    ],
+                    'version' => Module::getInstanceByName('moloni')->version,
+                    'companies' => $companies,
+                    'message_alert' => ((Tools::getValue('goDo') && Tools::getValue('goDo') === "save" && Tools::getValue('options')) ? "1" : null ),
+                    'configurations' => $configurations,
                 ],
-                'version' => Module::getInstanceByName('moloni')->version,
-                'companies' => $companies,
-                'message_alert' => ((Tools::getValue('goDo') && Tools::getValue('goDo') === "save" && Tools::getValue('options')) ? "1" : null ),
-                'configurations' => $configurations,
-                'syncResult' => $syncResult
-            ],
-            'html' => $moloni->template
-        ]);
+                'html' => $moloni->template
+            ]);
+        }
 
         parent::__construct();
+    }
+
+    public function displayAjax()
+    {
+        $params = Tools::getAllValues();
+        $response = [
+            'valid' => 1,
+            'message' => ''
+        ];
+
+        switch ($params['operation']) {
+            case 'getWebserviceProductSyncUrl':
+                $response['url'] = (new Webservices())->getWebserviceProductSyncUrl();
+
+                break;
+        }
+
+        echo json_encode($response);
     }
 
     public function initContent()

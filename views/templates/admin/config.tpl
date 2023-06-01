@@ -11,8 +11,6 @@
         </div>
     {/if}
 
-    {include file="`$smarty.const._PS_MODULE_DIR_`moloni/views/templates/admin/syncResultTable.tpl"}
-
     <form method='POST' id='moloniOptions' action='{$moloni.configurations.formSave|escape:'html':'UTF-8'}'>
         <div class="panel">
             <div class="panel-heading">
@@ -331,58 +329,53 @@
                 </div>
             </div>
         </div>
-    </form>
 
-    <form method='POST' id='moloniTools' action='{$moloni.configurations.formToolsSubmit|escape:'html':'UTF-8'}'>
-        <div class="panel panel-default">
+        <div class="panel">
             <div class="panel-heading">
-                {l s='Tools' mod='moloni'}
+                {l s='Advanced' mod='moloni'}
             </div>
             <div class="panel-body">
-                <!-------------------------- Campos que vão ser sincronizados ( Nome / Price / Descrição ) ------------------------------>
                 <div class="form-group row">
-                    <b>
-                        {l s='Product fields to synchronize' mod='moloni'}
-                    </b>
-
-                    <div class="checkbox">
+                    <!-------------------------- Criar webservice de sincronização de artigos (Sim/Não) ------------------------------>
+                    <div class="col-sm-6">
                         <label>
-                            <input type="checkbox" id="name" name='sync_fields[]' value="name">
-                            {l s='Name' mod='moloni'}
+                            {l s='Create webservice to allow product syncronization with cron' mod='moloni'}
                         </label>
+
+                        {assign var="enableProductSyncWebservice" value=""}
+
+                        {if array_key_exists('enable_product_sync_webservice', $moloni.configurations)}
+                            {assign var="enableProductSyncWebservice" value=$moloni.configurations.enable_product_sync_webservice.value}
+                        {/if}
+
+                        <select name='options[enable_product_sync_webservice]'>
+                            <option value='' selected>
+                                {l s='Create webservice to allow product syncronization' mod='moloni'}
+                            </option>
+                            <option value='0' {if $enableProductSyncWebservice == "0"} selected {/if}>
+                                {l s='No' mod='moloni'}
+                            </option>
+                            <option value='1' {if $enableProductSyncWebservice == "1"} selected {/if}>
+                                {l s='Yes' mod='moloni'}
+                            </option>
+                        </select>
                     </div>
 
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" id="price" name='sync_fields[]' value="price">
-                            {l s='Price' mod='moloni'}
-                        </label>
-                    </div>
+                    <!-------------------------- Mostrar URL do webservice de sincronização de artigos  ------------------------------>
+                    {if $enableProductSyncWebservice == "1"}
+                        <div class="col-sm-6">
+                            <label>
+                                {l s='Webservice url' mod='moloni'}
+                            </label>
+                            <br />
 
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" id="description" name='sync_fields[]' value="description">
-                            {l s='Description' mod='moloni'}
-                        </label>
-                    </div>
+                            <button type="button" class="btn btn-primary" id="showProductSyncWebservice">
+                                {l s='Show URL' mod='moloni'}
+                            </button>
 
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" id="ean" name='sync_fields[]' value="ean">
-                            {l s='EAN' mod='moloni'}
-                        </label>
-                    </div>
-
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" id="stock" name='sync_fields[]' value="stock">
-                            {l s='Stock' mod='moloni'}
-                        </label>
-                    </div>
-
-                    <button type="button" class="btn btn-primary btn-lg" id="formToolsSubmit">
-                        {l s='Synchronize products' mod='moloni'}
-                    </button>
+                            <input type="text" disabled value='HERE' style="display: none;" id="productSyncWebserviceUrl">
+                        </div>
+                    {/if}
                 </div>
             </div>
         </div>
@@ -401,7 +394,9 @@
         save_changes: "{l s='Save Changes' mod='moloni'}"
     }
 
+    var currentAction = "{Context::getContext()->link->getAdminLink('MoloniConfiguracao', true)}";
+
     $(document).ready(function() {
-        pt.moloni.Settings.init(translations);
+        pt.moloni.Settings.init(translations, currentAction);
     });
 </script>

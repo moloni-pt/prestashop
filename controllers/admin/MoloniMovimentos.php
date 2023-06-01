@@ -9,7 +9,7 @@
  * you accept the licence agreement.
  *
  * You must not modify, adapt or create derivative works of this source code
- * DISCLAIMER 
+ * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
  * versions in the future. If you wish to customize PrestaShop for your
@@ -19,6 +19,9 @@
  *  @copyright Nuno Almeida
  *  @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  */
+
+use Moloni\Classes\General;
+use Moloni\Classes\Start;
 
 class MoloniMovimentosController extends ModuleAdminController
 {
@@ -30,12 +33,6 @@ class MoloniMovimentosController extends ModuleAdminController
         $this->className = 'Moloni';
         $this->context   = Context::getContext();
 
-        require_once("classes/error.class.php");
-        require_once("classes/moloni.curl.php");
-        require_once("classes/moloni.start.php");
-
-        require_once("classes/prestashop.general.php");
-
         $moloni    = new Start();
         $functions = new General();
 
@@ -43,7 +40,7 @@ class MoloniMovimentosController extends ModuleAdminController
 
         $companies = null;
         $documents = null;
-           
+
         switch ($this->moloniTpl) {
             case 'company':
                 $companies = $functions->getCompaniesAll();
