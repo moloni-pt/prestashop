@@ -19,6 +19,13 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.6.1",
+        "title": "Release da versão 2.6.1",
+        "description": [
+          "Correção de erros"
+        ]
+      },
+      {
         "version": "v2.6.0",
         "title": "Release da versão 2.6.0",
         "description": [
