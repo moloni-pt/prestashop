@@ -26,27 +26,16 @@ use Moloni\Webservice\Product\ProductSync;
 
 class WebserviceSpecificManagementMoloniResource implements WebserviceSpecificManagementInterface
 {
-    /**
-     * @var WebserviceOutputBuilderCore|null
-     */
     protected $objOutput;
 
-    /**
-     * @var string
-     */
     protected $output;
 
-    /**
-     * @var WebserviceRequestCore|null
-     */
     protected $wsObject;
 
     /**
      * Interface method
-     *
-     * @return $this
      */
-    public function setObjectOutput(WebserviceOutputBuilderCore $obj): WebserviceSpecificManagementMoloniResource
+    public function setObjectOutput(WebserviceOutputBuilderCore $obj)
     {
         $this->objOutput = $obj;
 
@@ -55,7 +44,6 @@ class WebserviceSpecificManagementMoloniResource implements WebserviceSpecificMa
 
     /**
      * Interface method
-     *
      */
     public function getObjectOutput()
     {
@@ -64,10 +52,8 @@ class WebserviceSpecificManagementMoloniResource implements WebserviceSpecificMa
 
     /**
      * Interface method
-     *
-     * @return $this
      */
-    public function setWsObject(WebserviceRequestCore $obj): WebserviceSpecificManagementMoloniResource
+    public function setWsObject(WebserviceRequestCore $obj)
     {
         $this->wsObject = $obj;
 
