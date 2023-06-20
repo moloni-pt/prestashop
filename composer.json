@@ -19,6 +19,13 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.6.2",
+        "title": "Release da versão 2.6.2",
+        "description": [
+          "Mostrar mensagem de erro fatal nos Webservices"
+        ]
+      },
+      {
         "version": "v2.6.1",
         "title": "Release da versão 2.6.1",
         "description": [
