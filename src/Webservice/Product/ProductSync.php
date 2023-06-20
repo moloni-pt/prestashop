@@ -24,7 +24,9 @@ class ProductSync
                 $productSyncService->run();
                 $this->results = $productSyncService->getResults();
             } catch (PrestaShopDatabaseException|PrestaShopException $e) {
-                // No need to catch
+                $this->results = [
+                    'fatal_error' => $e->getMessage()
+                ];
             }
         }
     }
