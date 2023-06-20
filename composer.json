@@ -22,6 +22,7 @@
         "version": "v2.6.2",
         "title": "Release da versão 2.6.2",
         "description": [
+          "Correção de erro na criação da referência dos portes de envio",
           "Mostrar mensagem de erro fatal nos Webservices"
         ]
       },
