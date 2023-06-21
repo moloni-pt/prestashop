@@ -19,6 +19,13 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.6.3",
+        "title": "Release da versão 2.6.3",
+        "description": [
+          "Melhorias nos processos de Webservices"
+        ]
+      },
+      {
         "version": "v2.6.2",
         "title": "Release da versão 2.6.2",
         "description": [
