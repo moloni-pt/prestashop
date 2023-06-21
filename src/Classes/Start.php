@@ -359,14 +359,14 @@ class Start extends ModuleAdminController
             $row = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "moloni_configs WHERE label = '" . pSQL($variable['label']) . "'");
 
             if (!$row) {
-                $this->insertVariableByKey($variable['label'], $variable['name'], $variable['description'], $variable['value']);
+                $this->insertNewVariable($variable['label'], $variable['name'], $variable['description'], $variable['value']);
             }
         }
     }
 
     //          Auxiliary          //
 
-    public function insertVariableByKey($label, $name, $description, $value)
+    public function insertNewVariable($label, $name, $description, $value)
     {
         Db::getInstance()->insert('moloni_configs', array(
             'label' => pSQL($label),

@@ -57,7 +57,7 @@ class ProductSync
 
             $this->start->updateVariableByKey('last_webservice_product_sync_run', $dateNow);
         } else {
-            $this->start->insertVariableByKey('last_webservice_product_sync_run', 'Ultima sincronização por WebService', '', $dateNow);
+            $this->start->insertNewVariable('last_webservice_product_sync_run', 'Ultima sincronização por WebService', '', $dateNow);
         }
 
         if (empty($dateToUse)) {
