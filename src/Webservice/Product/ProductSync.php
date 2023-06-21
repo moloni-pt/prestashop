@@ -2,10 +2,9 @@
 
 namespace Moloni\Webservice\Product;
 
+use Exception;
 use Moloni\Classes\Start;
 use Moloni\Services\ProductSyncService;
-use PrestaShopDatabaseException;
-use PrestaShopException;
 
 class ProductSync
 {
@@ -23,9 +22,11 @@ class ProductSync
             try {
                 $productSyncService->run();
                 $this->results = $productSyncService->getResults();
-            } catch (PrestaShopDatabaseException|PrestaShopException $e) {
+            } catch (Exception $e) {
                 $this->results = [
-                    'fatal_error' => $e->getMessage()
+                    'fatal_error' => [
+                        'error' => $e->getMessage()
+                    ]
                 ];
             }
         }

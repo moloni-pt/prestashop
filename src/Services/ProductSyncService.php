@@ -29,7 +29,6 @@ use Combination;
 use Configuration;
 use Db;
 use Moloni\Classes\Products;
-use PrestaShop\PrestaShop\Core\Domain\Product\Exception\ProductConstraintException;
 use PrestaShopDatabaseException;
 use PrestaShopException;
 use Product;
@@ -69,10 +68,6 @@ class ProductSyncService
 
     /** Public's */
 
-    /**
-     * @throws PrestaShopException
-     * @throws PrestaShopDatabaseException
-     */
     public function run(): ProductSyncService
     {
         if (empty($this->date)) {
@@ -90,7 +85,14 @@ class ProductSyncService
                 $this->currentSyncProductId = 0;
                 $this->currentSyncAttributeProduct = [];
 
-                $this->syncProduct($product);
+                try {
+                    $this->syncProduct($product);
+                } catch (PrestaShopDatabaseException|PrestaShopException $e) {
+                    $this->addFatalError([
+                        'name' => $this->moloniProduct['name'] ?? '',
+                        'error' => $e->getMessage()
+                    ]);
+                }
             }
         }
 
@@ -665,6 +667,17 @@ class ProductSyncService
         foreach ($array as $key => $value) {
             $this->updatedResult['with_attributes'][$reference][$key] = $value;
         }
+    }
+
+    private function addFatalError(array $array): void
+    {
+        $reference = $this->moloniProduct['reference'];
+        $this->updatedResult['fatal_error'][$reference]['reference'] = $reference;
+
+        foreach ($array as $key => $value) {
+            $this->updatedResult['fatal_error'][$reference][$key] = $value;
+        }
+
     }
 
     /** Auxiliary */
