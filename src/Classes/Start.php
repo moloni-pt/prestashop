@@ -163,6 +163,26 @@ class Start extends ModuleAdminController
         }
     }
 
+    public function templateSelect()
+    {
+        $this->template = 'index';
+        if (Tools::getValue('action')) {
+            switch ($_REQUEST['action']) {
+                case 'movimentos':
+                    $this->template = 'movimentos';
+                    break;
+                case 'config':
+                    $this->template = 'config';
+                    break;
+                case 'invoice':
+                    $this->template = 'invoice';
+                    break;
+            }
+        }
+    }
+
+    //          Variables          //
+
     public function variablesDefine()
     {
         if ($results = Db::getInstance()->ExecuteS('SELECT * FROM ' . _DB_PREFIX_ . 'moloni_configs')) {
@@ -195,9 +215,7 @@ class Start extends ModuleAdminController
         foreach ($options as $key => $value) {
             $val = (is_array($value) ? serialize($value) : $value);
 
-            Db::getInstance()->update('moloni_configs', [
-                'value' => pSQL($val)
-            ], "label = '" . pSQL($key) . "'");
+            $this->updateVariableByKey($key, $val);
         }
     }
 
@@ -341,31 +359,28 @@ class Start extends ModuleAdminController
             $row = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "moloni_configs WHERE label = '" . pSQL($variable['label']) . "'");
 
             if (!$row) {
-                Db::getInstance()->insert('moloni_configs', array(
-                    'label' => pSQL($variable['label']),
-                    'name' => pSQL($variable['name']),
-                    'description' => pSQL($variable['description']),
-                    'value' => pSQL($variable['value']),
-                ));
+                $this->insertNewVariable($variable['label'], $variable['name'], $variable['description'], $variable['value']);
             }
         }
     }
 
-    public function templateSelect()
+    //          Auxiliary          //
+
+    public function insertNewVariable($label, $name, $description, $value)
     {
-        $this->template = 'index';
-        if (Tools::getValue('action')) {
-            switch ($_REQUEST['action']) {
-                case 'movimentos':
-                    $this->template = 'movimentos';
-                    break;
-                case 'config':
-                    $this->template = 'config';
-                    break;
-                case 'invoice':
-                    $this->template = 'invoice';
-                    break;
-            }
-        }
+        Db::getInstance()->insert('moloni_configs', array(
+            'label' => pSQL($label),
+            'name' => pSQL($name),
+            'description' => pSQL($description),
+            'value' => pSQL($value),
+        ));
+    }
+
+    public function updateVariableByKey($key, $value)
+    {
+        Db::getInstance()->update('moloni_configs',
+            ['value' => pSQL($value)],
+            "label = '" . pSQL($key) . "'"
+        );
     }
 }
