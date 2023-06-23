@@ -60,7 +60,6 @@ class Moloni extends Module
 
         return parent::install()
             && $this->dbInstall()
-            && $this->registerHook('actionPaymentConfirmation')
             && $this->registerHook('DisplayBackOfficeHeader')
             && $this->registerHook('addWebserviceResources')
             && $this->registerHook('actionOrderStatusPostUpdate') //after order status is changed
@@ -82,25 +81,8 @@ class Moloni extends Module
         return parent::uninstall() && $this->dbUninstall();
     }
 
-    /**
-     * hookActionPaymentConfirmation
-     *
-     * Payment confirmation
-     *
-     * */
     public function hookActionPaymentConfirmation($params)
     {
-        new Start();
-
-        if (defined('INVOICE_AUTO') && (int)INVOICE_AUTO === 1) {
-            $functions = new General();
-
-            $functions->makeInvoice($params['id_order']);
-
-            if (MoloniError::$exists) {
-                MoloniError::$message;
-            }
-        }
     }
 
     /**
@@ -128,15 +110,27 @@ class Moloni extends Module
     {
         new Start();
 
-        if (defined('INVOICE_AUTO') && (int)INVOICE_AUTO === 2) {
-            //check if the new status was chosen in settings
-            if (defined('ORDER_STATUS') && in_array($params['newOrderStatus']->id, unserialize(ORDER_STATUS))) {
-                $functions = new General();
+        if (defined('INVOICE_AUTO')) {
+            if ((int)INVOICE_AUTO === 1) {
+                /** @var OrderState $newOrderStatus */
+                $newOrderStatus = $params['newOrderStatus'];
 
-                $functions->makeInvoice($params['id_order']);
-                if (MoloniError::$exists) {
-                    MoloniError::$message;
+                if ($newOrderStatus->paid) {
+                    $functions = new General();
+
+                    $functions->makeInvoice($params['id_order']);
                 }
+            } else if ((int)INVOICE_AUTO === 2) {
+                //check if the new status was chosen in settings
+                if (defined('ORDER_STATUS') && in_array($params['newOrderStatus']->id, unserialize(ORDER_STATUS))) {
+                    $functions = new General();
+
+                    $functions->makeInvoice($params['id_order']);
+                }
+            }
+
+            if (MoloniError::$exists) {
+                MoloniError::$message;
             }
         }
     }
