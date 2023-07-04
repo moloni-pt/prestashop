@@ -25,6 +25,7 @@ namespace Moloni\Services;
 use Configuration;
 use Image;
 use Moloni\Classes\General;
+use Moloni\Services\Product\FindTaxGroupFromMoloniTax;
 use Moloni\Services\Product\GetCategoryFromMoloniProduct;
 use PrestaShopDatabaseException;
 use PrestaShopException;
@@ -69,6 +70,7 @@ class ProductImportService
             $newProduct->quantity = ($this->product['has_stock'] ? $this->product['stock'] : 0);
             $newProduct->description = $this->product['summary'] ?: '';
 
+            /** Set category */
             $service = new GetCategoryFromMoloniProduct($this->product);
             $service->run();
 
@@ -76,6 +78,13 @@ class ProductImportService
 
             $newProduct->id_category = $prestashopCategories[0];
             $newProduct->id_category_default = $prestashopCategories[0];
+
+            /** Set taxes */
+            if (isset($this->product['taxes']) && !empty($this->product['taxes'])) {
+                $moloniTax = $this->product['taxes'][0]['tax'] ?? [];
+
+                $newProduct->id_tax_rules_group = (new FindTaxGroupFromMoloniTax($moloniTax))->handle();
+            }
 
             if ($newProduct->add()) {
                 StockAvailable::setQuantity((int)$newProduct->id, 0, $newProduct->quantity);

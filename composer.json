@@ -19,6 +19,13 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.6.5",
+        "title": "Release da versão 2.6.5",
+        "description": [
+          "Correção na importação de impostos na criação de artigos no Prestashop"
+        ]
+      },
+      {
         "version": "v2.6.4",
         "title": "Release da versão 2.6.4",
         "description": [
