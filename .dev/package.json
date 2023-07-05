@@ -12,9 +12,13 @@
   ],
   "author": "Moloni, lda",
   "license": "ISC",
+  "dependencies": {
+    "datatables.net": "^1.13.5",
+    "datatables.net-dt": "*"
+  },
   "devDependencies": {
-    "@babel/core": "^7.21.3",
-    "@babel/preset-env": "^7.20.2",
+    "@babel/core": "^7.22.6",
+    "@babel/preset-env": "^7.22.6",
     "autoprefixer": "^10.4.14",
     "gulp": "^4.0.2",
     "gulp-babel": "^8.0.0",
@@ -28,14 +32,10 @@
     "gulp-sass": "^5.1.0",
     "gulp-sourcemaps": "^3.0.0",
     "gulp-uglify": "^3.0.2",
-    "postcss": "^8.4.21",
+    "postcss": "^8.4.24",
     "postcss-combine-media-query": "^1.0.1",
-    "postcss-sort-media-queries": "^4.3.0",
-    "sass": "^1.59.3"
-  },
-  "dependencies": {
-    "datatables.net": "^1.13.4",
-    "datatables.net-dt": "*"
+    "postcss-sort-media-queries": "^5.2.0",
+    "sass": "^1.63.6"
   },
   "browserslist": [
     "> 0.25%",
