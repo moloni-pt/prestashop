@@ -32,6 +32,7 @@ use Db;
 use Image;
 use ImageManager;
 use ImageType;
+use Moloni\Enums\CreatedDocumentStatus;
 use Moloni\Enums\DocumentStatus;
 use Moloni\Mails\DocumentErrorMail;
 use Moloni\Mails\DocumentWarningMail;
@@ -261,7 +262,7 @@ class General
             'invoice_id' => '0',
             'invoice_total' => '0',
             'invoice_date' => '0',
-            'invoice_status' => '4',
+            'invoice_status' => CreatedDocumentStatus::DISCARDED,
         ]);
 
         return [
@@ -594,7 +595,7 @@ class General
                             'invoice_id' => (int)$documentID,
                             'invoice_total' => pSQL($documentInfo['net_value']),
                             'invoice_date' => pSQL(date('Y-m-d H:i:s')),
-                            'invoice_status' => $documentSentToCustomer ? 2 : 1,
+                            'invoice_status' => $documentSentToCustomer ? CreatedDocumentStatus::CLOSED_AND_SENT : CreatedDocumentStatus::CLOSED,
                         ]);
 
                         return [
@@ -612,7 +613,7 @@ class General
                         'invoice_id' => (int)$documentID,
                         'invoice_total' => pSQL($documentInfo['net_value']),
                         'invoice_date' => pSQL(date('Y-m-d H:i:s')),
-                        'invoice_status' => (int)'0',
+                        'invoice_status' => CreatedDocumentStatus::DRAFT,
                     ]);
 
                     return [
@@ -630,7 +631,7 @@ class General
                     'invoice_id' => (int)$documentID,
                     'invoice_total' => pSQL($documentInfo['net_value']),
                     'invoice_date' => pSQL(date('Y-m-d H:i:s')),
-                    'invoice_status' => (int)'3',
+                    'invoice_status' => CreatedDocumentStatus::DRAFT_WITH_ERROR,
                 ]);
 
                 MoloniError::create('document/update', 'Documento inserido, mas totais não correspondem', $documentInfo, $order);
