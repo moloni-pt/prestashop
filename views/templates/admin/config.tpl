@@ -336,6 +336,27 @@
             </div>
             <div class="panel-body">
                 <div class="form-group row">
+                    <!-------------------------- Envio de erros via e-mail ------------------------------>
+                    <div class="col-sm-6">
+                        <label>
+                            {l s='Alert e-mail' mod='moloni'}
+                        </label>
+
+                        {assign var="alertEmail" value=""}
+
+                        {if array_key_exists('alert_email', $moloni.configurations)}
+                            {assign var="alertEmail" value=$moloni.configurations.alert_email.value}
+                        {/if}
+
+                        <input type="text"
+                               name='options[alert_email]'
+                               id='alert_email'
+                               placeholder="example@email.com (Receive alerts when an error occurs in the plugin)"
+                               value='{$alertEmail}'>
+                    </div>
+                </div>
+
+                <div class="form-group row">
                     <!-------------------------- Criar webservice de sincronização de artigos (Sim/Não) ------------------------------>
                     <div class="col-sm-6">
                         <label>

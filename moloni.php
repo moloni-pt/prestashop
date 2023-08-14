@@ -23,6 +23,7 @@
 use Moloni\Classes\General;
 use Moloni\Classes\MoloniError;
 use Moloni\Classes\Start;
+use Moloni\Mails\DocumentWarningMail;
 
 include_once _PS_MODULE_DIR_ . 'moloni/src/Webservice/WebserviceSpecificManagementMoloniResource.php';
 
@@ -118,14 +119,14 @@ class Moloni extends Module
                 if ($newOrderStatus->paid) {
                     $functions = new General();
 
-                    $functions->makeInvoice($params['id_order']);
+                    $functions->makeInvoice($params['id_order'], true);
                 }
             } else if ((int)INVOICE_AUTO === 2) {
                 //check if the new status was chosen in settings
                 if (defined('ORDER_STATUS') && in_array($params['newOrderStatus']->id, unserialize(ORDER_STATUS))) {
                     $functions = new General();
 
-                    $functions->makeInvoice($params['id_order']);
+                    $functions->makeInvoice($params['id_order'], true);
                 }
             }
 

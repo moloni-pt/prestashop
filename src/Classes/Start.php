@@ -26,6 +26,7 @@
 namespace Moloni\Classes;
 
 use Db;
+use Moloni\Mails\AuthenticationExpiredMail;
 use Tools;
 use ModuleAdminController;
 use Moloni\Webservice\Webservices;
@@ -128,6 +129,11 @@ class Start extends ModuleAdminController
                                 'label' => 'sessao-expirada',
                                 'text' => 'A ligação expirou, faça login novamente.'
                             );
+
+                            if (!empty($row['alert_email'])) {
+                                $alert = new AuthenticationExpiredMail($row['alert_email']);
+                                $alert->handle();
+                            }
                         } else {
                             #Refresh deu, continua normalmente
                             $timeNow = time();
@@ -351,6 +357,12 @@ class Start extends ModuleAdminController
         $defines[] = [
             'label' => 'fiscal_zone_based_on',
             'name' => 'Zona fiscal do documento',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'alert_email',
+            'name' => 'Alerta de erros',
             'description' => '',
             'value' => ''
         ];

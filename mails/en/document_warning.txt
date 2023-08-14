@@ -1,0 +1,10 @@
+ 
+
+Hi,
+
+Moloni document warning
+
+A document was created as draft because the order and document values do not match.
+Please check the resulting document.
+
+Order ID: {order_id}

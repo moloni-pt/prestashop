@@ -1,0 +1,10 @@
+ 
+
+Hi,
+
+Moloni document error
+
+An error occurred creating an Moloni document.
+Please check plugin logs for more information.
+
+Order ID: {order_id}

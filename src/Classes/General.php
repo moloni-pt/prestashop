@@ -32,7 +32,9 @@ use Db;
 use Image;
 use ImageManager;
 use ImageType;
-use MailCore;
+use Moloni\Enums\DocumentStatus;
+use Moloni\Mails\DocumentErrorMail;
+use Moloni\Mails\DocumentWarningMail;
 use Order;
 use OrderPayment;
 use PrestaShopDatabaseException;
@@ -281,7 +283,7 @@ class General
         ];
     }
 
-    public function makeInvoice($order_id)
+    public function makeInvoice($order_id, ?bool $isAutomatic = false)
     {
         $this->settings = new Settings();
         $this->products = new Products();
@@ -551,8 +553,7 @@ class General
             $invoice['eac_id'] = $this->eac_id;
         }
 
-        $invoice['status'] = '0';
-        $result = false;
+        $invoice['status'] = DocumentStatus::DRAFT;
 
         $invoiceExists = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "moloni_invoices WHERE order_id = '" . (int)$order_id . "'");
 
@@ -569,7 +570,7 @@ class General
 
                         $update = [
                             'document_id' => $documentID,
-                            'status' => 1,
+                            'status' => DocumentStatus::CLOSED,
                             'send_email' => []
                         ];
 
@@ -631,9 +632,23 @@ class General
                     'invoice_date' => pSQL(date('Y-m-d H:i:s')),
                     'invoice_status' => (int)'3',
                 ]);
+
                 MoloniError::create('document/update', 'Documento inserido, mas totais não correspondem', $documentInfo, $order);
+
+                if ($isAutomatic && defined('ALERT_EMAIL') && !empty(ALERT_EMAIL)) {
+                    $alert = new DocumentWarningMail(ALERT_EMAIL, ['order_id' => $order_id]);
+                    $alert->handle();
+                }
+
+                return false;
             }
-            return $result;
+
+            if ($isAutomatic && defined('ALERT_EMAIL') && !empty(ALERT_EMAIL)) {
+                $alert = new DocumentErrorMail(ALERT_EMAIL, ['order_id' => $order_id]);
+                $alert->handle();
+            }
+
+            return false;
         }
 
         return false;
