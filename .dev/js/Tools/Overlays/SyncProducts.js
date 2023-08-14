@@ -142,6 +142,12 @@ pt.moloni.Tools.Overlays.SyncProducts = (async function (currentPageAction) {
                     html += '<br>';
                 }
 
+                if (entry.tax_before) {
+                    html += '<b>Tax group:</b>';
+                    html += entry.tax_before;
+                    html += '<br>';
+                }
+
                 html += '   </td>';
                 html += '   <td>';
 
@@ -172,6 +178,12 @@ pt.moloni.Tools.Overlays.SyncProducts = (async function (currentPageAction) {
                 if (entry.ean_after) {
                     html += '<b>EAN:</b>';
                     html += entry.ean_after;
+                    html += '<br>';
+                }
+
+                if (entry.tax_after) {
+                    html += '<b>Tax group:</b>';
+                    html += entry.tax_after;
                     html += '<br>';
                 }
 
@@ -256,6 +268,12 @@ pt.moloni.Tools.Overlays.SyncProducts = (async function (currentPageAction) {
                     html += '<br>';
                 }
 
+                if (entry.tax_before) {
+                    html += '<b>Tax group:</b>';
+                    html += entry.tax_before;
+                    html += '<br>';
+                }
+
                 html += '   </td>';
                 html += '   <td>';
 
@@ -286,6 +304,12 @@ pt.moloni.Tools.Overlays.SyncProducts = (async function (currentPageAction) {
                 if (entry.ean_after) {
                     html += '<b>EAN:</b>';
                     html += entry.ean_after;
+                    html += '<br>';
+                }
+
+                if (entry.tax_after) {
+                    html += '<b>Tax group:</b>';
+                    html += entry.tax_after;
                     html += '<br>';
                 }
 

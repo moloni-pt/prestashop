@@ -29,6 +29,7 @@ use Combination;
 use Configuration;
 use Db;
 use Moloni\Classes\Products;
+use Moloni\Services\Product\FindTaxGroupFromMoloniTax;
 use PrestaShopDatabaseException;
 use PrestaShopException;
 use Product;
@@ -42,6 +43,7 @@ class ProductSyncService
     private $shouldSyncName = false;
     private $shouldSyncDescription = false;
     private $shouldSyncEAN = false;
+    private $shouldSyncTax = false;
 
     private $date = null;
     private $page = null;
@@ -131,6 +133,10 @@ class ProductSyncService
 
         if (in_array('ean', $syncFields, true)) {
             $this->enableEANSync();
+        }
+
+        if (in_array('tax', $syncFields, true)) {
+            $this->enableTaxSync();
         }
     }
 
@@ -521,9 +527,6 @@ class ProductSyncService
         }
     }
 
-    /**
-     * @return void
-     */
     private function syncSimpleProductStock(): void
     {
         $stock = round($this->moloniProduct['stock']);
@@ -547,6 +550,46 @@ class ProductSyncService
     }
 
     /**
+     * Update prestashop product taxes
+     *
+     * @return void
+     *
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     */
+    private function syncSimpleProductTax()
+    {
+        $product = new Product($this->currentSyncProductId, true, Configuration::get('PS_LANG_DEFAULT'));
+        $changeFlag = false;
+
+        $previousTaxRuleGroup = (int)$product->id_tax_rules_group;
+
+        /** Set taxes */
+        if (isset($this->moloniProduct['taxes']) && !empty($this->moloniProduct['taxes'])) {
+            $moloniTax = $this->moloniProduct['taxes'][0]['tax'] ?? [];
+
+            $newTaxRuleGroup = (new FindTaxGroupFromMoloniTax($moloniTax))->handle();
+        } else {
+            $newTaxRuleGroup = 0;
+        }
+
+        if ($previousTaxRuleGroup !== $newTaxRuleGroup) {
+            $product->id_tax_rules_group = $newTaxRuleGroup;
+
+            $changeFlag = true;
+        }
+
+        if ($changeFlag) {
+            $this->addUpdateSimple([
+                'tax_before' => (string)$previousTaxRuleGroup,
+                'tax_after' => (string)$newTaxRuleGroup
+            ]);
+
+            $product->update();
+        }
+    }
+
+    /**
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
@@ -562,6 +605,10 @@ class ProductSyncService
 
         if ($this->shouldSyncName || $this->shouldSyncDescription || $this->shouldSyncEAN) {
             $this->syncSimpleProductFields();
+        }
+
+        if ($this->shouldSyncTax) {
+            $this->syncSimpleProductTax();
         }
     }
 
@@ -743,5 +790,13 @@ class ProductSyncService
     private function enableEANSync(): void
     {
         $this->shouldSyncEAN = true;
+    }
+
+    /**
+     * @return void
+     */
+    private function enableTaxSync(): void
+    {
+        $this->shouldSyncTax = true;
     }
 }

@@ -30,7 +30,7 @@ class FindTaxGroupFromMoloniTax
                     continue;
                 }
 
-                return $id;
+                return (int)$id;
             }
         }
 
