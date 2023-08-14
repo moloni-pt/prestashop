@@ -4,7 +4,7 @@ namespace Moloni\Webservice\Product;
 
 use Exception;
 use Moloni\Classes\Start;
-use Moloni\Services\ProductSyncService;
+use Moloni\Services\Tools\ProductSyncService;
 
 class ProductSync
 {

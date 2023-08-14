@@ -23,7 +23,7 @@
  * @noinspection SqlNoDataSourceInspection
  */
 
-namespace Moloni\Services;
+namespace Moloni\Services\Tools;
 
 use Combination;
 use Configuration;
@@ -31,6 +31,7 @@ use Db;
 use Moloni\Classes\Products;
 use Moloni\Services\Product\Image\UpdatePrestaCombinationImage;
 use Moloni\Services\Product\Image\UpdatePrestaProductImage;
+use Moloni\Services\Product\ProductImportService;
 use Moloni\Services\Product\Tax\FindTaxGroupFromMoloniTax;
 use PrestaShopDatabaseException;
 use PrestaShopException;
