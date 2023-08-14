@@ -6,5 +6,8 @@ if (!defined('_PS_VERSION_')) {
 
 function upgrade_module_2_6_0($module): bool
 {
-    return $module->setMenu('MoloniTools', $module->l('Tools'), Tab::getIdFromClassName('MoloniTab'));
+    $module->registerHook('addWebserviceResources');
+    $module->setMenu('MoloniTools', $module->l('Tools'), Tab::getIdFromClassName('MoloniTab'));
+
+    return true;
 }
