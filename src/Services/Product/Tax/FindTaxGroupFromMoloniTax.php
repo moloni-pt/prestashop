@@ -1,6 +1,6 @@
 <?php
 
-namespace Moloni\Services\Product;
+namespace Moloni\Services\Product\Tax;
 
 use Country;
 use TaxRulesGroup;

@@ -64,6 +64,13 @@
                     </label>
                 </div>
 
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="image" name='sync_fields[]' value="image">
+                        {l s='Image' mod='moloni'}
+                    </label>
+                </div>
+
                 <div>
                     <label>
                         {l s='Since' mod='moloni'}
