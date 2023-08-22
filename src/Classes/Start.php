@@ -26,6 +26,7 @@
 namespace Moloni\Classes;
 
 use Db;
+use Moloni\Logs\LoggerFacade;
 use Tools;
 use ModuleAdminController;
 use Moloni\Webservice\Webservices;
@@ -43,6 +44,8 @@ class Start extends ModuleAdminController
         }
 
         if (Tools::getValue('MoloniLogout') && Tools::getValue('MoloniLogout') === 'true') {
+            LoggerFacade::info('Manual logout.', ['tag' => 'manual:logout']);
+
             Db::getInstance()->execute('TRUNCATE ' . _DB_PREFIX_ . 'moloni');
         }
 
@@ -217,6 +220,11 @@ class Start extends ModuleAdminController
 
             $this->updateVariableByKey($key, $val);
         }
+
+        LoggerFacade::info('Settings saved.', [
+            'tag' => 'manual:settings:save',
+            'options' => $options
+        ]);
     }
 
     public function variablesCheck()

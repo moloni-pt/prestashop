@@ -44,7 +44,6 @@ class MoloniToolsController extends ModuleAdminController
             $configurations = null;
 
             switch ($this->moloniTpl) {
-
                 case 'company':
                     $companies = $functions->getCompaniesAll();
                     break;
@@ -90,6 +89,7 @@ class MoloniToolsController extends ModuleAdminController
                 $productSyncService->setPage($page);
                 $productSyncService->instantiateSyncFilters();
                 $productSyncService->run();
+                $productSyncService->saveLog();
 
                 $hasMore = $productSyncService->getTotalProducts() >= $productSyncService->getPerPage();
                 $processedProducts = ($productSyncService->getPage() - 1) * $productSyncService->getPerPage();

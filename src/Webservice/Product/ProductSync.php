@@ -25,6 +25,8 @@ class ProductSync
 
             try {
                 $productSyncService->run();
+                $productSyncService->saveLog();
+
                 $this->results = $productSyncService->getResults();
             } catch (Exception $e) {
                 $this->results = [
