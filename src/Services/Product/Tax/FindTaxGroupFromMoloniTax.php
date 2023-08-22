@@ -1,6 +1,6 @@
 <?php
 
-namespace Moloni\Services\Product\Helpers;
+namespace Moloni\Services\Product\Tax;
 
 use Country;
 use TaxRulesGroup;
@@ -30,7 +30,7 @@ class FindTaxGroupFromMoloniTax
                     continue;
                 }
 
-                return $id;
+                return (int)$id;
             }
         }
 

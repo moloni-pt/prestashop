@@ -22,7 +22,7 @@
 
 use Moloni\Classes\General;
 use Moloni\Classes\Start;
-use Moloni\Services\Product\ProductSyncService;
+use Moloni\Services\Tools\ProductSyncService;
 
 class MoloniToolsController extends ModuleAdminController
 {

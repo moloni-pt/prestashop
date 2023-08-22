@@ -4,7 +4,7 @@ namespace Moloni\Webservice\Product;
 
 use Exception;
 use Moloni\Classes\Start;
-use Moloni\Services\Product\ProductSyncService;
+use Moloni\Services\Tools\ProductSyncService;
 
 class ProductSync
 {
@@ -22,6 +22,7 @@ class ProductSync
             $productSyncService = new ProductSyncService();
             $productSyncService->setImportDate($date);
             $productSyncService->instantiateSyncFilters();
+            $productSyncService->saveLog();
 
             try {
                 $productSyncService->run();

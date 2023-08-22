@@ -57,6 +57,20 @@
                     </label>
                 </div>
 
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="tax" name='sync_fields[]' value="tax">
+                        {l s='Tax' mod='moloni'}
+                    </label>
+                </div>
+
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" id="image" name='sync_fields[]' value="image">
+                        {l s='Image' mod='moloni'}
+                    </label>
+                </div>
+
                 <div>
                     <label>
                         {l s='Since' mod='moloni'}
