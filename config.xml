@@ -2,12 +2,11 @@
 <module>
     <name>moloni</name>
     <displayName><![CDATA[Moloni]]></displayName>
-    <version><![CDATA[2.4.8]]></version>
-    <description><![CDATA[Cria os teus documentos de forma simples e automática.]]></description>
-    <author><![CDATA[Nuno Almeida]]></author>
+    <version><![CDATA[3.0.0]]></version>
+    <description><![CDATA[Transform all your orders in verified documents without any effort and focus on selling!]]></description>
+    <author><![CDATA[Moloni]]></author>
     <tab><![CDATA[administration]]></tab>
-    <confirmUninstall><![CDATA[Deseja desinstalar?]]></confirmUninstall>
     <is_configurable>0</is_configurable>
     <need_instance>1</need_instance>
-    <limited_countries></limited_countries>
+	<limited_countries></limited_countries>
 </module>

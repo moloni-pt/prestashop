@@ -32,6 +32,7 @@ use Db;
 use Image;
 use ImageManager;
 use ImageType;
+use Moloni\Logs\LoggerFacade;
 use Moloni\Enums\CreatedDocumentStatus;
 use Moloni\Enums\DocumentStatus;
 use Moloni\Mails\DocumentErrorMail;
@@ -265,6 +266,11 @@ class General
             'invoice_status' => CreatedDocumentStatus::DISCARDED,
         ]);
 
+        LoggerFacade::info('Order discarded with success.', [
+            'tag' => 'service:order:discard',
+            'order_id' => $order_id
+        ]);
+
         return [
             'success' => true,
             'message' => 'O documento não vai ser gerado! :)',
@@ -276,6 +282,12 @@ class General
     public function cleanInvoiceAnulate($order_id)
     {
         Db::getInstance()->delete('moloni_invoices', 'order_id = ' . (int)$order_id);
+
+        LoggerFacade::info('Order discard reverted with success.', [
+            'tag' => 'service:order:discard:revert',
+            'order_id' => $order_id
+        ]);
+
         return [
             'success' => true,
             'message' => 'O documento está pronto para ser gerado! :)',
@@ -1018,6 +1030,13 @@ class General
             }
 
             $productID = $this->products->insert($product);
+
+            if (!empty($productID)) {
+                LoggerFacade::info('Product created in Moloni. (' . $reference . ')', [
+                    'tag' => 'service:document:product:create',
+                    'data' => $product
+                ]);
+            }
         }
 
         return $productID;
@@ -1072,6 +1091,13 @@ class General
             }
 
             $productID = $this->products->insert($product);
+
+            if (!empty($productID)) {
+                LoggerFacade::info('Product created in Moloni. (' . $reference . ')', [
+                    'tag' => 'service:document:shipping:create',
+                    'data' => $product
+                ]);
+            }
         }
 
         return $productID;
@@ -1093,6 +1119,13 @@ class General
             $wrapperProduct['has_stock'] = '0';
 
             $wrapperId = $this->products->insert($wrapperProduct);
+
+            if (!empty($wrapperId)) {
+                LoggerFacade::info('Product created in Moloni. (' . $wrapperReference . ')', [
+                    'tag' => 'service:document:wrapping:create',
+                    'data' => $wrapperProduct
+                ]);
+            }
         }
 
         $wrapperProduct['product_id'] = $wrapperId;
@@ -1240,6 +1273,14 @@ class General
             }
 
             $productID = $this->products->insert($product);
+
+            if (!empty($productID)) {
+                LoggerFacade::info('Product created in Moloni. (' . $reference . ')', [
+                    'tag' => 'hook:product:product:save',
+                    'data' => $product
+                ]);
+            }
+
             unset($product);
         }
 
@@ -1295,7 +1336,15 @@ class General
                             }
                         }
 
-                        $this->products->insert($product);
+                        $productID = $this->products->insert($product);
+
+                        if (!empty($productID)) {
+                            LoggerFacade::info('Product created in Moloni. (' . $reference . ')', [
+                                'tag' => 'hook:product:attribute:save',
+                                'data' => $product
+                            ]);
+                        }
+
                         unset($product);
                     }
                 }
@@ -1303,6 +1352,12 @@ class General
         }
 
         if (MoloniError::$exists) {
+            LoggerFacade::error('Product create failed.', [
+                'tag' => 'hook:product:attribute:save',
+                'productID' => $productID,
+                'data' => MoloniError::$message
+            ]);
+
             print_r(MoloniError::$message);
         }
     }

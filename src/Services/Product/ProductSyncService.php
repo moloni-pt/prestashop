@@ -23,12 +23,13 @@
  * @noinspection SqlNoDataSourceInspection
  */
 
-namespace Moloni\Services;
+namespace Moloni\Services\Product;
 
 use Combination;
 use Configuration;
 use Db;
 use Moloni\Classes\Products;
+use Moloni\Logs\LoggerFacade;
 use PrestaShopDatabaseException;
 use PrestaShopException;
 use Product;
@@ -705,43 +706,47 @@ class ProductSyncService
         return false;
     }
 
-    /**
-     * @return void
-     */
     private function enableStockSync(): void
     {
         $this->shouldSyncStock = true;
     }
 
-    /**
-     * @return void
-     */
     private function enablePriceSync(): void
     {
         $this->shouldSyncPrice = true;
     }
 
-    /**
-     * @return void
-     */
     private function enableNameSync(): void
     {
         $this->shouldSyncName = true;
     }
 
-    /**
-     * @return void
-     */
     private function enableDescriptionSync(): void
     {
         $this->shouldSyncDescription = true;
     }
 
-    /**
-     * @return void
-     */
     private function enableEANSync(): void
     {
         $this->shouldSyncEAN = true;
+    }
+
+    /** Logs */
+
+    public function saveLog()
+    {
+        $message = 'Products sync.';
+
+        if (empty($this->page)) {
+            $message .= ' Via Webservice.';
+        } else {
+            $message .= ' Part ' . $this->page . '.';
+        }
+
+        LoggerFacade::info($message, [
+            'tag' => 'service:product:sync',
+            'date' => $this->date,
+            'results' => $this->getResults(),
+        ]);
     }
 }

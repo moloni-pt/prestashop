@@ -20,7 +20,7 @@
  * @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  *
  */
-namespace Moloni\Services\Product;
+namespace Moloni\Services\Product\Helpers;
 
 use Category;
 use Configuration;
