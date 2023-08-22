@@ -1,0 +1,10 @@
+ 
+
+Olá,
+
+Aviso de documento Moloni
+
+Um documento foi criado como rascunho porque os valores da encomenda e do documento não correspondem.
+Verifique o documento resultante.
+
+Encomenda ID: {order_id}

@@ -32,7 +32,10 @@ use Db;
 use Image;
 use ImageManager;
 use ImageType;
-use MailCore;
+use Moloni\Enums\CreatedDocumentStatus;
+use Moloni\Enums\DocumentStatus;
+use Moloni\Mails\DocumentErrorMail;
+use Moloni\Mails\DocumentWarningMail;
 use Order;
 use OrderPayment;
 use PrestaShopDatabaseException;
@@ -259,7 +262,7 @@ class General
             'invoice_id' => '0',
             'invoice_total' => '0',
             'invoice_date' => '0',
-            'invoice_status' => '4',
+            'invoice_status' => CreatedDocumentStatus::DISCARDED,
         ]);
 
         return [
@@ -281,7 +284,7 @@ class General
         ];
     }
 
-    public function makeInvoice($order_id)
+    public function makeInvoice($order_id, ?bool $isAutomatic = false)
     {
         $this->settings = new Settings();
         $this->products = new Products();
@@ -551,8 +554,7 @@ class General
             $invoice['eac_id'] = $this->eac_id;
         }
 
-        $invoice['status'] = '0';
-        $result = false;
+        $invoice['status'] = DocumentStatus::DRAFT;
 
         $invoiceExists = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "moloni_invoices WHERE order_id = '" . (int)$order_id . "'");
 
@@ -563,81 +565,38 @@ class General
 
             if (!MoloniError::$exists) {
                 $documentInfo = $documents->getOneInfo($documentID);
-                if ($documentInfo['net_value'] == $order['base']['total_paid'] ||
-                    ($orderCurrency->iso_code !== 'EUR' && $documentInfo['exchange_total_value'] == $order['base']['total_paid'])) {
-
+                if ($documentInfo['net_value'] == $order['base']['total_paid'] || ($orderCurrency->iso_code !== 'EUR' && $documentInfo['exchange_total_value'] == $order['base']['total_paid'])) {
                     if (defined('DOCUMENT_STATUS') && (int)DOCUMENT_STATUS === 1) {
+                        $documentSentToCustomer = false;
 
-                        $update = [];
-
-                        $update['document_id'] = $documentID;
-                        $update['status'] = 1;
-                        $documents->update($update);
+                        $update = [
+                            'document_id' => $documentID,
+                            'status' => DocumentStatus::CLOSED,
+                            'send_email' => []
+                        ];
 
                         if (defined('EMAIL_SEND') && EMAIL_SEND) {
-
-                            $invoice = $documents->getOneInfo($documentID);
                             $customerInfo = Db::getInstance()->getRow('SELECT email, firstname, lastname FROM ' . _DB_PREFIX_ . "customer WHERE id_customer = '" . (int)$order['base']['id_customer'] . "'");
 
-                            $to = $customerInfo['email'];
-                            $subject = 'Envio de documento | Fatura ' . $invoice['document_set']['name'] . '-' . $invoice['number'] . ' | ' . date('Y-m-d');
+                            $update['send_email'][] = [
+                                'email' => $customerInfo['email'],
+                                'name' => $customerInfo['firstname'] . ' ' . $customerInfo['lastname'],
+                                'msg' => ''
+                            ];
 
-                            $downloadurl = $documents->getPDFLink($invoice['document_id']) . '&e=' . urlencode($customerInfo['email']);
-                            $date = explode('T', $invoice['date']);
-                            $date = $date[0];
-
-                            switch (DOCUMENT_TYPE) {
-                                case 'invoices':
-                                    $docName = 'Fatura';
-                                    break;
-                                case 'invoiceReceipts':
-                                    $docName = 'Fatura/Recibo';
-                                    break;
-                                case 'estimates':
-                                    $docName = 'Orçamento';
-                                    break;
-                                case 'purchaseOrder':
-                                    $docName = 'Nota de Encomenda';
-                                    break;
-                            }
-
-                            MailCore::Send(
-                                (int)(
-                                Configuration::get('PS_LANG_DEFAULT')), 'invoice', $subject, [
-                                '{image}' => $this->me['image'],
-                                '{nome_empresa}' => $this->me['name'],
-                                '{data_hoje}' => date('Y-m-d'),
-                                '{nome_cliente}' => $customerInfo['firstname'] . ' ' . $customerInfo['lastname'],
-                                '{documento_tipo}' => $docName,
-                                '{documento_numero}' => $invoice['document_set']['name'] . '-' . $invoice['number'],
-                                '{documento_emissao}' => $date,
-                                '{documento_vencimento}' => $date,
-                                '{documento_total}' => $invoice['net_value'] . '€',
-                                '{documento_url}' => $downloadurl,
-                                '{empresa_nome}' => $this->me['name'],
-                                '{empresa_morada}' => $this->me['address'],
-                                '{empresa_email}' => $this->me['mails_sender_address']
-                            ], $to, null, $this->me['mails_sender_name'], $this->me['mails_sender_address'], null, null, _PS_MODULE_DIR_ . 'moloni/mails/'
-                            );
-
-                            Db::getInstance()->insert('moloni_invoices', [
-                                'order_id' => (int)$order_id,
-                                'order_total' => pSQL($order['base']['total_paid']),
-                                'invoice_id' => (int)$documentID,
-                                'invoice_total' => pSQL($documentInfo['net_value']),
-                                'invoice_date' => pSQL(date('Y-m-d H:i:s')),
-                                'invoice_status' => (int)'2',
-                            ]);
-                        } else {
-                            Db::getInstance()->insert('moloni_invoices', [
-                                'order_id' => (int)$order_id,
-                                'order_total' => pSQL($order['base']['total_paid']),
-                                'invoice_id' => (int)$documentID,
-                                'invoice_total' => pSQL($documentInfo['net_value']),
-                                'invoice_date' => pSQL(date('Y-m-d H:i:s')),
-                                'invoice_status' => (int)'1',
-                            ]);
+                            $documentSentToCustomer = true;
                         }
+
+                        $documents->update($update);
+
+                        Db::getInstance()->insert('moloni_invoices', [
+                            'order_id' => (int)$order_id,
+                            'order_total' => pSQL($order['base']['total_paid']),
+                            'invoice_id' => (int)$documentID,
+                            'invoice_total' => pSQL($documentInfo['net_value']),
+                            'invoice_date' => pSQL(date('Y-m-d H:i:s')),
+                            'invoice_status' => $documentSentToCustomer ? CreatedDocumentStatus::CLOSED_AND_SENT : CreatedDocumentStatus::CLOSED,
+                        ]);
 
                         return [
                             'success' => true,
@@ -654,8 +613,9 @@ class General
                         'invoice_id' => (int)$documentID,
                         'invoice_total' => pSQL($documentInfo['net_value']),
                         'invoice_date' => pSQL(date('Y-m-d H:i:s')),
-                        'invoice_status' => (int)'0',
+                        'invoice_status' => CreatedDocumentStatus::DRAFT,
                     ]);
+
                     return [
                         'success' => true,
                         'message' => 'Documento inserido como rascunho! :)',
@@ -671,11 +631,25 @@ class General
                     'invoice_id' => (int)$documentID,
                     'invoice_total' => pSQL($documentInfo['net_value']),
                     'invoice_date' => pSQL(date('Y-m-d H:i:s')),
-                    'invoice_status' => (int)'3',
+                    'invoice_status' => CreatedDocumentStatus::DRAFT_WITH_ERROR,
                 ]);
+
                 MoloniError::create('document/update', 'Documento inserido, mas totais não correspondem', $documentInfo, $order);
+
+                if ($isAutomatic && defined('ALERT_EMAIL') && !empty(ALERT_EMAIL)) {
+                    $alert = new DocumentWarningMail(ALERT_EMAIL, ['order_id' => $order_id]);
+                    $alert->handle();
+                }
+
+                return false;
             }
-            return $result;
+
+            if ($isAutomatic && defined('ALERT_EMAIL') && !empty(ALERT_EMAIL)) {
+                $alert = new DocumentErrorMail(ALERT_EMAIL, ['order_id' => $order_id]);
+                $alert->handle();
+            }
+
+            return false;
         }
 
         return false;
@@ -1058,7 +1032,7 @@ class General
 
         $helper = preg_replace('/([^A-Z.])\w+/i', '', str_replace(' ', '.', $shippingName));
         $helper = explode('.', $helper);
-        
+
         foreach ($helper as $word) {
             $reference .= Tools::substr($word, 0, 3) . '.';
         }
