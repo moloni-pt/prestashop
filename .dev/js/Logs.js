@@ -33,6 +33,7 @@ pt.moloni.Logs = (function ($) {
                 "processing": true,
                 "serverSide": true,
                 "bStateSave": true,
+                "order": [[ 0, 'desc' ]],
                 "ajax": {
                     "url": currentPageAction,
                     "data": {

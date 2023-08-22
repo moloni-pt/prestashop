@@ -570,54 +570,47 @@ class General
 
         $invoiceExists = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "moloni_invoices WHERE order_id = '" . (int)$order_id . "'");
 
-        if (!MoloniError::$exists && (!$invoiceExists || !empty($_GET['force']))) {
+        if (MoloniError::$exists) {
+            $this->dealWithDocumentError($orderPS, $invoice, $isAutomatic);
 
+            return false;
+        }
+
+        if (!$invoiceExists || !empty($_GET['force'])) {
             $documents = new Documents();
             $documentID = $documents->insertInvoice($invoice);
 
-            if (!MoloniError::$exists) {
-                $documentInfo = $documents->getOneInfo($documentID);
-                if ($documentInfo['net_value'] == $order['base']['total_paid'] || ($orderCurrency->iso_code !== 'EUR' && $documentInfo['exchange_total_value'] == $order['base']['total_paid'])) {
-                    if (defined('DOCUMENT_STATUS') && (int)DOCUMENT_STATUS === 1) {
-                        $documentSentToCustomer = false;
+            if (MoloniError::$exists) {
+                $this->dealWithDocumentError($orderPS, $invoice, $isAutomatic);
 
-                        $update = [
-                            'document_id' => $documentID,
-                            'status' => DocumentStatus::CLOSED,
-                            'send_email' => []
+                return false;
+            }
+
+            $documentInfo = $documents->getOneInfo($documentID);
+
+            if ($documentInfo['net_value'] == $order['base']['total_paid'] || ($orderCurrency->iso_code !== 'EUR' && $documentInfo['exchange_total_value'] == $order['base']['total_paid'])) {
+                if (defined('DOCUMENT_STATUS') && (int)DOCUMENT_STATUS === 1) {
+                    $documentSentToCustomer = false;
+
+                    $update = [
+                        'document_id' => $documentID,
+                        'status' => DocumentStatus::CLOSED,
+                        'send_email' => []
+                    ];
+
+                    if (defined('EMAIL_SEND') && EMAIL_SEND) {
+                        $customerInfo = Db::getInstance()->getRow('SELECT email, firstname, lastname FROM ' . _DB_PREFIX_ . "customer WHERE id_customer = '" . (int)$order['base']['id_customer'] . "'");
+
+                        $update['send_email'][] = [
+                            'email' => $customerInfo['email'],
+                            'name' => $customerInfo['firstname'] . ' ' . $customerInfo['lastname'],
+                            'msg' => ''
                         ];
 
-                        if (defined('EMAIL_SEND') && EMAIL_SEND) {
-                            $customerInfo = Db::getInstance()->getRow('SELECT email, firstname, lastname FROM ' . _DB_PREFIX_ . "customer WHERE id_customer = '" . (int)$order['base']['id_customer'] . "'");
-
-                            $update['send_email'][] = [
-                                'email' => $customerInfo['email'],
-                                'name' => $customerInfo['firstname'] . ' ' . $customerInfo['lastname'],
-                                'msg' => ''
-                            ];
-
-                            $documentSentToCustomer = true;
-                        }
-
-                        $documents->update($update);
-
-                        Db::getInstance()->insert('moloni_invoices', [
-                            'order_id' => (int)$order_id,
-                            'order_total' => pSQL($order['base']['total_paid']),
-                            'invoice_id' => (int)$documentID,
-                            'invoice_total' => pSQL($documentInfo['net_value']),
-                            'invoice_date' => pSQL(date('Y-m-d H:i:s')),
-                            'invoice_status' => $documentSentToCustomer ? CreatedDocumentStatus::CLOSED_AND_SENT : CreatedDocumentStatus::CLOSED,
-                        ]);
-
-                        return [
-                            'success' => true,
-                            'message' => 'Documento inserido e fechado com sucesso! :)',
-                            'button' => 'Ver',
-                            'tab' => '_BLANK',
-                            'url' => 'https://www.moloni.pt/' . $this->me['slug'] . '/' . $documents->currentType() . '/showDetail/' . $documentID . '/'
-                        ];
+                        $documentSentToCustomer = true;
                     }
+
+                    $documents->update($update);
 
                     Db::getInstance()->insert('moloni_invoices', [
                         'order_id' => (int)$order_id,
@@ -625,12 +618,14 @@ class General
                         'invoice_id' => (int)$documentID,
                         'invoice_total' => pSQL($documentInfo['net_value']),
                         'invoice_date' => pSQL(date('Y-m-d H:i:s')),
-                        'invoice_status' => CreatedDocumentStatus::DRAFT,
+                        'invoice_status' => $documentSentToCustomer ? CreatedDocumentStatus::CLOSED_AND_SENT : CreatedDocumentStatus::CLOSED,
                     ]);
+
+                    $this->dealWithDocumentSuccess($orderPS, $invoice, (int)$documentID);
 
                     return [
                         'success' => true,
-                        'message' => 'Documento inserido como rascunho! :)',
+                        'message' => 'Documento inserido e fechado com sucesso! :)',
                         'button' => 'Ver',
                         'tab' => '_BLANK',
                         'url' => 'https://www.moloni.pt/' . $this->me['slug'] . '/' . $documents->currentType() . '/showDetail/' . $documentID . '/'
@@ -643,23 +638,32 @@ class General
                     'invoice_id' => (int)$documentID,
                     'invoice_total' => pSQL($documentInfo['net_value']),
                     'invoice_date' => pSQL(date('Y-m-d H:i:s')),
-                    'invoice_status' => CreatedDocumentStatus::DRAFT_WITH_ERROR,
+                    'invoice_status' => CreatedDocumentStatus::DRAFT,
                 ]);
 
-                MoloniError::create('document/update', 'Documento inserido, mas totais não correspondem', $documentInfo, $order);
+                $this->dealWithDocumentSuccess($orderPS, $invoice, (int)$documentID);
 
-                if ($isAutomatic && defined('ALERT_EMAIL') && !empty(ALERT_EMAIL)) {
-                    $alert = new DocumentWarningMail(ALERT_EMAIL, ['order_id' => $order_id]);
-                    $alert->handle();
-                }
-
-                return false;
+                return [
+                    'success' => true,
+                    'message' => 'Documento inserido como rascunho! :)',
+                    'button' => 'Ver',
+                    'tab' => '_BLANK',
+                    'url' => 'https://www.moloni.pt/' . $this->me['slug'] . '/' . $documents->currentType() . '/showDetail/' . $documentID . '/'
+                ];
             }
 
-            if ($isAutomatic && defined('ALERT_EMAIL') && !empty(ALERT_EMAIL)) {
-                $alert = new DocumentErrorMail(ALERT_EMAIL, ['order_id' => $order_id]);
-                $alert->handle();
-            }
+            Db::getInstance()->insert('moloni_invoices', [
+                'order_id' => (int)$order_id,
+                'order_total' => pSQL($order['base']['total_paid']),
+                'invoice_id' => (int)$documentID,
+                'invoice_total' => pSQL($documentInfo['net_value']),
+                'invoice_date' => pSQL(date('Y-m-d H:i:s')),
+                'invoice_status' => CreatedDocumentStatus::DRAFT_WITH_ERROR,
+            ]);
+
+            MoloniError::create('document/update', 'Documento inserido, mas totais não correspondem', $documentInfo, $order);
+
+            $this->dealWithDocumentWarning($orderPS, $invoice, (int)$documentID, $isAutomatic);
 
             return false;
         }
@@ -1449,7 +1453,7 @@ class General
         return Tools::ps_round($amount, 5);
     }
 
-    //***** Auxiliary ******//
+    //***** Document auxiliary ******//
 
     private function shouldShowShippingInfo()
     {
@@ -1459,5 +1463,46 @@ class General
         }
 
         return (bool)SHOW_SHIPPING_INFORMATION;
+    }
+
+    private function dealWithDocumentSuccess(Order $orderPS, array $documentProps, int $documentId)
+    {
+        LoggerFacade::info('Document created successfully (' . $orderPS->reference . ').', [
+            'tag' => 'service:document:create:success',
+            'orderId' => $orderPS->id,
+            'documentId' => $documentId,
+            'props' => $documentProps,
+        ]);
+    }
+
+    private function dealWithDocumentWarning(Order $orderPS, array $documentProps, int $documentId, bool $isAutomatic)
+    {
+        LoggerFacade::warning('Warning processing order (' . $orderPS->reference . ').', [
+            'tag' => 'service:document:create:warning',
+            'orderId' => $orderPS->id,
+            'documentId' => $documentId,
+            'props' => $documentProps,
+        ]);
+
+        if ($isAutomatic && defined('ALERT_EMAIL') && !empty(ALERT_EMAIL)) {
+            $alert = new DocumentWarningMail(ALERT_EMAIL, ['order_id' => $orderPS->id]);
+            $alert->handle();
+        }
+    }
+
+    private function dealWithDocumentError(Order $orderPS, array $documentProps, bool $isAutomatic)
+    {
+        LoggerFacade::error('Error processing order (' . $orderPS->reference . ').', [
+            'tag' => 'service:document:create:error',
+            'orderId' => $orderPS->id,
+            'documentId' => 0,
+            'props' => $documentProps,
+            'message' => MoloniError::$message
+        ]);
+
+        if ($isAutomatic && defined('ALERT_EMAIL') && !empty(ALERT_EMAIL)) {
+            $alert = new DocumentErrorMail(ALERT_EMAIL, ['order_id' => $orderPS->id]);
+            $alert->handle();
+        }
     }
 }
