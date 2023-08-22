@@ -20,13 +20,13 @@
  * @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  *
  */
-namespace Moloni\Services;
+namespace Moloni\Services\Product;
 
 use Configuration;
 use Image;
 use Moloni\Classes\General;
-use Moloni\Services\Product\FindTaxGroupFromMoloniTax;
-use Moloni\Services\Product\GetCategoryFromMoloniProduct;
+use Moloni\Services\Product\Helpers\FindTaxGroupFromMoloniTax;
+use Moloni\Services\Product\Helpers\GetCategoryFromMoloniProduct;
 use PrestaShopDatabaseException;
 use PrestaShopException;
 use Product;

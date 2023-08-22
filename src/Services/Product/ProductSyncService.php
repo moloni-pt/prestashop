@@ -23,7 +23,7 @@
  * @noinspection SqlNoDataSourceInspection
  */
 
-namespace Moloni\Services;
+namespace Moloni\Services\Product;
 
 use Combination;
 use Configuration;

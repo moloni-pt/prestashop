@@ -22,8 +22,8 @@
 
 use Moloni\Classes\General;
 use Moloni\Classes\MoloniError;
-use Moloni\Classes\Service\FetchPendingOrders;
 use Moloni\Classes\Start;
+use Moloni\Services\Orders\FetchPendingOrders;
 
 class MoloniStartController extends ModuleAdminController
 {

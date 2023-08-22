@@ -22,7 +22,6 @@
 
 use Moloni\Classes\General;
 use Moloni\Classes\Start;
-use Moloni\Services\ProductSyncService;
 use Moloni\Webservice\Webservices;
 
 class MoloniConfiguracaoController extends ModuleAdminController
