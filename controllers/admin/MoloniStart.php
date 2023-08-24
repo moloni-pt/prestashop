@@ -24,6 +24,7 @@ use Moloni\Classes\General;
 use Moloni\Classes\MoloniError;
 use Moloni\Classes\Start;
 use Moloni\Services\Orders\FetchPendingOrders;
+use Moloni\Facades\ModuleFacade;
 
 class MoloniStartController extends ModuleAdminController
 {
@@ -31,6 +32,9 @@ class MoloniStartController extends ModuleAdminController
 
     public function __construct()
     {
+        parent::__construct();
+
+        ModuleFacade::setModule($this->module);
 
         $this->bootstrap = true;
         $this->className = 'Moloni';
@@ -92,8 +96,6 @@ class MoloniStartController extends ModuleAdminController
                 ]);
             }
         }
-
-        parent::__construct();
     }
 
     public function displayAjax()

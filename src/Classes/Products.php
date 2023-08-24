@@ -24,6 +24,7 @@ namespace Moloni\Classes;
 
 use ModuleAdminController;
 use Moloni\Classes\Products\Categories;
+use Moloni\Facades\ModuleFacade;
 
 class Products extends ModuleAdminController
 {
@@ -135,7 +136,9 @@ class Products extends ModuleAdminController
         if (isset($result['product_id'])) {
             return ($result['product_id']);
         } else {
-            MoloniError::create('products/insert', ('Error inserting product'), $values, $result);
+            $message = ModuleFacade::getModule()->l('Error inserting product');
+
+            MoloniError::create('products/insert', $message, $values, $result);
             return (false);
         }
     }

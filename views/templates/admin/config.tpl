@@ -351,7 +351,7 @@
                         <input type="text"
                                name='options[alert_email]'
                                id='alert_email'
-                               placeholder="example@email.com (Receive alerts when an error occurs in the plugin)"
+                               placeholder="example@email.com ({l s='Receive alerts when an error occurs in the plugin' mod='moloni'})"
                                value='{$alertEmail}'>
                     </div>
                 </div>

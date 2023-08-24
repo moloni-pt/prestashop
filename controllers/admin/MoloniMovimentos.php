@@ -22,12 +22,16 @@
 
 use Moloni\Classes\General;
 use Moloni\Classes\Start;
+use Moloni\Facades\ModuleFacade;
 
 class MoloniMovimentosController extends ModuleAdminController
 {
 
     public function __construct()
     {
+        parent::__construct();
+
+        ModuleFacade::setModule($this->module);
 
         $this->bootstrap = true;
         $this->className = 'Moloni';
@@ -64,10 +68,6 @@ class MoloniMovimentosController extends ModuleAdminController
                 'companies' => $companies
             ]
         ]);
-
-
-
-        parent::__construct();
     }
 
     public function initContent()

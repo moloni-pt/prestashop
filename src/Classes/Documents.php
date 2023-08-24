@@ -22,6 +22,8 @@
 
 namespace Moloni\Classes;
 
+use Moloni\Facades\ModuleFacade;
+
 class Documents
 {
 
@@ -33,7 +35,9 @@ class Documents
         if (isset($result['document_id'])) {
             return ($result['document_id']);
         } else {
-            MoloniError::create("$type/insert", "Erro ao inserir documento", $values, $result);
+            $message = ModuleFacade::getModule()->l('Error inserting document');
+
+            MoloniError::create("$type/insert", $message, $values, $result);
         }
         return ($result);
     }
@@ -56,7 +60,9 @@ class Documents
         if (isset($result['document_id'])) {
             return ($result['document_id']);
         } else {
-            MoloniError::create(DOCUMENT_TYPE . "/update", "Erro ao actualizar documento", $values, $result);
+            $message = ModuleFacade::getModule()->l('Error updating document');
+
+            MoloniError::create(DOCUMENT_TYPE . "/update", $message, $values, $result);
         }
         return ($result);
     }

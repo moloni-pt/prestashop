@@ -26,14 +26,13 @@
 namespace Moloni\Classes;
 
 use Db;
+use Moloni\Facades\LoggerFacade;
+use Moloni\Facades\ModuleFacade;
 use Moloni\Mails\AuthenticationExpiredMail;
-use Moloni\Logs\LoggerFacade;
-use Tools;
-use ModuleAdminController;
 use Moloni\Webservice\Webservices;
-use Moloni\Classes\Curl;
+use Tools;
 
-class Start extends ModuleAdminController
+class Start
 {
     public $template = '';
     public $message = '';
@@ -45,122 +44,174 @@ class Start extends ModuleAdminController
         }
 
         if (Tools::getValue('MoloniLogout') && Tools::getValue('MoloniLogout') === 'true') {
-            LoggerFacade::info('Manual logout.', ['tag' => 'manual:logout']);
-
-            Db::getInstance()->execute('TRUNCATE ' . _DB_PREFIX_ . 'moloni');
+            $this->logout();
         }
 
         if (Tools::getValue('mol-username') && Tools::getValue('mol-password')) {
-            #Tentativa de Login
-            $validate = Curl::login(Tools::getValue('mol-username'), Tools::getValue('mol-password'));
-            if (!$validate) {
-                #Utilizador/password errada
-                $this->template = 'login';
-                $this->message = array(
-                    'label' => 'login-errado',
-                    'text' => 'Ups, combinação errada, tenta novamente :)'
-                );
-                define('MOLONI_ERROR_LOGIN', 'login-errado');
-            } else {
-                #Utilizador/password correcto
-                #Primeiro Login
-
-                define('ACCESS', $validate['access_token']);
-                $timeNow = time();
-                $timeExpire = $timeNow + 3000;
-
-                Db::getInstance()->execute('TRUNCATE ' . _DB_PREFIX_ . 'moloni');
-                Db::getInstance()->insert('moloni', array(
-                    'access_token' => pSQL($validate['access_token']),
-                    'refresh_token' => pSQL($validate['refresh_token']),
-                    'date_login' => pSQL(date('Y-m-d H:i:s')),
-                    'date_expire' => pSQL($timeExpire),
-                    'company_id' => pSQL(0),
-                ));
-                $this->variablesCheck();
-                $this->template = 'company';
-            }
+            $this->doLogin();
         } else {
             #Não são enviados dados de login
 
             if (Tools::getValue('company_id')) {
-                Db::getInstance()->update('moloni', array(
-                    'company_id' => (int)Tools::getValue('company_id')
-                ));
+                $this->setCompany();
             }
 
-            $row = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . 'moloni', false);
-            if (isset($row['refresh_token'])) {
-                #Tem registo em base de dados
+            $this->refreshTokens();
+        }
 
-                if ((!isset($row['company_id']) || $row['company_id'] == '0')) {
-                    #Caso ainda não tenha escolhido empresa
-                    if ($row['date_expire'] > time()) {
-                        $this->variablesCheck();
-                        $this->template = 'company';
-                    } else {
+        $this->afterProcess();
+    }
+
+    public function templateSelect()
+    {
+        $this->template = 'index';
+
+        $action = Tools::getValue('action', '');
+
+        switch ($action) {
+            case 'movimentos':
+                $this->template = 'movimentos';
+                break;
+            case 'config':
+                $this->template = 'config';
+                break;
+            case 'invoice':
+                $this->template = 'invoice';
+                break;
+        }
+    }
+
+    //          Privates          //
+
+    private function doLogin()
+    {
+        $validate = Curl::login(Tools::getValue('mol-username'), Tools::getValue('mol-password'));
+
+        if (!$validate) {
+            #Utilizador/password errada
+            $this->template = 'login';
+            $this->message = [
+                'label' => 'login-errado',
+                'text' => 'Ups, combinação errada, tenta novamente :)'
+            ];
+            define('MOLONI_ERROR_LOGIN', 'login-errado');
+        } else {
+            #Utilizador/password correcto
+            #Primeiro Login
+
+            define('ACCESS', $validate['access_token']);
+            $timeNow = time();
+            $timeExpire = $timeNow + 3000;
+
+            Db::getInstance()->execute('TRUNCATE ' . _DB_PREFIX_ . 'moloni');
+            Db::getInstance()->insert('moloni', array(
+                'access_token' => pSQL($validate['access_token']),
+                'refresh_token' => pSQL($validate['refresh_token']),
+                'date_login' => pSQL(date('Y-m-d H:i:s')),
+                'date_expire' => pSQL($timeExpire),
+                'company_id' => pSQL(0),
+            ));
+
+            $this->variablesCheck();
+            $this->template = 'company';
+        }
+    }
+
+    private function refreshTokens()
+    {
+        $row = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . 'moloni', false);
+
+        if (isset($row['refresh_token'])) {
+            #Tem registo em base de dados
+
+            if ((!isset($row['company_id']) || $row['company_id'] == '0')) {
+                #Caso ainda não tenha escolhido empresa
+                if ($row['date_expire'] > time()) {
+                    $this->variablesCheck();
+                    $this->template = 'company';
+                } else {
+
+                    Db::getInstance()->execute('TRUNCATE ' . _DB_PREFIX_ . 'moloni');
+                    $this->template = 'login';
+                    $this->message = [
+                        'label' => 'sessao-expirada',
+                        'text' => 'A ligação expirou, faça login novamente.'
+                    ];
+                }
+            } else {
+                #Login feito, e empresa seleccionada
+                #Tentar refresh se for preciso
+                if ($row['date_expire'] < time()) {
+                    $refresh = Curl::refresh($row['refresh_token']);
+
+                    if (!$refresh) {
+                        sleep(2000);
+                        $refresh = Curl::refresh($row['refresh_token']);
+                    }
+
+                    if (!$refresh) {
+                        sleep(2000);
+                        $refresh = Curl::refresh($row['refresh_token']);
+                    }
+
+                    if (!$refresh) {
+                        #Refresh não deu, volta a fazer login
 
                         Db::getInstance()->execute('TRUNCATE ' . _DB_PREFIX_ . 'moloni');
+
                         $this->template = 'login';
-                        $this->message = array(
+                        $this->message = [
                             'label' => 'sessao-expirada',
                             'text' => 'A ligação expirou, faça login novamente.'
-                        );
-                    }
-                } else {
-                    #Login feito, e empresa seleccionada
-                    #Tentar refresh se for preciso
-                    if ($row['date_expire'] < time()) {
-                        $refresh = Curl::refresh($row['refresh_token']);
+                        ];
 
-                        if (!$refresh) {
-                            sleep(2000);
-                            $refresh = Curl::refresh($row['refresh_token']);
-                        }
-
-                        if (!$refresh) {
-                            sleep(2000);
-                            $refresh = Curl::refresh($row['refresh_token']);
-                        }
-
-                        if (!$refresh) {
-                            #Refresh não deu, volta a fazer login
-
-                            Db::getInstance()->execute('TRUNCATE ' . _DB_PREFIX_ . 'moloni');
-                            $this->template = 'login';
-                            $this->message = array(
-                                'label' => 'sessao-expirada',
-                                'text' => 'A ligação expirou, faça login novamente.'
-                            );
-
-                            if (!empty($row['alert_email'])) {
-                                $alert = new AuthenticationExpiredMail($row['alert_email']);
-                                $alert->handle();
-                            }
-                        } else {
-                            #Refresh deu, continua normalmente
-                            $timeNow = time();
-                            $timeExpire = $timeNow + 3000;
-                            Db::getInstance()->update('moloni', array(
-                                'access_token' => pSQL($refresh['access_token']),
-                                'refresh_token' => pSQL($refresh['refresh_token']),
-                                'date_expire' => pSQL($timeExpire),
-                            ));
-
-                            $this->variablesDefine();
-                            $this->templateSelect();
+                        if (!empty($row['alert_email'])) {
+                            $alert = new AuthenticationExpiredMail($row['alert_email']);
+                            $alert->handle();
                         }
                     } else {
+                        #Refresh deu, continua normalmente
+                        $timeNow = time();
+                        $timeExpire = $timeNow + 3000;
+
+                        Db::getInstance()->update('moloni', [
+                            'access_token' => pSQL($refresh['access_token']),
+                            'refresh_token' => pSQL($refresh['refresh_token']),
+                            'date_expire' => pSQL($timeExpire),
+                        ]);
+
                         $this->variablesDefine();
                         $this->templateSelect();
                     }
+                } else {
+                    $this->variablesDefine();
+                    $this->templateSelect();
                 }
-            } else {
-                #Não tem dados na base de dados
-                $this->template = 'login';
             }
+        } else {
+            #Não tem dados na base de dados
+            $this->template = 'login';
         }
+    }
 
+    private function logout()
+    {
+        $logMessage = ModuleFacade::getModule()->l('Manual logout.');
+
+        LoggerFacade::info($logMessage, ['tag' => 'manual:logout']);
+
+        Db::getInstance()->execute('TRUNCATE ' . _DB_PREFIX_ . 'moloni');
+    }
+
+    private function setCompany()
+    {
+        Db::getInstance()->update('moloni', [
+            'company_id' => (int)Tools::getValue('company_id')
+        ]);
+    }
+
+    private function afterProcess()
+    {
         $row = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . 'moloni');
 
         if (!defined('ACCESS') && is_array($row)) {
@@ -172,27 +223,9 @@ class Start extends ModuleAdminController
         }
     }
 
-    public function templateSelect()
-    {
-        $this->template = 'index';
-        if (Tools::getValue('action')) {
-            switch ($_REQUEST['action']) {
-                case 'movimentos':
-                    $this->template = 'movimentos';
-                    break;
-                case 'config':
-                    $this->template = 'config';
-                    break;
-                case 'invoice':
-                    $this->template = 'invoice';
-                    break;
-            }
-        }
-    }
-
     //          Variables          //
 
-    public function variablesDefine()
+    private function variablesDefine()
     {
         if ($results = Db::getInstance()->ExecuteS('SELECT * FROM ' . _DB_PREFIX_ . 'moloni_configs')) {
             foreach ($results as $vars_r) {
@@ -203,7 +236,7 @@ class Start extends ModuleAdminController
         }
     }
 
-    public function variablesUpdate()
+    private function variablesUpdate()
     {
         $this->variablesCheck();
 
@@ -227,13 +260,15 @@ class Start extends ModuleAdminController
             $this->updateVariableByKey($key, $val);
         }
 
-        LoggerFacade::info('Settings saved.', [
+        $logMessage = ModuleFacade::getModule()->l('Settings saved.');
+
+        LoggerFacade::info($logMessage, [
             'tag' => 'manual:settings:save',
             'options' => $options
         ]);
     }
 
-    public function variablesCheck()
+    private function variablesCheck()
     {
         $defines = [];
         $defines[] = [

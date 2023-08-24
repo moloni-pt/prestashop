@@ -22,6 +22,7 @@
 
 use Moloni\Classes\General;
 use Moloni\Classes\Start;
+use Moloni\Facades\ModuleFacade;
 use Moloni\Webservice\Webservices;
 
 class MoloniConfiguracaoController extends ModuleAdminController
@@ -30,6 +31,10 @@ class MoloniConfiguracaoController extends ModuleAdminController
 
     public function __construct()
     {
+        parent::__construct();
+
+        ModuleFacade::setModule($this->module);
+
         $this->bootstrap = true;
         $this->className = 'Moloni';
         $this->context = Context::getContext();
@@ -71,8 +76,6 @@ class MoloniConfiguracaoController extends ModuleAdminController
                 'html' => $moloni->template
             ]);
         }
-
-        parent::__construct();
     }
 
     public function displayAjax()

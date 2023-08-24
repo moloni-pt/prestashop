@@ -29,7 +29,8 @@ use Combination;
 use Configuration;
 use Db;
 use Moloni\Classes\Products;
-use Moloni\Logs\LoggerFacade;
+use Moloni\Facades\LoggerFacade;
+use Moloni\Facades\ModuleFacade;
 use Moloni\Services\Product\Image\UpdatePrestaCombinationImage;
 use Moloni\Services\Product\Image\UpdatePrestaProductImage;
 use Moloni\Services\Product\ProductImportService;
@@ -853,12 +854,15 @@ class ProductSyncService
 
     public function saveLog()
     {
-        $message = 'Products sync.';
+        $message = ModuleFacade::getModule()->l('Products sync.');
 
         if (empty($this->page)) {
-            $message .= ' Via Webservice.';
+            $message .= ' ';
+            $message .= ModuleFacade::getModule()->l('Via Webservice.');
         } else {
-            $message .= ' Part ' . $this->page . '.';
+            $message .= ' ';
+            $message .= ModuleFacade::getModule()->l('Part');
+            $message .= ' ' . $this->page . '.';
         }
 
         LoggerFacade::info($message, [

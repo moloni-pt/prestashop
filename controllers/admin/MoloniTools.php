@@ -23,6 +23,7 @@
 use Moloni\Classes\General;
 use Moloni\Classes\Start;
 use Moloni\Services\Tools\ProductSyncService;
+use Moloni\Facades\ModuleFacade;
 
 class MoloniToolsController extends ModuleAdminController
 {
@@ -30,6 +31,10 @@ class MoloniToolsController extends ModuleAdminController
 
     public function __construct()
     {
+        parent::__construct();
+
+        ModuleFacade::setModule($this->module);
+
         $this->bootstrap = true;
         $this->className = 'Moloni';
         $this->context = Context::getContext();
@@ -67,8 +72,6 @@ class MoloniToolsController extends ModuleAdminController
                 'html' => $moloni->template
             ]);
         }
-
-        parent::__construct();
     }
 
     public function displayAjax()

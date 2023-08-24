@@ -1,7 +1,8 @@
 <?php
 
-namespace Moloni\Logs;
+namespace Moloni\Facades;
 
+use Moloni\Logs\Logger;
 use Psr\Log\LoggerInterface;
 
 class LoggerFacade

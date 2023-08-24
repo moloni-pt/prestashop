@@ -22,11 +22,16 @@
 
 use Moloni\Classes\Start;
 use Moloni\Services\Logs\FetchLogs;
+use Moloni\Facades\ModuleFacade;
 
 class MoloniLogsController extends ModuleAdminController
 {
     public function __construct()
     {
+        parent::__construct();
+
+        ModuleFacade::setModule($this->module);
+
         $this->bootstrap = true;
         $this->className = 'Moloni';
         $this->context = Context::getContext();
@@ -46,8 +51,6 @@ class MoloniLogsController extends ModuleAdminController
                 'html' => 'logs'
             ]);
         }
-
-        parent::__construct();
     }
 
     public function displayAjax()

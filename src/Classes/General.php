@@ -29,17 +29,14 @@ use Category;
 use Configuration;
 use Currency;
 use Db;
-use Image;
-use ImageManager;
-use ImageType;
-use Moloni\Logs\LoggerFacade;
 use Moloni\Enums\CreatedDocumentStatus;
 use Moloni\Enums\DocumentStatus;
+use Moloni\Facades\LoggerFacade;
+use Moloni\Facades\ModuleFacade;
 use Moloni\Mails\DocumentErrorMail;
 use Moloni\Mails\DocumentWarningMail;
 use Order;
 use OrderPayment;
-use PrestaShopDatabaseException;
 use Product;
 use Tools;
 
@@ -255,7 +252,7 @@ class General
         return Curl::simple('companies/getOne', $values, true);
     }
 
-    public function cleanInvoice($order_id)
+    public function cleanInvoice($order_id): array
     {
         Db::getInstance()->insert('moloni_invoices', [
             'order_id' => $order_id,
@@ -266,31 +263,36 @@ class General
             'invoice_status' => CreatedDocumentStatus::DISCARDED,
         ]);
 
-        LoggerFacade::info('Order discarded with success.', [
+        $message = ModuleFacade::getModule()->l('Order discarded with success.');
+        $btnText = ModuleFacade::getModule()->l('Revert');
+
+        LoggerFacade::info($message, [
             'tag' => 'service:order:discard',
             'order_id' => $order_id
         ]);
 
         return [
             'success' => true,
-            'message' => 'O documento não vai ser gerado! :)',
-            'button' => 'Reverter',
+            'message' => $message,
+            'button' => $btnText,
             'url' => $this->genURL('MoloniStart', '&action=cleanAnulate&id_order=' . $order_id)
         ];
     }
 
-    public function cleanInvoiceAnulate($order_id)
+    public function cleanInvoiceAnulate($order_id): array
     {
         Db::getInstance()->delete('moloni_invoices', 'order_id = ' . (int)$order_id);
 
-        LoggerFacade::info('Order discard reverted with success.', [
+        $message = ModuleFacade::getModule()->l('Order discard reverted with success.');
+
+        LoggerFacade::info($message, [
             'tag' => 'service:order:discard:revert',
             'order_id' => $order_id
         ]);
 
         return [
             'success' => true,
-            'message' => 'O documento está pronto para ser gerado! :)',
+            'message' => $message,
             'button' => '',
             'url' => ''
         ];
@@ -306,7 +308,11 @@ class General
         $order['base'] = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "orders WHERE id_order = '" . (int)$order_id . "'");
 
         if (!$order['base']) {
-            MoloniError::create('Encomenda ' . $order_id, "A encomenda com o ID $order_id não foi encontrada", null, null);
+            MoloniError::create(
+                ModuleFacade::getModule()->l('Order') . ' ' . $order_id,
+                ModuleFacade::getModule()->l('Order was not found')
+            );
+
             return false;
         }
 
@@ -625,7 +631,7 @@ class General
 
                     return [
                         'success' => true,
-                        'message' => 'Documento inserido e fechado com sucesso! :)',
+                        'message' => ModuleFacade::getModule()->l('Document successfully inserted and closed!'),
                         'button' => 'Ver',
                         'tab' => '_BLANK',
                         'url' => 'https://www.moloni.pt/' . $this->me['slug'] . '/' . $documents->currentType() . '/showDetail/' . $documentID . '/'
@@ -645,7 +651,7 @@ class General
 
                 return [
                     'success' => true,
-                    'message' => 'Documento inserido como rascunho! :)',
+                    'message' => ModuleFacade::getModule()->l('Document inserted as draft!'),
                     'button' => 'Ver',
                     'tab' => '_BLANK',
                     'url' => 'https://www.moloni.pt/' . $this->me['slug'] . '/' . $documents->currentType() . '/showDetail/' . $documentID . '/'
@@ -661,7 +667,12 @@ class General
                 'invoice_status' => CreatedDocumentStatus::DRAFT_WITH_ERROR,
             ]);
 
-            MoloniError::create('document/update', 'Documento inserido, mas totais não correspondem', $documentInfo, $order);
+            MoloniError::create(
+                'document/update',
+                ModuleFacade::getModule()->l('Document inserted, but totals do not match'),
+                $documentInfo,
+                $order
+            );
 
             $this->dealWithDocumentWarning($orderPS, $invoice, (int)$documentID, $isAutomatic);
 
@@ -1036,7 +1047,10 @@ class General
             $productID = $this->products->insert($product);
 
             if (!empty($productID)) {
-                LoggerFacade::info('Product created in Moloni. (' . $reference . ')', [
+                $message = ModuleFacade::getModule()->l('Product created in Moloni.');
+                $message .= ' (' . $reference . ')';
+
+                LoggerFacade::info($message, [
                     'tag' => 'service:document:product:create',
                     'data' => $product
                 ]);
@@ -1097,7 +1111,10 @@ class General
             $productID = $this->products->insert($product);
 
             if (!empty($productID)) {
-                LoggerFacade::info('Product created in Moloni. (' . $reference . ')', [
+                $message = ModuleFacade::getModule()->l('Product created in Moloni.');
+                $message .= ' (' . $reference . ')';
+
+                LoggerFacade::info($message, [
                     'tag' => 'service:document:shipping:create',
                     'data' => $product
                 ]);
@@ -1125,7 +1142,10 @@ class General
             $wrapperId = $this->products->insert($wrapperProduct);
 
             if (!empty($wrapperId)) {
-                LoggerFacade::info('Product created in Moloni. (' . $wrapperReference . ')', [
+                $message = ModuleFacade::getModule()->l('Product created in Moloni.');
+                $message .= ' (' . $wrapperReference . ')';
+
+                LoggerFacade::info($message, [
                     'tag' => 'service:document:wrapping:create',
                     'data' => $wrapperProduct
                 ]);
@@ -1279,7 +1299,10 @@ class General
             $productID = $this->products->insert($product);
 
             if (!empty($productID)) {
-                LoggerFacade::info('Product created in Moloni. (' . $reference . ')', [
+                $message = ModuleFacade::getModule()->l('Product created in Moloni.');
+                $message .= ' (' . $reference . ')';
+
+                LoggerFacade::info($message, [
                     'tag' => 'hook:product:product:save',
                     'data' => $product
                 ]);
@@ -1343,7 +1366,10 @@ class General
                         $productID = $this->products->insert($product);
 
                         if (!empty($productID)) {
-                            LoggerFacade::info('Product created in Moloni. (' . $reference . ')', [
+                            $message = ModuleFacade::getModule()->l('Product created in Moloni.');
+                            $message .= ' (' . $reference . ')';
+
+                            LoggerFacade::info($message, [
                                 'tag' => 'hook:product:attribute:save',
                                 'data' => $product
                             ]);
@@ -1356,7 +1382,9 @@ class General
         }
 
         if (MoloniError::$exists) {
-            LoggerFacade::error('Product create failed.', [
+            $message = ModuleFacade::getModule()->l('Product create failed.');
+
+            LoggerFacade::error($message, [
                 'tag' => 'hook:product:attribute:save',
                 'productID' => $productID,
                 'data' => MoloniError::$message
@@ -1467,7 +1495,10 @@ class General
 
     private function dealWithDocumentSuccess(Order $orderPS, array $documentProps, int $documentId)
     {
-        LoggerFacade::info('Document created successfully (' . $orderPS->reference . ').', [
+        $message = ModuleFacade::getModule()->l('Document created successfully');
+        $message .= ' (' . $orderPS->reference . ')';
+
+        LoggerFacade::info($message, [
             'tag' => 'service:document:create:success',
             'orderId' => $orderPS->id,
             'documentId' => $documentId,
@@ -1477,7 +1508,10 @@ class General
 
     private function dealWithDocumentWarning(Order $orderPS, array $documentProps, int $documentId, bool $isAutomatic)
     {
-        LoggerFacade::warning('Warning processing order (' . $orderPS->reference . ').', [
+        $message = ModuleFacade::getModule()->l('Warning processing order');
+        $message .= ' (' . $orderPS->reference . ')';
+
+        LoggerFacade::warning($message, [
             'tag' => 'service:document:create:warning',
             'orderId' => $orderPS->id,
             'documentId' => $documentId,
@@ -1492,7 +1526,10 @@ class General
 
     private function dealWithDocumentError(Order $orderPS, array $documentProps, bool $isAutomatic)
     {
-        LoggerFacade::error('Error processing order (' . $orderPS->reference . ').', [
+        $message = ModuleFacade::getModule()->l('Error processing order');
+        $message .= ' (' . $orderPS->reference . ')';
+
+        LoggerFacade::error($message, [
             'tag' => 'service:document:create:error',
             'orderId' => $orderPS->id,
             'documentId' => 0,
