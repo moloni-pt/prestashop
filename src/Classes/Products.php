@@ -25,9 +25,11 @@ namespace Moloni\Classes;
 use ModuleAdminController;
 use Moloni\Classes\Products\Categories;
 use Moloni\Facades\ModuleFacade;
+use Moloni\Traits\ClassTrait;
 
 class Products extends ModuleAdminController
 {
+    use ClassTrait;
 
     public function __construct()
     {
