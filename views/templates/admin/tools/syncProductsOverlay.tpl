@@ -88,7 +88,7 @@
                         data-dismiss="modal">
                     {l s='Close' mod='moloni'}
                 </button>
-                <button class="btn btn-primary"
+                <button class="btn btn-info"
                         data-dismiss="modal"
                         id="sync_products_button">
                     {l s='Synchronize products' mod='moloni'}

@@ -26,9 +26,11 @@ use Moloni\Classes\Curl;
 use Moloni\Classes\MoloniError;
 use Moloni\Classes\Settings;
 use Moloni\Facades\ModuleFacade;
+use Moloni\Traits\ClassTrait;
 
 class Taxes extends Settings
 {
+    use ClassTrait;
 
     public function __construct()
     {
@@ -106,7 +108,7 @@ class Taxes extends Settings
         if (isset($result['tax_id'])) {
             return ($result['tax_id']);
         } else {
-            $message = ModuleFacade::getModule()->l('Error inserting tax');
+            $message = ModuleFacade::getModule()->l('Error inserting tax', $this->className());
 
             MoloniError::create("taxes/insert", $message, $values, $result);
             return (false);

@@ -29,11 +29,14 @@ use Db;
 use Moloni\Facades\LoggerFacade;
 use Moloni\Facades\ModuleFacade;
 use Moloni\Mails\AuthenticationExpiredMail;
+use Moloni\Traits\ClassTrait;
 use Moloni\Webservice\Webservices;
 use Tools;
 
 class Start
 {
+    use ClassTrait;
+
     public $template = '';
     public $message = '';
 
@@ -196,7 +199,7 @@ class Start
 
     private function logout()
     {
-        $logMessage = ModuleFacade::getModule()->l('Manual logout.');
+        $logMessage = ModuleFacade::getModule()->l('Manual logout.', $this->className());
 
         LoggerFacade::info($logMessage, ['tag' => 'manual:logout']);
 
@@ -260,7 +263,7 @@ class Start
             $this->updateVariableByKey($key, $val);
         }
 
-        $logMessage = ModuleFacade::getModule()->l('Settings saved.');
+        $logMessage = ModuleFacade::getModule()->l('Settings saved.', $this->className());
 
         LoggerFacade::info($logMessage, [
             'tag' => 'manual:settings:save',

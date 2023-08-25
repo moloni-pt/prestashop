@@ -35,6 +35,7 @@ use Moloni\Services\Product\Image\UpdatePrestaCombinationImage;
 use Moloni\Services\Product\Image\UpdatePrestaProductImage;
 use Moloni\Services\Product\ProductImportService;
 use Moloni\Services\Product\Tax\FindTaxGroupFromMoloniTax;
+use Moloni\Traits\ClassTrait;
 use PrestaShopDatabaseException;
 use PrestaShopException;
 use Product;
@@ -43,6 +44,8 @@ use Tools;
 
 class ProductSyncService
 {
+    use ClassTrait;
+
     private $shouldSyncStock = false;
     private $shouldSyncPrice = false;
     private $shouldSyncName = false;
@@ -854,14 +857,13 @@ class ProductSyncService
 
     public function saveLog()
     {
-        $message = ModuleFacade::getModule()->l('Products sync.');
+        $message = ModuleFacade::getModule()->l('Products sync.', $this->className());
+        $message .= ' ';
 
         if (empty($this->page)) {
-            $message .= ' ';
-            $message .= ModuleFacade::getModule()->l('Via Webservice.');
+            $message .= ModuleFacade::getModule()->l('Via Webservice.', $this->className());
         } else {
-            $message .= ' ';
-            $message .= ModuleFacade::getModule()->l('Part');
+            $message .= ModuleFacade::getModule()->l('Part', $this->className());
             $message .= ' ' . $this->page . '.';
         }
 

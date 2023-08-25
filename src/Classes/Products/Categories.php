@@ -25,9 +25,12 @@ namespace Moloni\Classes\Products;
 use Moloni\Classes\Curl;
 use Moloni\Classes\MoloniError;
 use Moloni\Facades\ModuleFacade;
+use Moloni\Traits\ClassTrait;
 
 class Categories
 {
+    use ClassTrait;
+
     public function check($name)
     {
         $categories = $this->getByName($name, 0);
@@ -98,7 +101,7 @@ class Categories
         if (isset($result['category_id'])) {
             return ($result['category_id']);
         } else {
-            $message = ModuleFacade::getModule()->l('Error inserting category');
+            $message = ModuleFacade::getModule()->l('Error inserting category', $this->className());
 
             MoloniError::create("category/insert", $message, $values, $result);
             return (false);

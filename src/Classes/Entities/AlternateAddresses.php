@@ -26,9 +26,11 @@ use Moloni\Classes\Curl;
 use Moloni\Classes\Entities;
 use Moloni\Classes\MoloniError;
 use Moloni\Facades\ModuleFacade;
+use Moloni\Traits\ClassTrait;
 
 class AlternateAddresses extends Entities
 {
+    use ClassTrait;
 
     public function __construct()
     {
@@ -63,7 +65,7 @@ class AlternateAddresses extends Entities
         if (isset($result['address_id'])) {
             return ($result);
         } else {
-            $message = ModuleFacade::getModule()->l('Error inserting alternate address');
+            $message = ModuleFacade::getModule()->l('Error inserting alternate address', $this->className());
 
             MoloniError::create("customerAlternateAddresses/insert", $message, $values, $result);
         }
@@ -77,7 +79,7 @@ class AlternateAddresses extends Entities
         if (isset($result['address_id'])) {
             return ($result);
         } else {
-            $message = ModuleFacade::getModule()->l('Error updating alternate address');
+            $message = ModuleFacade::getModule()->l('Error updating alternate address', $this->className());
 
             MoloniError::create("customerAlternateAddresses/update", $message, $values, $result);
         }

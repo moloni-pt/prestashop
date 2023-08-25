@@ -83,7 +83,7 @@ class MoloniStartController extends ModuleAdminController
                     ],
                     'companies' => $companies,
                     'message' => $message,
-                    'version' => Module::getInstanceByName('moloni')->version,
+                    'version' => $this->module->version,
                 ],
                 'html' => $moloni->template
             ]);

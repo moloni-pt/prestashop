@@ -136,7 +136,7 @@ class Products extends ModuleAdminController
         if (isset($result['product_id'])) {
             return ($result['product_id']);
         } else {
-            $message = ModuleFacade::getModule()->l('Error inserting product');
+            $message = ModuleFacade::getModule()->l('Error inserting product', $this->className());
 
             MoloniError::create('products/insert', $message, $values, $result);
             return (false);

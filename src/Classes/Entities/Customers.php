@@ -26,9 +26,11 @@ use Moloni\Classes\Curl;
 use Moloni\Classes\Entities;
 use Moloni\Classes\MoloniError;
 use Moloni\Facades\ModuleFacade;
+use Moloni\Traits\ClassTrait;
 
 class Customers extends Entities
 {
+    use ClassTrait;
 
     public function __construct()
     {
@@ -167,7 +169,7 @@ class Customers extends Entities
         if (isset($result['customer_id'])) {
             return ($result['customer_id']);
         } else {
-            $message = ModuleFacade::getModule()->l('Error inserting client');
+            $message = ModuleFacade::getModule()->l('Error inserting client', $this->className());
 
             MoloniError::create("customers/insert", $message, $values, $result);
         }
@@ -181,7 +183,7 @@ class Customers extends Entities
         if (isset($result['customer_id'])) {
             return ($result['customer_id']);
         } else {
-            $message = ModuleFacade::getModule()->l('Error updating client');
+            $message = ModuleFacade::getModule()->l('Error updating client', $this->className());
 
             MoloniError::create("customers/update", $message, $values, $result);
         }

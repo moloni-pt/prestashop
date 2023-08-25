@@ -16,7 +16,7 @@
             {include file="`$smarty.const._PS_MODULE_DIR_`moloni/views/templates/admin/tools/syncProductsResults.tpl"}
 
             <button type="button"
-                    class="btn btn-primary btn-lg"
+                    class="btn btn-info btn-lg"
                     data-toggle="modal"
                     data-target="#sync_products_modal">
                 {l s='Synchronize' mod='moloni'}

@@ -46,9 +46,9 @@ class MoloniLogsController extends ModuleAdminController
                         'css' => '../modules/moloni/views/css/',
                         'js' => '../modules/moloni/views/js/'
                     ],
-                    'version' => Module::getInstanceByName('moloni')->version,
+                    'version' => $this->module->version,
                 ],
-                'html' => 'logs'
+                'html' => 'logs',
             ]);
         }
     }
