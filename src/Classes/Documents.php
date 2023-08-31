@@ -110,32 +110,24 @@ class Documents
     {
 
         switch ($input) {
+            case "FT":
             case "invoices":
                 $return = "Faturas";
                 break;
+            case "FR":
             case "invoiceReceipts":
                 $return = "FaturasRecibo";
                 break;
+            case "NE":
             case "purchaseOrder":
                 $return = "NotasEncomenda";
                 break;
+            case "OR":
             case "estimates":
                 $return = "Orcamentos";
                 break;
-            case "FT":
-                $return = "Faturas";
-                break;
-            case "FR":
-                $return = "FaturasRecibo";
-                break;
-            case "NE":
-                $return = "NotasEncomenda";
-                break;
-            case "ORC":
-                $return = "Orcamentos";
-                break;
             default:
-                $return = "-";
+                $return = "";
                 break;
         }
 
