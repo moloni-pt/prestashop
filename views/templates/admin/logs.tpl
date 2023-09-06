@@ -7,7 +7,7 @@
         <table class='dataTable display dataTable--slimed panel'>
             <thead>
             <tr>
-                <th   width="150px">{l s='Date' mod='moloni'}</th>
+                <th width="150px">{l s='Date' mod='moloni'}</th>
                 <th width="150px">{l s='Level' mod='moloni'}</th>
                 <th>{l s='Message' mod='moloni'}</th>
                 <th width="150px">{l s='Context' mod='moloni'}</th>
@@ -21,6 +21,12 @@
             </tr>
             </tbody>
         </table>
+    </div>
+
+    <div class="row">
+        <a type="button" class="btn btn-danger" href="{$link->getAdminLink('MoloniLogs')}&delete=true">
+            {l s='Download logs older than 1 week' mod='moloni'}
+        </a>
     </div>
 
     {* Overlays *}
@@ -48,7 +54,7 @@
         "critical": "{l s='Critical' mod='moloni'}",
         "error": "{l s='Error' mod='moloni'}",
     };
-    var currentAction = "{Context::getContext()->link->getAdminLink('MoloniLogs', true)}";
+    var currentAction = "{$link->getAdminLink('MoloniLogs')}";
 
     $(document).ready(function () {
         pt.moloni.Logs.init(translations, currentAction);

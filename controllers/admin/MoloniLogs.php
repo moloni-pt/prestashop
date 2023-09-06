@@ -15,12 +15,13 @@
  * versions in the future. If you wish to customize PrestaShop for your
  * needs please refer to http://www.prestashop.com for more information.
  *
- *  @author    Moloni
- *  @copyright Moloni
- *  @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
+ * @author    Moloni
+ * @copyright Moloni
+ * @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  */
 
 use Moloni\Classes\Start;
+use Moloni\Services\Logs\DeleteLogs;
 use Moloni\Services\Logs\FetchLogs;
 use Moloni\Facades\ModuleFacade;
 
@@ -39,6 +40,12 @@ class MoloniLogsController extends ModuleAdminController
         new Start();
 
         if (!$this->ajax) {
+            if (Tools::getValue('delete')) {
+                $service = new DeleteLogs();
+                $service->run();
+                $service->saveLog();
+            }
+
             $this->context->smarty->assign([
                 'moloni' => [
                     'path' => [
@@ -48,7 +55,7 @@ class MoloniLogsController extends ModuleAdminController
                     ],
                     'version' => $this->module->version,
                 ],
-                'html' => 'logs',
+                'html' => 'logs'
             ]);
         }
     }
