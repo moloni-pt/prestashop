@@ -19,6 +19,14 @@
   "extra": {
     "changelog": [
       {
+        "version": "v2.6.6",
+        "title": "Release da versão 2.6.6",
+        "description": [
+          "Correção nos Webservice para Prestashop 8.1",
+          "Correção no download de orçamentos",
+        ]
+      },
+      {
         "version": "v2.6.5",
         "title": "Release da versão 2.6.5",
         "description": [
