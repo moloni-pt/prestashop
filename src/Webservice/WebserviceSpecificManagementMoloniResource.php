@@ -34,8 +34,12 @@ class WebserviceSpecificManagementMoloniResource implements WebserviceSpecificMa
 
     /**
      * Interface method
+     *
+     * @param WebserviceOutputBuilderCore|WebserviceOutputBuilder $obj
+     *
+     * @return $this
      */
-    public function setObjectOutput(WebserviceOutputBuilderCore $obj)
+    public function setObjectOutput($obj)
     {
         $this->objOutput = $obj;
 
@@ -52,8 +56,12 @@ class WebserviceSpecificManagementMoloniResource implements WebserviceSpecificMa
 
     /**
      * Interface method
+     *
+     * @param WebserviceRequestCore|WebserviceRequest $obj
+     *
+     * @return $this
      */
-    public function setWsObject(WebserviceRequestCore $obj)
+    public function setWsObject($obj)
     {
         $this->wsObject = $obj;
 
