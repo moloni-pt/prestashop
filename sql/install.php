@@ -9,7 +9,7 @@
  * you accept the licence agreement.
  *
  * You must not modify, adapt or create derivative works of this source code
- * DISCLAIMER 
+ * DISCLAIMER
  *
  * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
  * versions in the future. If you wish to customize PrestaShop for your
@@ -64,6 +64,15 @@ $sql[] = "CREATE TABLE IF NOT EXISTS `"._DB_PREFIX_."moloni_invoices` (
 					  PRIMARY KEY (`id`)
 					) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;";
 
+$sql[] = "CREATE TABLE IF NOT EXISTS `"._DB_PREFIX_."moloni_logs` (
+                      `id` INT(11) NOT NULL AUTO_INCREMENT,
+                      `log_level` VARCHAR(100) NULL,
+                      `company_id` INT,
+                      `message` TEXT,
+                      `context` TEXT,
+                      `created_at` TIMESTAMP default CURRENT_TIMESTAMP,
+					  PRIMARY KEY (`id`)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;";
 
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {

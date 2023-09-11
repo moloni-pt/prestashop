@@ -29,18 +29,21 @@ use Category;
 use Configuration;
 use Currency;
 use Db;
-use Image;
-use ImageManager;
-use ImageType;
-use MailCore;
+use Moloni\Enums\CreatedDocumentStatus;
+use Moloni\Enums\DocumentStatus;
+use Moloni\Facades\LoggerFacade;
+use Moloni\Facades\ModuleFacade;
+use Moloni\Mails\DocumentErrorMail;
+use Moloni\Mails\DocumentWarningMail;
+use Moloni\Traits\ClassTrait;
 use Order;
 use OrderPayment;
-use PrestaShopDatabaseException;
 use Product;
 use Tools;
 
 class General
 {
+    use ClassTrait;
 
     private $me = [];
     private $countries = [];
@@ -251,7 +254,7 @@ class General
         return Curl::simple('companies/getOne', $values, true);
     }
 
-    public function cleanInvoice($order_id)
+    public function cleanInvoice($order_id): array
     {
         Db::getInstance()->insert('moloni_invoices', [
             'order_id' => $order_id,
@@ -259,29 +262,45 @@ class General
             'invoice_id' => '0',
             'invoice_total' => '0',
             'invoice_date' => '0',
-            'invoice_status' => '4',
+            'invoice_status' => CreatedDocumentStatus::DISCARDED,
+        ]);
+
+        $message = ModuleFacade::getModule()->l('Order discarded with success.', $this->className());
+        $btnText = ModuleFacade::getModule()->l('Revert', $this->className());
+
+        LoggerFacade::info($message, [
+            'tag' => 'service:order:discard',
+            'order_id' => $order_id
         ]);
 
         return [
             'success' => true,
-            'message' => 'O documento não vai ser gerado! :)',
-            'button' => 'Reverter',
+            'message' => $message,
+            'button' => $btnText,
             'url' => $this->genURL('MoloniStart', '&action=cleanAnulate&id_order=' . $order_id)
         ];
     }
 
-    public function cleanInvoiceAnulate($order_id)
+    public function cleanInvoiceAnulate($order_id): array
     {
         Db::getInstance()->delete('moloni_invoices', 'order_id = ' . (int)$order_id);
+
+        $message = ModuleFacade::getModule()->l('Order discard reverted with success.', $this->className());
+
+        LoggerFacade::info($message, [
+            'tag' => 'service:order:discard:revert',
+            'order_id' => $order_id
+        ]);
+
         return [
             'success' => true,
-            'message' => 'O documento está pronto para ser gerado! :)',
+            'message' => $message,
             'button' => '',
             'url' => ''
         ];
     }
 
-    public function makeInvoice($order_id)
+    public function makeInvoice($order_id, ?bool $isAutomatic = false)
     {
         $this->settings = new Settings();
         $this->products = new Products();
@@ -291,7 +310,11 @@ class General
         $order['base'] = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "orders WHERE id_order = '" . (int)$order_id . "'");
 
         if (!$order['base']) {
-            MoloniError::create('Encomenda ' . $order_id, "A encomenda com o ID $order_id não foi encontrada", null, null);
+            MoloniError::create(
+                ModuleFacade::getModule()->l('Order', $this->className()) . ' ' . $order_id,
+                ModuleFacade::getModule()->l('Order was not found', $this->className())
+            );
+
             return false;
         }
 
@@ -551,102 +574,51 @@ class General
             $invoice['eac_id'] = $this->eac_id;
         }
 
-        $invoice['status'] = '0';
-        $result = false;
+        $invoice['status'] = DocumentStatus::DRAFT;
 
         $invoiceExists = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "moloni_invoices WHERE order_id = '" . (int)$order_id . "'");
 
-        if (!MoloniError::$exists && (!$invoiceExists || !empty($_GET['force']))) {
+        if (MoloniError::$exists) {
+            $this->dealWithDocumentError($orderPS, $invoice, $isAutomatic);
 
+            return false;
+        }
+
+        if (!$invoiceExists || !empty($_GET['force'])) {
             $documents = new Documents();
             $documentID = $documents->insertInvoice($invoice);
 
-            if (!MoloniError::$exists) {
-                $documentInfo = $documents->getOneInfo($documentID);
-                if ($documentInfo['net_value'] == $order['base']['total_paid'] ||
-                    ($orderCurrency->iso_code !== 'EUR' && $documentInfo['exchange_total_value'] == $order['base']['total_paid'])) {
+            if (MoloniError::$exists) {
+                $this->dealWithDocumentError($orderPS, $invoice, $isAutomatic);
 
-                    if (defined('DOCUMENT_STATUS') && (int)DOCUMENT_STATUS === 1) {
+                return false;
+            }
 
-                        $update = [];
+            $documentInfo = $documents->getOneInfo($documentID);
 
-                        $update['document_id'] = $documentID;
-                        $update['status'] = 1;
-                        $documents->update($update);
+            if ($documentInfo['net_value'] == $order['base']['total_paid'] || ($orderCurrency->iso_code !== 'EUR' && $documentInfo['exchange_total_value'] == $order['base']['total_paid'])) {
+                if (defined('DOCUMENT_STATUS') && (int)DOCUMENT_STATUS === 1) {
+                    $documentSentToCustomer = false;
 
-                        if (defined('EMAIL_SEND') && EMAIL_SEND) {
+                    $update = [
+                        'document_id' => $documentID,
+                        'status' => DocumentStatus::CLOSED,
+                        'send_email' => []
+                    ];
 
-                            $invoice = $documents->getOneInfo($documentID);
-                            $customerInfo = Db::getInstance()->getRow('SELECT email, firstname, lastname FROM ' . _DB_PREFIX_ . "customer WHERE id_customer = '" . (int)$order['base']['id_customer'] . "'");
+                    if (defined('EMAIL_SEND') && EMAIL_SEND) {
+                        $customerInfo = Db::getInstance()->getRow('SELECT email, firstname, lastname FROM ' . _DB_PREFIX_ . "customer WHERE id_customer = '" . (int)$order['base']['id_customer'] . "'");
 
-                            $to = $customerInfo['email'];
-                            $subject = 'Envio de documento | Fatura ' . $invoice['document_set']['name'] . '-' . $invoice['number'] . ' | ' . date('Y-m-d');
-
-                            $downloadurl = $documents->getPDFLink($invoice['document_id']) . '&e=' . urlencode($customerInfo['email']);
-                            $date = explode('T', $invoice['date']);
-                            $date = $date[0];
-
-                            switch (DOCUMENT_TYPE) {
-                                case 'invoices':
-                                    $docName = 'Fatura';
-                                    break;
-                                case 'invoiceReceipts':
-                                    $docName = 'Fatura/Recibo';
-                                    break;
-                                case 'estimates':
-                                    $docName = 'Orçamento';
-                                    break;
-                                case 'purchaseOrder':
-                                    $docName = 'Nota de Encomenda';
-                                    break;
-                            }
-
-                            MailCore::Send(
-                                (int)(
-                                Configuration::get('PS_LANG_DEFAULT')), 'invoice', $subject, [
-                                '{image}' => $this->me['image'],
-                                '{nome_empresa}' => $this->me['name'],
-                                '{data_hoje}' => date('Y-m-d'),
-                                '{nome_cliente}' => $customerInfo['firstname'] . ' ' . $customerInfo['lastname'],
-                                '{documento_tipo}' => $docName,
-                                '{documento_numero}' => $invoice['document_set']['name'] . '-' . $invoice['number'],
-                                '{documento_emissao}' => $date,
-                                '{documento_vencimento}' => $date,
-                                '{documento_total}' => $invoice['net_value'] . '€',
-                                '{documento_url}' => $downloadurl,
-                                '{empresa_nome}' => $this->me['name'],
-                                '{empresa_morada}' => $this->me['address'],
-                                '{empresa_email}' => $this->me['mails_sender_address']
-                            ], $to, null, $this->me['mails_sender_name'], $this->me['mails_sender_address'], null, null, _PS_MODULE_DIR_ . 'moloni/mails/'
-                            );
-
-                            Db::getInstance()->insert('moloni_invoices', [
-                                'order_id' => (int)$order_id,
-                                'order_total' => pSQL($order['base']['total_paid']),
-                                'invoice_id' => (int)$documentID,
-                                'invoice_total' => pSQL($documentInfo['net_value']),
-                                'invoice_date' => pSQL(date('Y-m-d H:i:s')),
-                                'invoice_status' => (int)'2',
-                            ]);
-                        } else {
-                            Db::getInstance()->insert('moloni_invoices', [
-                                'order_id' => (int)$order_id,
-                                'order_total' => pSQL($order['base']['total_paid']),
-                                'invoice_id' => (int)$documentID,
-                                'invoice_total' => pSQL($documentInfo['net_value']),
-                                'invoice_date' => pSQL(date('Y-m-d H:i:s')),
-                                'invoice_status' => (int)'1',
-                            ]);
-                        }
-
-                        return [
-                            'success' => true,
-                            'message' => 'Documento inserido e fechado com sucesso! :)',
-                            'button' => 'Ver',
-                            'tab' => '_BLANK',
-                            'url' => 'https://www.moloni.pt/' . $this->me['slug'] . '/' . $documents->currentType() . '/showDetail/' . $documentID . '/'
+                        $update['send_email'][] = [
+                            'email' => $customerInfo['email'],
+                            'name' => $customerInfo['firstname'] . ' ' . $customerInfo['lastname'],
+                            'msg' => ''
                         ];
+
+                        $documentSentToCustomer = true;
                     }
+
+                    $documents->update($update);
 
                     Db::getInstance()->insert('moloni_invoices', [
                         'order_id' => (int)$order_id,
@@ -654,11 +626,14 @@ class General
                         'invoice_id' => (int)$documentID,
                         'invoice_total' => pSQL($documentInfo['net_value']),
                         'invoice_date' => pSQL(date('Y-m-d H:i:s')),
-                        'invoice_status' => (int)'0',
+                        'invoice_status' => $documentSentToCustomer ? CreatedDocumentStatus::CLOSED_AND_SENT : CreatedDocumentStatus::CLOSED,
                     ]);
+
+                    $this->dealWithDocumentSuccess($orderPS, $invoice, (int)$documentID);
+
                     return [
                         'success' => true,
-                        'message' => 'Documento inserido como rascunho! :)',
+                        'message' => ModuleFacade::getModule()->l('Document successfully inserted and closed!', $this->className()),
                         'button' => 'Ver',
                         'tab' => '_BLANK',
                         'url' => 'https://www.moloni.pt/' . $this->me['slug'] . '/' . $documents->currentType() . '/showDetail/' . $documentID . '/'
@@ -671,11 +646,39 @@ class General
                     'invoice_id' => (int)$documentID,
                     'invoice_total' => pSQL($documentInfo['net_value']),
                     'invoice_date' => pSQL(date('Y-m-d H:i:s')),
-                    'invoice_status' => (int)'3',
+                    'invoice_status' => CreatedDocumentStatus::DRAFT,
                 ]);
-                MoloniError::create('document/update', 'Documento inserido, mas totais não correspondem', $documentInfo, $order);
+
+                $this->dealWithDocumentSuccess($orderPS, $invoice, (int)$documentID);
+
+                return [
+                    'success' => true,
+                    'message' => ModuleFacade::getModule()->l('Document inserted as draft!', $this->className()),
+                    'button' => 'Ver',
+                    'tab' => '_BLANK',
+                    'url' => 'https://www.moloni.pt/' . $this->me['slug'] . '/' . $documents->currentType() . '/showDetail/' . $documentID . '/'
+                ];
             }
-            return $result;
+
+            Db::getInstance()->insert('moloni_invoices', [
+                'order_id' => (int)$order_id,
+                'order_total' => pSQL($order['base']['total_paid']),
+                'invoice_id' => (int)$documentID,
+                'invoice_total' => pSQL($documentInfo['net_value']),
+                'invoice_date' => pSQL(date('Y-m-d H:i:s')),
+                'invoice_status' => CreatedDocumentStatus::DRAFT_WITH_ERROR,
+            ]);
+
+            MoloniError::create(
+                'document/update',
+                ModuleFacade::getModule()->l('Document inserted, but totals do not match', $this->className()),
+                $documentInfo,
+                $order
+            );
+
+            $this->dealWithDocumentWarning($orderPS, $invoice, (int)$documentID, $isAutomatic);
+
+            return false;
         }
 
         return false;
@@ -1044,6 +1047,16 @@ class General
             }
 
             $productID = $this->products->insert($product);
+
+            if (!empty($productID)) {
+                $message = ModuleFacade::getModule()->l('Product created in Moloni.', $this->className());
+                $message .= ' (' . $reference . ')';
+
+                LoggerFacade::info($message, [
+                    'tag' => 'service:document:product:create',
+                    'data' => $product
+                ]);
+            }
         }
 
         return $productID;
@@ -1058,7 +1071,7 @@ class General
 
         $helper = preg_replace('/([^A-Z.])\w+/i', '', str_replace(' ', '.', $shippingName));
         $helper = explode('.', $helper);
-        
+
         foreach ($helper as $word) {
             $reference .= Tools::substr($word, 0, 3) . '.';
         }
@@ -1098,6 +1111,16 @@ class General
             }
 
             $productID = $this->products->insert($product);
+
+            if (!empty($productID)) {
+                $message = ModuleFacade::getModule()->l('Product created in Moloni.', $this->className());
+                $message .= ' (' . $reference . ')';
+
+                LoggerFacade::info($message, [
+                    'tag' => 'service:document:shipping:create',
+                    'data' => $product
+                ]);
+            }
         }
 
         return $productID;
@@ -1119,6 +1142,16 @@ class General
             $wrapperProduct['has_stock'] = '0';
 
             $wrapperId = $this->products->insert($wrapperProduct);
+
+            if (!empty($wrapperId)) {
+                $message = ModuleFacade::getModule()->l('Product created in Moloni.', $this->className());
+                $message .= ' (' . $wrapperReference . ')';
+
+                LoggerFacade::info($message, [
+                    'tag' => 'service:document:wrapping:create',
+                    'data' => $wrapperProduct
+                ]);
+            }
         }
 
         $wrapperProduct['product_id'] = $wrapperId;
@@ -1266,6 +1299,17 @@ class General
             }
 
             $productID = $this->products->insert($product);
+
+            if (!empty($productID)) {
+                $message = ModuleFacade::getModule()->l('Product created in Moloni.', $this->className());
+                $message .= ' (' . $reference . ')';
+
+                LoggerFacade::info($message, [
+                    'tag' => 'hook:product:product:save',
+                    'data' => $product
+                ]);
+            }
+
             unset($product);
         }
 
@@ -1321,7 +1365,18 @@ class General
                             }
                         }
 
-                        $this->products->insert($product);
+                        $productID = $this->products->insert($product);
+
+                        if (!empty($productID)) {
+                            $message = ModuleFacade::getModule()->l('Product created in Moloni.', $this->className());
+                            $message .= ' (' . $reference . ')';
+
+                            LoggerFacade::info($message, [
+                                'tag' => 'hook:product:attribute:save',
+                                'data' => $product
+                            ]);
+                        }
+
                         unset($product);
                     }
                 }
@@ -1329,107 +1384,16 @@ class General
         }
 
         if (MoloniError::$exists) {
+            $message = ModuleFacade::getModule()->l('Product create failed.', $this->className());
+
+            LoggerFacade::error($message, [
+                'tag' => 'hook:product:attribute:save',
+                'productID' => $productID,
+                'data' => MoloniError::$message
+            ]);
+
             print_r(MoloniError::$message);
         }
-    }
-
-    //***** Copied from AdminImporterController and modified ******//
-
-    public static function saveImageFromUrl($id_entity, $id_image = null, $url = '')
-    {
-        $tmpfile = tempnam(_PS_TMP_IMG_DIR_, 'ps_import');
-
-        $image_obj = new Image($id_image);
-        $path = $image_obj->getPathForCreation();
-
-
-        $url = urldecode(trim($url));
-        $parced_url = parse_url($url);
-
-        if (isset($parced_url['path'])) {
-            $uri = ltrim($parced_url['path'], '/');
-            $parts = explode('/', $uri);
-            foreach ($parts as &$part) {
-                $part = rawurlencode($part);
-            }
-            unset($part);
-            $parced_url['path'] = '/' . implode('/', $parts);
-        }
-
-        if (isset($parced_url['query'])) {
-            $query_parts = array();
-            parse_str($parced_url['query'], $query_parts);
-            $parced_url['query'] = http_build_query($query_parts);
-        }
-
-        if (!function_exists('http_build_url')) {
-            require_once(_PS_TOOL_DIR_ . 'http_build_url/http_build_url.php');
-        }
-
-        $url = http_build_url('', $parced_url);
-
-        $orig_tmpfile = $tmpfile;
-
-        if (Tools::copy($url, $tmpfile)) {
-            // Evaluate the memory required to resize the image: if it's too much, you can't resize it.
-            if (!ImageManager::checkImageMemoryLimit($tmpfile)) {
-                @unlink($tmpfile);
-                return false;
-            }
-
-            $tgt_width = $tgt_height = 0;
-            $src_width = $src_height = 0;
-            $error = 0;
-            ImageManager::resize($tmpfile, $path . '.jpg', null, null, 'jpg', false, $error, $tgt_width, $tgt_height, 5, $src_width, $src_height);
-            try {
-                $images_types = ImageType::getImagesTypes('products', true);
-            } catch (PrestaShopDatabaseException $e) {
-                return false;
-            }
-
-            $previous_path = null;
-            $path_infos = array();
-            $path_infos[] = array($tgt_width, $tgt_height, $path . '.jpg');
-
-            if (!empty($images_types) && is_array($images_types)) {
-                foreach ($images_types as $image_type) {
-                    $tmpfile = self::get_best_path($image_type['width'], $image_type['height'], $path_infos);
-
-                    if (ImageManager::resize(
-                        $tmpfile, $path . '-' . stripslashes($image_type['name']) . '.jpg', $image_type['width'], $image_type['height'], 'jpg', false, $error, $tgt_width, $tgt_height, 5, $src_width, $src_height
-                    )) {
-                        // the last image should not be added in the candidate list if it's bigger than the original image
-                        if ($tgt_width <= $src_width && $tgt_height <= $src_height) {
-                            $path_infos[] = array($tgt_width, $tgt_height, $path . '-' . stripslashes($image_type['name']) . '.jpg');
-                        }
-                        if (is_file(_PS_TMP_IMG_DIR_ . 'product_mini_' . (int)$id_entity . '.jpg')) {
-                            unlink(_PS_TMP_IMG_DIR_ . 'product_mini_' . (int)$id_entity . '.jpg');
-                        }
-                        if (is_file(_PS_TMP_IMG_DIR_ . 'product_mini_' . (int)$id_entity . '_' . (int)Context::getContext()->shop->id . '.jpg')) {
-                            unlink(_PS_TMP_IMG_DIR_ . 'product_mini_' . (int)$id_entity . '_' . (int)Context::getContext()->shop->id . '.jpg');
-                        }
-                    }
-                }
-            }
-        } else {
-            @unlink($orig_tmpfile);
-            return false;
-        }
-        unlink($orig_tmpfile);
-        return true;
-    }
-
-    protected static function get_best_path($tgt_width, $tgt_height, $path_infos)
-    {
-        $path_infos = array_reverse($path_infos);
-        $path = '';
-        foreach ($path_infos as $path_info) {
-            list($width, $height, $path) = $path_info;
-            if ($width >= $tgt_width && $height >= $tgt_height) {
-                return $path;
-            }
-        }
-        return $path;
     }
 
     private function getExchangeRateId($from, $to = 'EUR')
@@ -1519,7 +1483,7 @@ class General
         return Tools::ps_round($amount, 5);
     }
 
-    //***** Auxiliary ******//
+    //***** Document auxiliary ******//
 
     private function shouldShowShippingInfo()
     {
@@ -1529,5 +1493,55 @@ class General
         }
 
         return (bool)SHOW_SHIPPING_INFORMATION;
+    }
+
+    private function dealWithDocumentSuccess(Order $orderPS, array $documentProps, int $documentId)
+    {
+        $message = ModuleFacade::getModule()->l('Document created successfully', $this->className());
+        $message .= ' (' . $orderPS->reference . ')';
+
+        LoggerFacade::info($message, [
+            'tag' => 'service:document:create:success',
+            'orderId' => $orderPS->id,
+            'documentId' => $documentId,
+            'props' => $documentProps,
+        ]);
+    }
+
+    private function dealWithDocumentWarning(Order $orderPS, array $documentProps, int $documentId, bool $isAutomatic)
+    {
+        $message = ModuleFacade::getModule()->l('Warning processing order', $this->className());
+        $message .= ' (' . $orderPS->reference . ')';
+
+        LoggerFacade::warning($message, [
+            'tag' => 'service:document:create:warning',
+            'orderId' => $orderPS->id,
+            'documentId' => $documentId,
+            'props' => $documentProps,
+        ]);
+
+        if ($isAutomatic && defined('ALERT_EMAIL') && !empty(ALERT_EMAIL)) {
+            $alert = new DocumentWarningMail(ALERT_EMAIL, ['order_id' => $orderPS->id]);
+            $alert->handle();
+        }
+    }
+
+    private function dealWithDocumentError(Order $orderPS, array $documentProps, bool $isAutomatic)
+    {
+        $message = ModuleFacade::getModule()->l('Error processing order', $this->className());
+        $message .= ' (' . $orderPS->reference . ')';
+
+        LoggerFacade::error($message, [
+            'tag' => 'service:document:create:error',
+            'orderId' => $orderPS->id,
+            'documentId' => 0,
+            'props' => $documentProps,
+            'message' => MoloniError::$message
+        ]);
+
+        if ($isAutomatic && defined('ALERT_EMAIL') && !empty(ALERT_EMAIL)) {
+            $alert = new DocumentErrorMail(ALERT_EMAIL, ['order_id' => $orderPS->id]);
+            $alert->handle();
+        }
     }
 }

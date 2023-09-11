@@ -65,7 +65,7 @@ pt.moloni.PendingOrders = (function ($) {
                     {
                         data: 'info.total_paid',
                         orderable: true,
-                        render: $.fn.dataTable.render.number(',', '.', 2, '', '€')
+                        render: renderPriceCol
                     },
                     {
                         data: 'acts',
@@ -191,6 +191,23 @@ pt.moloni.PendingOrders = (function ($) {
         html += "<a target='_blank' href='" + row.url.order + "'>";
         html += "    #" + data;
         html += "</a>";
+
+        return html;
+    }
+
+    function renderPriceCol(data, type, row, meta) {
+        var html = "";
+        var symbol = "€";
+
+        html += "<div>";
+        html += parseFloat(data).toFixed(2);
+
+        if (row && row.currency && row.currency.symbol) {
+            symbol = row.currency.symbol;
+        }
+
+        html += symbol;
+        html += "</div>";
 
         return html;
     }

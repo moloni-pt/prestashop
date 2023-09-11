@@ -16,6 +16,7 @@ gulp.task('css:prod', () => {
         './css/Company-select.scss',
         './css/Datatables.scss',
         './css/Login.scss',
+        './css/Logs.scss',
         './css/Message.scss',
     ];
 
@@ -43,6 +44,7 @@ gulp.task('js:prod', () => {
         './js/Main.js',
         './js/CompanySelect.js',
         './js/Login.js',
+        './js/Logs.js',
         './js/Movements.js',
         './js/PendingOrders.js',
         './js/Settings.js',

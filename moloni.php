@@ -23,6 +23,7 @@
 use Moloni\Classes\General;
 use Moloni\Classes\MoloniError;
 use Moloni\Classes\Start;
+use Moloni\Mails\DocumentWarningMail;
 
 include_once _PS_MODULE_DIR_ . 'moloni/src/Webservice/WebserviceSpecificManagementMoloniResource.php';
 
@@ -33,7 +34,7 @@ class Moloni extends Module
         $this->name = 'moloni';
         $this->tab = 'administration';
         $this->need_instance = 1;
-        $this->version = '2.6.6';
+        $this->version = '3.0.0';
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
         $this->author = 'Moloni';
         $this->bootstrap = true;
@@ -57,6 +58,7 @@ class Moloni extends Module
         $this->setMenu('MoloniMovimentos', $this->l('Documents'), Tab::getIdFromClassName('MoloniTab'));
         $this->setMenu('MoloniConfiguracao', $this->l('Settings'), Tab::getIdFromClassName('MoloniTab'));
         $this->setMenu('MoloniTools', $this->l('Tools'), Tab::getIdFromClassName('MoloniTab'));
+        $this->setMenu('MoloniLogs', $this->l('Logs'), Tab::getIdFromClassName('MoloniTab'));
 
         return parent::install()
             && $this->dbInstall()
@@ -71,12 +73,12 @@ class Moloni extends Module
      * */
     public function uninstall()
     {
-
         $this->delMenu('MoloniTab');
         $this->delMenu('MoloniStart');
         $this->delMenu('MoloniMovimentos');
         $this->delMenu('MoloniConfiguracao');
         $this->delMenu('MoloniTools');
+        $this->delMenu('MoloniLogs');
 
         return parent::uninstall() && $this->dbUninstall();
     }
@@ -118,14 +120,14 @@ class Moloni extends Module
                 if ($newOrderStatus->paid) {
                     $functions = new General();
 
-                    $functions->makeInvoice($params['id_order']);
+                    $functions->makeInvoice($params['id_order'], true);
                 }
             } else if ((int)INVOICE_AUTO === 2) {
                 //check if the new status was chosen in settings
                 if (defined('ORDER_STATUS') && in_array($params['newOrderStatus']->id, unserialize(ORDER_STATUS))) {
                     $functions = new General();
 
-                    $functions->makeInvoice($params['id_order']);
+                    $functions->makeInvoice($params['id_order'], true);
                 }
             }
 

@@ -20,13 +20,14 @@
  * @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  *
  */
-namespace Moloni\Services\Product;
+namespace Moloni\Services\Product\Category;
 
 use Category;
 use Configuration;
 use ImageManager;
 use ImageType;
 use Moloni\Classes\Products;
+use Moloni\Enums\Domains;
 use PrestaShopDatabaseException;
 use Tools;
 
@@ -189,7 +190,7 @@ class GetCategoryFromMoloniProduct
     private function saveImage($category, $insertCategory)
     {
         $imgExt = explode('.', $category['image']);
-        $imgUrl = 'https://www.moloni.pt/_imagens/?macro=&img=' . $category['image'];
+        $imgUrl = Domains::MOLONI_MEDIA_API . $category['image'];
         $imgName = _PS_CAT_IMG_DIR_ . $insertCategory->id . '.' . end($imgExt);
 
         file_put_contents($imgName, file_get_contents($imgUrl));

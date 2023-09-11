@@ -22,8 +22,8 @@
 
 use Moloni\Classes\General;
 use Moloni\Classes\Start;
-use Moloni\Services\ProductSyncService;
-use Moloni\Webservice\Webservices;
+use Moloni\Services\Tools\ProductSyncService;
+use Moloni\Facades\ModuleFacade;
 
 class MoloniToolsController extends ModuleAdminController
 {
@@ -31,6 +31,10 @@ class MoloniToolsController extends ModuleAdminController
 
     public function __construct()
     {
+        parent::__construct();
+
+        ModuleFacade::setModule($this->module);
+
         $this->bootstrap = true;
         $this->className = 'Moloni';
         $this->context = Context::getContext();
@@ -45,7 +49,6 @@ class MoloniToolsController extends ModuleAdminController
             $configurations = null;
 
             switch ($this->moloniTpl) {
-
                 case 'company':
                     $companies = $functions->getCompaniesAll();
                     break;
@@ -62,15 +65,13 @@ class MoloniToolsController extends ModuleAdminController
                         'css' => '../modules/moloni/views/css/',
                         'js' => '../modules/moloni/views/js/'
                     ],
-                    'version' => Module::getInstanceByName('moloni')->version,
+                    'version' => $this->module->version,
                     'companies' => $companies,
                     'configurations' => $configurations,
                 ],
                 'html' => $moloni->template
             ]);
         }
-
-        parent::__construct();
     }
 
     public function displayAjax()
@@ -91,6 +92,7 @@ class MoloniToolsController extends ModuleAdminController
                 $productSyncService->setPage($page);
                 $productSyncService->instantiateSyncFilters();
                 $productSyncService->run();
+                $productSyncService->saveLog();
 
                 $hasMore = $productSyncService->getTotalProducts() >= $productSyncService->getPerPage();
                 $processedProducts = ($productSyncService->getPage() - 1) * $productSyncService->getPerPage();

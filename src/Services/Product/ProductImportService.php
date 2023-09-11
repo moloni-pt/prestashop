@@ -1,6 +1,6 @@
 <?php
 /**
- * 2022 - moloni.pt
+ * 2023 - moloni.pt
  *
  * NOTICE OF LICENSE
  *
@@ -15,18 +15,17 @@
  * versions in the future. If you wish to customize PrestaShop for your
  * needs please refer to http://www.prestashop.com for more information.
  *
- * @author    César Freitas
- * @copyright César Freitas
+ * @author    Moloni
+ * @copyright Moloni
  * @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  *
  */
-namespace Moloni\Services;
+namespace Moloni\Services\Product;
 
 use Configuration;
-use Image;
-use Moloni\Classes\General;
-use Moloni\Services\Product\FindTaxGroupFromMoloniTax;
-use Moloni\Services\Product\GetCategoryFromMoloniProduct;
+use Moloni\Services\Product\Category\GetCategoryFromMoloniProduct;
+use Moloni\Services\Product\Image\UpdatePrestaProductImage;
+use Moloni\Services\Product\Tax\FindTaxGroupFromMoloniTax;
 use PrestaShopDatabaseException;
 use PrestaShopException;
 use Product;
@@ -67,7 +66,6 @@ class ProductImportService
             $newProduct->link_rewrite = [$this->default_lang => $this->linkRewrite($this->product['name'])];
             $newProduct->price = $this->product['price'];
             $newProduct->ean13 = $this->getEAN($this->product['ean']);
-            $newProduct->quantity = ($this->product['has_stock'] ? $this->product['stock'] : 0);
             $newProduct->description = $this->product['summary'] ?: '';
 
             /** Set category */
@@ -87,23 +85,22 @@ class ProductImportService
             }
 
             if ($newProduct->add()) {
-                StockAvailable::setQuantity((int)$newProduct->id, 0, $newProduct->quantity);
-
-                if (!empty($product['image'])) {
-                    $imgUrl = 'https://www.moloni.pt/_imagens/?macro=&img=' . $product['image'];
-                    $image = new Image();
-                    $image->id_product = $newProduct->id;
-                    $image->cover = true;
-
-                    if (($image->validateFields(false, true)) === true
-                        && ($image->validateFieldsLang(false, true)) === true
-                        && $image->add()
-                        && !General::saveImageFromUrl($newProduct->id, $image->id, $imgUrl)) {
-                        $image->delete();
-                    }
+                // Add stock after saving
+                if ($this->product['has_stock']) {
+                    StockAvailable::setQuantity((int)$newProduct->id, 0, $this->product['stock']);
+                } else {
+                    StockAvailable::setQuantity((int)$newProduct->id, 0, 0);
                 }
 
-                $newProduct->addToCategories($prestashopCategories);
+                // Add image after saving
+                if (!empty($this->product['image'])) {
+                    new UpdatePrestaProductImage($newProduct->id, $this->product['image']);
+                }
+
+                // Add categories after saving
+                if (!empty($prestashopCategories)) {
+                    $newProduct->addToCategories($prestashopCategories);
+                }
 
                 return $newProduct->id;
             }

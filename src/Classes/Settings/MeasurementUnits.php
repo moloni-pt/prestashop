@@ -25,9 +25,12 @@ namespace Moloni\Classes\Settings;
 use Moloni\Classes\Curl;
 use Moloni\Classes\MoloniError;
 use Moloni\Classes\Settings;
+use Moloni\Facades\ModuleFacade;
+use Moloni\Traits\ClassTrait;
 
 class MeasurementUnits extends Settings
 {
+    use ClassTrait;
 
     public function __construct()
     {
@@ -63,10 +66,13 @@ class MeasurementUnits extends Settings
     {
         $values['company_id'] = COMPANY;
         $result = Curl::simple("measurementUnits/insert", $values, true);
+
         if (isset($result['unit_id'])) {
             return ($result['unit_id']);
         } else {
-            MoloniError::create("measurementUnits/insert", ('Error inserting Measurement Unit'), $values, $result);
+            $message = ModuleFacade::getModule()->l('Error inserting Measurement Unit', $this->className());
+
+            MoloniError::create("measurementUnits/insert", $message, $values, $result);
             return (false);
         }
     }

@@ -20,7 +20,7 @@
  * @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  */
 
-namespace Moloni\Classes\Service;
+namespace Moloni\Services\Orders;
 
 use Configuration;
 use Db;
@@ -67,7 +67,7 @@ class FetchPendingOrders
 
         if ($orders) {
             foreach ($orders as $order) {
-                $this->documentList[] = $this->processProduct($order);
+                $this->documentList[] = $this->processOrder($order);
             }
         }
     }
@@ -156,7 +156,7 @@ class FetchPendingOrders
         $this->queryCondition = $condition;
     }
 
-    private function processProduct($order)
+    private function processOrder($order)
     {
         $address = Db::getInstance()
             ->getRow('SELECT * FROM ' . _DB_PREFIX_ . "address  WHERE id_address = '" . (int)$order['id_address_invoice'] . "'");
@@ -164,12 +164,15 @@ class FetchPendingOrders
             ->getRow('SELECT * FROM ' . _DB_PREFIX_ . "customer WHERE id_customer = '" . (int)$order['id_customer'] . "'");
         $state = Db::getInstance()
             ->getRow('SELECT * FROM ' . _DB_PREFIX_ . "order_state_lang WHERE id_order_state = '" . (int)$order['current_state'] . "' and id_lang = '" . $this->languageId . "'");
+        $currency = Db::getInstance()
+            ->getRow('SELECT * FROM ' . _DB_PREFIX_ . "currency_lang WHERE id_currency = '" . (int)$order['id_currency'] . "' and id_lang = '" . $this->languageId . "'");
 
         return [
             'info' => $order,
             'address' => $address,
             'customer' => $customer,
             'state' => $state,
+            'currency' => $currency,
             'url' => [
                 'order' => $this->genURL('AdminOrders', '&id_order=' . $order['id_order'] . '&vieworder'),
                 'create' => $this->genURL('MoloniStart', '&action=create&id_order=' . $order['id_order']),

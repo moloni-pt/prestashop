@@ -24,9 +24,12 @@ namespace Moloni\Classes;
 
 use ModuleAdminController;
 use Moloni\Classes\Products\Categories;
+use Moloni\Facades\ModuleFacade;
+use Moloni\Traits\ClassTrait;
 
 class Products extends ModuleAdminController
 {
+    use ClassTrait;
 
     public function __construct()
     {
@@ -135,7 +138,9 @@ class Products extends ModuleAdminController
         if (isset($result['product_id'])) {
             return ($result['product_id']);
         } else {
-            MoloniError::create('products/insert', ('Error inserting product'), $values, $result);
+            $message = ModuleFacade::getModule()->l('Error inserting product', $this->className());
+
+            MoloniError::create('products/insert', $message, $values, $result);
             return (false);
         }
     }

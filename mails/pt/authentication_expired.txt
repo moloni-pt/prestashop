@@ -1,0 +1,11 @@
+ 
+
+Olá,
+
+A autenticação Moloni expirou
+
+Se está a receber este e-mail é porque ocorreu um erro ao obter novos tokens de autenticação Moloni no plug-in Prestashop.
+Aceda ao plugin Moloni Portugal a partir do painel de administração da sua loja Prestashop e confirme o estado de autenticação da sua conta.
+Se a autenticação expirou, prossiga com o processo de autenticação novamente.
+
+Caso tenha alguma dúvida ou questão, por favor contacte o nosso apoio ao cliente através do número 211 450 112 ou através do email apoio@moloni.pt.

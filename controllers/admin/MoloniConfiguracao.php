@@ -22,7 +22,7 @@
 
 use Moloni\Classes\General;
 use Moloni\Classes\Start;
-use Moloni\Services\ProductSyncService;
+use Moloni\Facades\ModuleFacade;
 use Moloni\Webservice\Webservices;
 
 class MoloniConfiguracaoController extends ModuleAdminController
@@ -31,6 +31,10 @@ class MoloniConfiguracaoController extends ModuleAdminController
 
     public function __construct()
     {
+        parent::__construct();
+
+        ModuleFacade::setModule($this->module);
+
         $this->bootstrap = true;
         $this->className = 'Moloni';
         $this->context = Context::getContext();
@@ -64,7 +68,7 @@ class MoloniConfiguracaoController extends ModuleAdminController
                         'css' => '../modules/moloni/views/css/',
                         'js' => '../modules/moloni/views/js/'
                     ],
-                    'version' => Module::getInstanceByName('moloni')->version,
+                    'version' => $this->module->version,
                     'companies' => $companies,
                     'message_alert' => ((Tools::getValue('goDo') && Tools::getValue('goDo') === "save" && Tools::getValue('options')) ? "1" : null ),
                     'configurations' => $configurations,
@@ -72,8 +76,6 @@ class MoloniConfiguracaoController extends ModuleAdminController
                 'html' => $moloni->template
             ]);
         }
-
-        parent::__construct();
     }
 
     public function displayAjax()

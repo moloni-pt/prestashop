@@ -1,6 +1,6 @@
 <?php
 /**
- * 2022 - moloni.pt
+ * 2023 - moloni.pt
  *
  * NOTICE OF LICENSE
  *
@@ -15,20 +15,27 @@
  * versions in the future. If you wish to customize PrestaShop for your
  * needs please refer to http://www.prestashop.com for more information.
  *
- * @author    César Freitas
- * @copyright César Freitas
+ * @author    Moloni
+ * @copyright Moloni
  * @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  *
  * @noinspection SqlResolve
  * @noinspection SqlNoDataSourceInspection
  */
 
-namespace Moloni\Services;
+namespace Moloni\Services\Tools;
 
 use Combination;
 use Configuration;
 use Db;
 use Moloni\Classes\Products;
+use Moloni\Facades\LoggerFacade;
+use Moloni\Facades\ModuleFacade;
+use Moloni\Services\Product\Image\UpdatePrestaCombinationImage;
+use Moloni\Services\Product\Image\UpdatePrestaProductImage;
+use Moloni\Services\Product\ProductImportService;
+use Moloni\Services\Product\Tax\FindTaxGroupFromMoloniTax;
+use Moloni\Traits\ClassTrait;
 use PrestaShopDatabaseException;
 use PrestaShopException;
 use Product;
@@ -37,11 +44,15 @@ use Tools;
 
 class ProductSyncService
 {
+    use ClassTrait;
+
     private $shouldSyncStock = false;
     private $shouldSyncPrice = false;
     private $shouldSyncName = false;
     private $shouldSyncDescription = false;
     private $shouldSyncEAN = false;
+    private $shouldSyncTax = false;
+    private $shouldSyncImage = false;
 
     private $date = null;
     private $page = null;
@@ -132,6 +143,14 @@ class ProductSyncService
         if (in_array('ean', $syncFields, true)) {
             $this->enableEANSync();
         }
+
+        if (in_array('tax', $syncFields, true)) {
+            $this->enableTaxSync();
+        }
+
+        if (in_array('image', $syncFields, true)) {
+            $this->enableImageSync();
+        }
     }
 
     public function setImportDate($date): void
@@ -167,6 +186,53 @@ class ProductSyncService
     }
 
     /** Privates */
+
+    /**
+     * Metodo que trata da sincronizacao e do tipo de produto que é para sincronizar
+     *
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     */
+    private function syncProduct($moloniProduct): void
+    {
+        $this->moloniProduct = $moloniProduct;
+        $this->moloniProduct['reference'] = trim($this->moloniProduct['reference']);
+
+        /** Verifica se o artigo atual é um artigo Atributo (tem um pai) */
+        $this->currentSyncAttributeProduct = $this->getAttributeProduct();
+
+        if ($this->currentSyncAttributeProduct) {
+            $this->syncAttributeProduct();
+            return;
+        }
+
+        /** Verifica se o artigo é Simples */
+        $this->currentSyncProductId = $this->getProductIdByReference();
+
+        if ($this->currentSyncProductId > 0) {
+            $this->syncSimpleProduct();
+            return;
+        }
+
+        /** Artigo não existe e tem de ser criado */
+        $this->updatedResult['not_found'][] = $this->moloniProduct;
+        $importProductService = new ProductImportService($this->moloniProduct);
+
+        if ($importProductService->run()) {
+            $this->insertSuccess([
+                'name' => $this->moloniProduct['name'],
+                'price' => $this->moloniProduct['price']
+            ]);
+
+            return;
+        }
+
+        $this->insertError([
+            'name' => $this->moloniProduct['name'],
+            'price' => $this->moloniProduct['price']
+        ]);
+
+    }
 
     /**
      * Produtos modificados a partir de cada data ( Pedido a api na classe Products)
@@ -208,53 +274,7 @@ class ProductSyncService
         return $products;
     }
 
-    /**
-     * Metodo que trata da sincronizacao e do tipo de produto que é para sincronizar
-     *
-     * @throws PrestaShopDatabaseException
-     * @throws PrestaShopException
-     */
-    private function syncProduct($moloniProduct): ProductSyncService
-    {
-        $this->moloniProduct = $moloniProduct;
-        $this->moloniProduct['reference'] = trim($this->moloniProduct['reference']);
-
-        /** Verifica se o artigo atual é um artigo Atributo (tem um pai) */
-        $this->currentSyncAttributeProduct = $this->getAttributeProduct();
-
-        if ($this->currentSyncAttributeProduct) {
-            $this->syncAttributeProduct();
-            return $this;
-        }
-
-        /** Verifica se o artigo é Simples */
-        $this->currentSyncProductId = $this->getProductIdByReference();
-
-        if ($this->currentSyncProductId > 0) {
-            $this->syncSimpleProduct();
-            return $this;
-        }
-
-        /** Artigo não existe e tem de ser criado */
-        $this->updatedResult['not_found'][] = $this->moloniProduct;
-        $importProductService = new ProductImportService($this->moloniProduct);
-
-        if ($importProductService->run()) {
-            $this->insertSuccess([
-                'name' => $this->moloniProduct['name'],
-                'price' => $this->moloniProduct['price']
-            ]);
-
-            return $this;
-        }
-
-        $this->insertError([
-            'name' => $this->moloniProduct['name'],
-            'price' => $this->moloniProduct['price']
-        ]);
-
-        return $this;
-    }
+    /** Attribute product */
 
     /**
      * Sincronizacao de um produto atributo
@@ -276,6 +296,10 @@ class ProductSyncService
 
         if ($this->shouldSyncEAN && $this->isEan13Valid($this->moloniProduct['ean'])) {
             $this->syncAttributeProductEAN();
+        }
+
+        if ($this->shouldSyncImage && !empty($this->moloniProduct['image'])) {
+            $this->syncAttributeImage();
         }
     }
 
@@ -354,55 +378,6 @@ class ProductSyncService
     }
 
     /**
-     * Atualiza um produto simples
-     * Se esse produto tiver combinacoes atualiza a diferenca desses produtos
-     *
-     * @throws PrestaShopDatabaseException
-     * @throws PrestaShopException
-     */
-    private function syncSimpleProductPrice(): void
-    {
-        $product = new Product($this->currentSyncProductId, true, Configuration::get('PS_LANG_DEFAULT'));
-
-        $oldProductPrice = $this->getProductPriceById($this->currentSyncProductId);
-
-        if ($oldProductPrice === (float)$this->moloniProduct['price']) {
-            return;
-        }
-
-        $this->addUpdateSimple([
-            'price_before' => $oldProductPrice,
-            'price_after' => $this->moloniProduct['price']
-        ]);
-
-        $product->price = $this->moloniProduct['price'];
-        $product->update();
-
-        $hasProductAttributes = Db::getInstance()->executeS(
-            'SELECT * FROM ' . _DB_PREFIX_ . "product_attribute WHERE id_product = '" . pSQL($this->currentSyncProductId) . "'"
-        );
-
-        if (is_array($hasProductAttributes) && !empty($hasProductAttributes)) {
-            foreach ($hasProductAttributes as $productAttribute) {
-                $oldProductAttributePrice = $oldProductPrice + $productAttribute['price'];
-
-                $attributeProductClass = new Combination(
-                    $productAttribute['id_product_attribute']
-                );
-
-                if ($this->moloniProduct['price'] > $oldProductAttributePrice) {
-                    $attributeProductClass->price = -1 * ($this->moloniProduct['price'] - $oldProductAttributePrice);
-                } elseif ($this->moloniProduct['price'] < $oldProductAttributePrice) {
-                    $attributeProductClass->price = $this->moloniProduct['price'] - $oldProductAttributePrice;
-                } else {
-                    $attributeProductClass->price = 0;
-                }
-                $attributeProductClass->update();
-            }
-        }
-    }
-
-    /**
      * @throws PrestaShopDatabaseException
      */
     private function syncAttributeProductStock(): void
@@ -474,6 +449,106 @@ class ProductSyncService
     }
 
     /**
+     * Update variant cover image
+     *
+     * @return void
+     */
+    private function syncAttributeImage(): void
+    {
+        if (empty($this->moloniProduct['image'])) {
+            return;
+        }
+
+        $product = new Combination($this->currentSyncAttributeProduct['id_product_attribute']);
+
+        new UpdatePrestaCombinationImage($product, $this->moloniProduct['image']);
+
+
+        $this->addUpdateAttributes([
+            'image_before' => 'Old image',
+            'image_after' => 'New image'
+        ]);
+    }
+
+    /** Simple product */
+
+    /**
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     */
+    private function syncSimpleProduct(): void
+    {
+        if ((int)$this->moloniProduct['has_stock'] === 1 && $this->shouldSyncStock) {
+            $this->syncSimpleProductStock();
+        }
+
+        if ($this->shouldSyncPrice) {
+            $this->syncSimpleProductPrice();
+        }
+
+        if ($this->shouldSyncName || $this->shouldSyncDescription || $this->shouldSyncEAN) {
+            $this->syncSimpleProductFields();
+        }
+
+        if ($this->shouldSyncTax) {
+            $this->syncSimpleProductTax();
+        }
+
+        if ($this->shouldSyncImage) {
+            $this->syncSimpleProductImage();
+        }
+    }
+
+    /**
+     * Atualiza um produto simples
+     * Se esse produto tiver combinacoes atualiza a diferenca desses produtos
+     *
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     */
+    private function syncSimpleProductPrice(): void
+    {
+        $product = new Product($this->currentSyncProductId, true, Configuration::get('PS_LANG_DEFAULT'));
+
+        $oldProductPrice = $this->getProductPriceById($this->currentSyncProductId);
+
+        if ($oldProductPrice === (float)$this->moloniProduct['price']) {
+            return;
+        }
+
+        $this->addUpdateSimple([
+            'price_before' => $oldProductPrice,
+            'price_after' => $this->moloniProduct['price']
+        ]);
+
+        $product->price = $this->moloniProduct['price'];
+        $product->update();
+
+        $hasProductAttributes = Db::getInstance()->executeS(
+            'SELECT * FROM ' . _DB_PREFIX_ . "product_attribute WHERE id_product = '" . pSQL($this->currentSyncProductId) . "'"
+        );
+
+        if (is_array($hasProductAttributes) && !empty($hasProductAttributes)) {
+            foreach ($hasProductAttributes as $productAttribute) {
+                $oldProductAttributePrice = $oldProductPrice + $productAttribute['price'];
+
+                $attributeProductClass = new Combination(
+                    $productAttribute['id_product_attribute']
+                );
+
+                if ($this->moloniProduct['price'] > $oldProductAttributePrice) {
+                    $attributeProductClass->price = -1 * ($this->moloniProduct['price'] - $oldProductAttributePrice);
+                } elseif ($this->moloniProduct['price'] < $oldProductAttributePrice) {
+                    $attributeProductClass->price = $this->moloniProduct['price'] - $oldProductAttributePrice;
+                } else {
+                    $attributeProductClass->price = 0;
+                }
+                $attributeProductClass->update();
+            }
+        }
+    }
+
+    /**
      * Atualiza os campos (Nome , Descricao, EAN) de um produto simples
      *
      * @throws PrestaShopException
@@ -521,9 +596,6 @@ class ProductSyncService
         }
     }
 
-    /**
-     * @return void
-     */
     private function syncSimpleProductStock(): void
     {
         $stock = round($this->moloniProduct['stock']);
@@ -547,25 +619,65 @@ class ProductSyncService
     }
 
     /**
+     * Update prestashop product taxes
+     *
+     * @return void
+     *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    private function syncSimpleProduct(): void
+    private function syncSimpleProductTax()
     {
-        if ((int)$this->moloniProduct['has_stock'] === 1 && $this->shouldSyncStock) {
-            $this->syncSimpleProductStock();
+        $product = new Product($this->currentSyncProductId, true, Configuration::get('PS_LANG_DEFAULT'));
+        $changeFlag = false;
+
+        $previousTaxRuleGroup = (int)$product->id_tax_rules_group;
+
+        /** Set taxes */
+        if (isset($this->moloniProduct['taxes']) && !empty($this->moloniProduct['taxes'])) {
+            $moloniTax = $this->moloniProduct['taxes'][0]['tax'] ?? [];
+
+            $newTaxRuleGroup = (new FindTaxGroupFromMoloniTax($moloniTax))->handle();
+        } else {
+            $newTaxRuleGroup = 0;
         }
 
-        if ($this->shouldSyncPrice) {
-            $this->syncSimpleProductPrice();
+        if ($previousTaxRuleGroup !== $newTaxRuleGroup) {
+            $product->id_tax_rules_group = $newTaxRuleGroup;
+
+            $changeFlag = true;
         }
 
-        if ($this->shouldSyncName || $this->shouldSyncDescription || $this->shouldSyncEAN) {
-            $this->syncSimpleProductFields();
+        if ($changeFlag) {
+            $this->addUpdateSimple([
+                'tax_before' => (string)$previousTaxRuleGroup,
+                'tax_after' => (string)$newTaxRuleGroup
+            ]);
+
+            $product->update();
         }
     }
 
-    /** Gets uteis */
+    /**
+     * Update product cover image
+     *
+     * @return void
+     */
+    private function syncSimpleProductImage(): void
+    {
+        if (empty($this->moloniProduct['image'])) {
+            return;
+        }
+
+        new UpdatePrestaProductImage($this->currentSyncProductId, $this->moloniProduct['image']);
+
+        $this->addUpdateSimple([
+            'image_before' => 'Old image',
+            'image_after' => 'New image'
+        ]);
+    }
+
+    /** Gets */
 
     private function getAttributeProduct()
     {
@@ -606,7 +718,7 @@ class ProductSyncService
         return $result ?: [];
     }
 
-    /** Metodos que adicionam meensagens de Erro ou Sucesso ao array de resultados*/
+    /** Results methods */
 
     private function addHeader(): void
     {
@@ -705,43 +817,60 @@ class ProductSyncService
         return false;
     }
 
-    /**
-     * @return void
-     */
     private function enableStockSync(): void
     {
         $this->shouldSyncStock = true;
     }
 
-    /**
-     * @return void
-     */
     private function enablePriceSync(): void
     {
         $this->shouldSyncPrice = true;
     }
 
-    /**
-     * @return void
-     */
     private function enableNameSync(): void
     {
         $this->shouldSyncName = true;
     }
 
-    /**
-     * @return void
-     */
     private function enableDescriptionSync(): void
     {
         $this->shouldSyncDescription = true;
     }
 
-    /**
-     * @return void
-     */
     private function enableEANSync(): void
     {
         $this->shouldSyncEAN = true;
+    }
+
+
+    private function enableTaxSync(): void
+    {
+        $this->shouldSyncTax = true;
+    }
+
+    private function enableImageSync(): void
+    {
+        $this->shouldSyncImage = true;
+    }
+
+    /** Logs */
+
+    public function saveLog()
+    {
+        $message = ModuleFacade::getModule()->l('Products sync.', $this->className());
+        $message .= ' ';
+
+        if (empty($this->page)) {
+            $message .= ModuleFacade::getModule()->l('Via Webservice.', $this->className());
+        } else {
+            $message .= ModuleFacade::getModule()->l('Part', $this->className());
+            $message .= ' ' . $this->page . '.';
+        }
+
+        LoggerFacade::info($message, [
+            'tag' => 'service:product:sync',
+            'date' => $this->date,
+            'results' => $this->getResults(),
+        ]);
     }
 }
