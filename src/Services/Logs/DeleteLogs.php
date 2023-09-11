@@ -19,7 +19,7 @@ class DeleteLogs
             $since = date('Y-m-d H:i:s', strtotime("-1 week"));
         }
 
-        $this->since = $since;
+        $this->since = pSQL($since);
     }
 
     public function run()

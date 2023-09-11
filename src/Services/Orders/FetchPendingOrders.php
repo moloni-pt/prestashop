@@ -78,6 +78,7 @@ class FetchPendingOrders
 
         // Manual search
         $search = $this->request['search']['value'] ?: '';
+        $search = pSQL($search);
 
         if (!empty($search)) {
             $condition .= ' INNER JOIN ' . _DB_PREFIX_ . 'address AS A ON (A.id_address = O.id_address_invoice)';
@@ -142,7 +143,7 @@ class FetchPendingOrders
                 break;
         }
 
-        $condition .= ' ORDER BY ' . $field . ' ' . $direction;
+        $condition .= ' ORDER BY ' . pSQL($field) . ' ' . pSQL($direction);
 
         // Save query segmentation for totals here, because it cannot have "LIMIT"
         $this->queryTotalResultsCondition = $condition;
@@ -151,7 +152,7 @@ class FetchPendingOrders
         $offset = $this->request['start'] ?: 0;
         $length = $this->request['length'] ?: 10;
 
-        $condition .= ' LIMIT ' . $length . ' OFFSET ' . $offset;
+        $condition .= ' LIMIT ' . pSQL($length) . ' OFFSET ' . pSQL($offset);
 
         $this->queryCondition = $condition;
     }
