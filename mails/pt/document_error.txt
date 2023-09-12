@@ -5,6 +5,6 @@ Olá,
 Erro de documento Moloni
 
 Ocorreu um erro ao criar um documento Moloni.
-Verifique o plug-in para obter mais informações.
+Verifique o módulo para obter mais informações.
 
 Encomenda ID: {order_id}

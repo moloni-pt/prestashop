@@ -6,7 +6,7 @@ Para qualquer dúvida sobre a instalação/utilização/melhorias do módulo nã
 via telefone, webchat ou email.
 https://moloni.pt
 
-Passos para a instalação do Plugin Moloni para Prestashop
+Passos para a instalação do Módulo Moloni para Prestashop
 
 INSTALAÇÃO
 --------------------------------------
@@ -15,4 +15,4 @@ INSTALAÇÃO
 - Seleccione o ficheiro .zip que descarregou do website https://plugins.moloni.com/prestashop/
 - Irá aparecer no Menu um item chamado "Moloni", onde pode entrar com a sua conta e seleccionar a sua empresa
 - Na aba das configurações pode seleccionar as opções que pretender e os dados que ficarão por defeito 
-- As encomendas que estiverem no estado que seleccionou irão aparecer no menu inial do plugin Moloni para serem geradas. 
+- As encomendas que estiverem no estado que seleccionou irão aparecer no menu inial do módulo Moloni para serem geradas. 

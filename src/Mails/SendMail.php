@@ -45,7 +45,7 @@ abstract class SendMail
         $this->email = $email;
         $this->data = $data;
 
-        $this->subject = 'Prestashop - Moloni plugin';
+        $this->subject = 'Moloni - Prestashop';
     }
 
     protected function getLogoUrl(): string

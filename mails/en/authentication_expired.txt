@@ -4,8 +4,8 @@ Hi,
 
 The Moloni authentication expired
 
-You're getting this email because there was an error getting new Moloni authentication tokens in your Prestashop plugin.
-Please access the Moloni Portugal plugin from your Prestashop store admin panel and confirm the authentication status of your account.
+You're getting this email because there was an error getting new Moloni authentication tokens in your Prestashop module.
+Please access the Moloni Portugal module from your Prestashop store admin panel and confirm the authentication status of your account.
 If the authentication has expired, please proceed with the authentication process again.
 
 If you have any questions or concerns, please contact our customer support at 211 450 112 or via email apoio@moloni.pt.
