@@ -77,6 +77,7 @@ class FetchLogs
 
         // Manual search
         $search = $this->request['search']['value'] ?: '';
+        $search = pSQL($search);
 
         if (!empty($search)) {
             $condition .= ' AND message LIKE "%' . $search . '%"';
@@ -85,7 +86,7 @@ class FetchLogs
         $condition .= ' ORDER BY ML.created_at';
 
         if (isset($this->request['order'][0]['dir'])) {
-            $condition .= ' ' . strtoupper($this->request['order'][0]['dir']);
+            $condition .= ' ' . pSQL(strtoupper($this->request['order'][0]['dir']));
         } else {
             $condition .= ' DESC';
         }
@@ -97,7 +98,7 @@ class FetchLogs
         $offset = $this->request['start'] ?: 0;
         $length = $this->request['length'] ?: 10;
 
-        $condition .= ' LIMIT ' . $length . ' OFFSET ' . $offset;
+        $condition .= ' LIMIT ' . pSQL($length) . ' OFFSET ' . pSQL($offset);
 
         $this->queryCondition = $condition;
     }
