@@ -21,6 +21,20 @@
   "extra": {
     "changelog": [
       {
+        "version": "v3.0.0",
+        "title": "Release da versão 3.0.0",
+        "description": [
+          "Adicionado sistema de registos.",
+          "Adicionado sistema de alertas via e-mail em caso de erros no módulo.",
+          "Adicionada a opção de atualizar imagens e impostos na ferramenta de importação de artigos.",
+          "Implementação de traduções no módulo.",
+          "Envio de documentos através da API Moloni.",
+          "Atualizadas dependências JS.",
+          "Correção no símbolo da moeda na listagem de encomendas pendentes.",
+          "Correção no registo do serviço de webservice na atualização do módulo."
+        ]
+      },
+      {
         "version": "v2.6.6",
         "title": "Release da versão 2.6.6",
         "description": [
