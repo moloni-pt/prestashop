@@ -1,6 +1,15 @@
 ﻿<link rel="stylesheet" type="text/css" href="{$moloni.path.css|escape:'html':'UTF-8'}compiled.min.css">
 
 <section id="moloni">
+    {if isset($curl_logs) }
+        <div class="logs-content" style="display: none">
+            <pre>
+                {$curl_logs}
+            </pre>
+        </div>
+    {/if}
+
+
     <div class="moloni-login--wrapper">
         <form class='moloni-login-form' action='' method='POST' autocomplete="false">
 
