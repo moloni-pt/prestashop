@@ -20,6 +20,7 @@
  *  @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  */
 
+use Moloni\Classes\Curl;
 use Moloni\Classes\General;
 use Moloni\Classes\Start;
 use Moloni\Services\Tools\ProductSyncService;
@@ -71,6 +72,15 @@ class MoloniToolsController extends ModuleAdminController
                 ],
                 'html' => $moloni->template
             ]);
+
+            if (defined("MOLONI_ERROR_LOGIN")) {
+                $this->context->smarty->assign([
+                    'moloni_error' => [
+                        'login' => "login-errado",
+                    ],
+                    'curl_logs' => json_encode(Curl::getLogs(), JSON_PRETTY_PRINT)
+                ]);
+            }
         }
     }
 

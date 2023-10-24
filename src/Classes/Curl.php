@@ -24,6 +24,12 @@ namespace Moloni\Classes;
 
 class Curl
 {
+    /**
+     * Hold the request log
+     *
+     * @var array
+     */
+    private static $logs = [];
 
     /**
      * CURL à API do moloni enviando por exemplo invoices/insert
@@ -112,6 +118,7 @@ class Curl
     {
         $con = curl_init();
         $url = "https://api.moloni.pt/v1/grant/?grant_type=password&client_id=devapi&client_secret=53937d4a8c5889e58fe7f105369d9519a713bf43&username=$user&password=$pass";
+
         curl_setopt($con, CURLOPT_URL, $url);
         curl_setopt($con, CURLOPT_POST, false);
         curl_setopt($con, CURLOPT_POSTFIELDS, false);
@@ -119,9 +126,20 @@ class Curl
         curl_setopt($con, CURLOPT_RETURNTRANSFER, true);
 
         $res_curl = curl_exec($con);
+        $res_info = curl_getinfo($con);
+
         curl_close($con);
 
         $res_txt = json_decode($res_curl, true);
+
+        $log = [
+            'url' => $url,
+            'sent' => [],
+            'received' => $res_txt,
+            'curl_info' => $res_info ?? [],
+        ];
+
+        self::$logs[] = $log;
 
         if (!isset($res_txt['error'])) {
             return ($res_txt);
@@ -152,5 +170,27 @@ class Curl
 
         echo 'Falhou a obter a token ' . $url . '<br>' . $res_curl;
         return (false);
+    }
+
+    //              GETS              //
+
+    /**
+     * Returns the last curl request made from the logs
+     *
+     * @return array
+     */
+    public static function getLog(): array
+    {
+        return end(self::$logs) ?? [];
+    }
+
+    /**
+     * Returns the last curl request made from the logs
+     *
+     * @return array
+     */
+    public static function getLogs(): array
+    {
+        return self::$logs ?? [];
     }
 }

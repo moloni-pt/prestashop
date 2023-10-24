@@ -20,6 +20,7 @@
  * @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  */
 
+use Moloni\Classes\Curl;
 use Moloni\Classes\General;
 use Moloni\Classes\MoloniError;
 use Moloni\Classes\Start;
@@ -91,8 +92,9 @@ class MoloniStartController extends ModuleAdminController
             if (defined("MOLONI_ERROR_LOGIN")) {
                 $this->context->smarty->assign([
                     'moloni_error' => [
-                        'login' => "login-errado"
-                    ]
+                        'login' => "login-errado",
+                    ],
+                    'curl_logs' => json_encode(Curl::getLogs(), JSON_PRETTY_PRINT)
                 ]);
             }
         }
