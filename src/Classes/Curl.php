@@ -127,16 +127,18 @@ class Curl
 
         $res_curl = curl_exec($con);
         $res_info = curl_getinfo($con);
-
-        curl_close($con);
+        $res_error = curl_errno($con) ? curl_error($con) : '';
 
         $res_txt = json_decode($res_curl, true);
+
+        curl_close($con);
 
         $log = [
             'url' => $url,
             'sent' => [],
             'received' => $res_txt,
             'curl_info' => $res_info ?? [],
+            'curl_error' => $res_error,
         ];
 
         self::$logs[] = $log;
