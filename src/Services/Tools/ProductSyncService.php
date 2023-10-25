@@ -256,6 +256,10 @@ class ProductSyncService
             while ($cycles < 1000) {
                 $query = $api->getModifiedSince($values);
 
+                if (!is_array($query)) {
+                    $query = [];
+                }
+
                 $products = array_merge($products, $query);
 
                 if (count($query) !== $this->perPage) {

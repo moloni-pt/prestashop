@@ -71,21 +71,27 @@ class Documents
 
     public function getAll($values, $max = 20)
     {
+        if (!is_array($values)) {
+            $values = [];
+        }
+
         $values['company_id'] = COMPANY;
         $values['document_set_id'] = DOCUMENT_SET;
 
-
         $total = 0;
-        $offset = (isset($values['offset']) ? $values['offset'] : "0");
-        $results = array();
+        $offset = $values['offset'] ?? "0";
+        $results = [];
 
         while ($total < $max) {
             $values['offset'] = $offset;
             $result = Curl::simple("documents/getAll", $values);
-            if (is_array($result)) {
-                $results = array_merge($results, $result);
-                $total += count($result);
+
+            if (!is_array($result)) {
+                $result = [];
             }
+
+            $results = array_merge($results, $result);
+            $total += count($result);
             $offset += 50;
 
             if (count($result) < 50) {
