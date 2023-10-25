@@ -189,7 +189,10 @@ pt.moloni.Logs = (function ($) {
 
     function renderContextCol(data, type, row, meta) {
         data = data || '{}';
-        data = JSON.parse(data);
+
+        try {
+            data = JSON.parse(data);
+        } catch (e) {}
 
         var logId =  row.id;
         var html = "";
