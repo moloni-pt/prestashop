@@ -1252,6 +1252,10 @@ class General
         id_product = '" . (int)$productID . "'";
         $attributes = Db::getInstance()->ExecuteS($query);
 
+        if (!is_array($attributes)) {
+            $attributes = [];
+        }
+
         if (!$productExists && !$error && count($attributes) == 0) {
 
             $product = array();
