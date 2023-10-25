@@ -21,12 +21,20 @@
   "extra": {
     "changelog": [
       {
+        "version": "v3.0.2",
+        "title": "Release da versão 3.0.2",
+        "description": [
+          "Correções em PHP 8"
+        ]
+      },
+      {
         "version": "v3.0.1",
         "title": "Release da versão 3.0.1",
         "description": [
           "Apresentação do erro de ligação na autenticação"
         ]
-      }, {
+      },
+      {
         "version": "v3.0.0",
         "title": "Release da versão 3.0.0",
         "description": [

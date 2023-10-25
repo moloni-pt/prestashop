@@ -39,8 +39,10 @@ class Products extends ModuleAdminController
     public function getCount($values)
     {
         $values['company_id'] = COMPANY;
+
         $result = Curl::simple('products/count', $values);
-        return ($result);
+
+        return $result;
     }
 
     public function getAll($values)
@@ -98,7 +100,12 @@ class Products extends ModuleAdminController
         $values['company_id'] = COMPANY;
         $values['reference'] = $reference;
         $values['exact'] = '1';
+
         $result = Curl::simple('products/getByReference', $values);
+
+        if (!is_array($result)) {
+            $result = [];
+        }
 
         return ((count($result) > 0) ? $result[0] : false);
     }

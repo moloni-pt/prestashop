@@ -87,11 +87,16 @@ class ProductSyncService
 
         /** Vamos buscar todos */
         $modifiedProducts = $this->getModifiedProducts();
+
+        if (!is_array($modifiedProducts)) {
+            $modifiedProducts = [];
+        }
+
         $this->totalProducts = count($modifiedProducts);
 
         $this->addHeader();
 
-        if ($modifiedProducts && is_array($modifiedProducts)) {
+        if (!empty($modifiedProducts)) {
             foreach ($modifiedProducts as $product) {
                 $this->currentSyncProductId = 0;
                 $this->currentSyncAttributeProduct = [];
@@ -255,6 +260,10 @@ class ProductSyncService
 
             while ($cycles < 1000) {
                 $query = $api->getModifiedSince($values);
+
+                if (!is_array($query)) {
+                    $query = [];
+                }
 
                 $products = array_merge($products, $query);
 
