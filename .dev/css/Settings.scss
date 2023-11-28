@@ -1,0 +1,11 @@
+.cron-url{
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+
+  &--holder {
+    margin-top: 1rem;
+  }
+}
