@@ -22,7 +22,6 @@ class ProductSync
             $productSyncService = new ProductSyncService();
             $productSyncService->setImportDate($date);
             $productSyncService->instantiateSyncFilters();
-            $productSyncService->saveLog();
 
             try {
                 $productSyncService->run();
