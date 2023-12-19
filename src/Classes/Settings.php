@@ -32,22 +32,22 @@ use Moloni\Classes\Settings\Taxes;
 class Settings
 {
     /** @var DocumentSets */
-    public $documentSets;
+    public $documentSets = false;
 
     /** @var PaymentMethods */
-    public $paymentMethods;
+    public $paymentMethods = false;
 
     /** @var MaturityDates */
-    public $maturityDates;
+    public $maturityDates = false;
 
     /** @var DeliveryMethods */
-    public $deliveryMethods;
+    public $deliveryMethods = false;
 
     /** @var Taxes */
-    public $taxes;
+    public $taxes = false;
 
     /** @var MeasurementUnits */
-    public $measurementUnits;
+    public $measurementUnits = false;
 
     public function __construct()
     {
