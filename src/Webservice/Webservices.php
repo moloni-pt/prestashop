@@ -30,7 +30,7 @@ class Webservices
         $this->deleteWebserviceKey();
     }
 
-    public function getWebserviceProductSyncUrl()
+    public function getWebserviceProductSyncUrl(?array $syncFields = []): string
     {
         if (empty($this->key)) {
             $this->fillKey();
@@ -38,13 +38,7 @@ class Webservices
 
         $params = [
             'operation' => 'syncProducts',
-            'sync_fields' => [
-                'stock',
-                'price',
-                'name',
-                'description',
-                'ean',
-            ]
+            'sync_fields' => $syncFields
         ];
 
         return $this->url . '&' . http_build_query($params);

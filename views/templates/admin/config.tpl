@@ -390,11 +390,12 @@
                             </label>
                             <br />
 
-                            <button type="button" class="btn btn-primary" id="showProductSyncWebservice">
-                                {l s='Show URL' mod='moloni'}
+                            <button type="button"
+                                    class="btn btn-primary"
+                                    data-toggle="modal"
+                                    data-target="#create_cron_link_modal">
+                                {l s='Get URL' mod='moloni'}
                             </button>
-
-                            <input type="text" disabled value='HERE' style="display: none;" id="productSyncWebserviceUrl">
                         </div>
                     {/if}
                 </div>
@@ -407,6 +408,9 @@
             {l s='Logout from account' mod='moloni'}
         </a>
     </div>
+
+    {* Overlays *}
+    {include file="`$smarty.const._PS_MODULE_DIR_`moloni/views/templates/admin/settings/createCronLinkOverlay.tpl"}
 </section>
 
 <script type="text/javascript" src="{$moloni.path.js|escape:'html':'UTF-8'}compiled.min.js?v={$moloni.version|escape:'html':'UTF-8'}"></script>
