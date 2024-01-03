@@ -18,6 +18,7 @@ gulp.task('css:prod', () => {
         './css/Login.scss',
         './css/Logs.scss',
         './css/Message.scss',
+        './css/Settings.scss',
     ];
 
     return gulp.src(files)

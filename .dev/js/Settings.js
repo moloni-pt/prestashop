@@ -14,7 +14,6 @@ if (pt.moloni.Settings === undefined) {
 pt.moloni.Settings = (function ($) {
     var translations;
     var currentPageAction;
-    var doingAjax = false;
 
     function init(_translations, _currentPageAction) {
         translations = _translations;
@@ -36,11 +35,6 @@ pt.moloni.Settings = (function ($) {
             $("#moloniOptions").submit();
         });
 
-        // Start product sync
-        $('#formToolsSubmit').on('click', function () {
-            $("#moloniTools").submit();
-        });
-
         // Close success message
         $('.moloni-message__success').on('click', function () {
             $(this).hide("slow");
@@ -60,33 +54,8 @@ pt.moloni.Settings = (function ($) {
             }
         });
 
-        // Show Product sync webservice URl
-        var showProductSyncWebserviceBtn = $('#showProductSyncWebservice');
-        var productSyncWebserviceInput = $('#productSyncWebserviceUrl');
-
-        showProductSyncWebserviceBtn.on('click', function () {
-            var url = currentPageAction + '&operation=getWebserviceProductSyncUrl&ajax=true';
-
-            if (doingAjax) {
-                return;
-            }
-
-            doingAjax = true;
-
-            showProductSyncWebserviceBtn.prop('disabled', true);
-
-            fetch(url, { method: "GET" }).then(
-                response => response.json()
-            ).then((data) => {
-                if (data && data.valid) {
-                    showProductSyncWebserviceBtn.hide();
-                    productSyncWebserviceInput.val(data.url);
-                    productSyncWebserviceInput.show();
-                } else {
-                    alert('Something went wrong');
-                }
-            });
-        });
+        // Get webservice URL
+        $('#get_url_button').on('click', getWebserviceURL);
     }
 
     function drawSaveButton() {
@@ -97,6 +66,56 @@ pt.moloni.Settings = (function ($) {
         html += '</button>';
 
         $('#toolbar-nav').html(html);
+    }
+
+    function getWebserviceURL() {
+        var getButton = $(this);
+
+        if (getButton.is(':disabled')) {
+            return;
+        }
+
+        var inputHolder = $('#urlHolder');
+
+        if (!inputHolder.length) {
+            return;
+        }
+
+        var input = inputHolder.find('input');
+        var copyButton = inputHolder.find('button');
+        var allSelectedFields = jQuery("input[name='sync_fields[]']:checkbox:checked");
+
+        var params = {
+            ajax: true,
+            operation: 'getWebserviceProductSyncUrl',
+            sync_fields: [],
+        };
+
+        allSelectedFields.each(function () {
+            params.sync_fields.push($(this).val());
+        });
+
+        var url = currentPageAction + '&' + new URLSearchParams(params).toString();
+
+        inputHolder.hide();
+        getButton.attr("disabled", true);
+
+        fetch(url, { method: "GET" }).then(
+            response => response.json()
+        ).then((data) => {
+            getButton.removeAttr("disabled");
+
+            if (data && data.valid) {
+                inputHolder.show();
+                input.val(data.url);
+
+                copyButton.off('click').on('click', function () {
+                    navigator.clipboard.writeText(data.url);
+                });
+            } else {
+                alert('Something went wrong');
+            }
+        });
     }
 
     return {

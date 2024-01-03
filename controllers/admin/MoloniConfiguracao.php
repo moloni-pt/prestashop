@@ -98,7 +98,13 @@ class MoloniConfiguracaoController extends ModuleAdminController
 
         switch ($params['operation']) {
             case 'getWebserviceProductSyncUrl':
-                $response['url'] = (new Webservices())->getWebserviceProductSyncUrl();
+                if (empty($params['sync_fields'])) {
+                    $syncFields = [];
+                } else {
+                    $syncFields = explode(',', $params['sync_fields']);
+                }
+
+                $response['url'] = (new Webservices())->getWebserviceProductSyncUrl($syncFields);
 
                 break;
         }

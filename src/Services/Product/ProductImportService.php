@@ -74,7 +74,6 @@ class ProductImportService
 
             $prestashopCategories = $service->getCategories();
 
-            $newProduct->id_category = $prestashopCategories[0];
             $newProduct->id_category_default = $prestashopCategories[0];
 
             /** Set taxes */

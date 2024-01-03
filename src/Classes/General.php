@@ -60,6 +60,11 @@ class General
     /** @var Products */
     public $products;
 
+    /**
+     * @var false|string
+     */
+    public $default_lang;
+
     public function __construct()
     {
         $this->default_lang = Configuration::get('PS_LANG_DEFAULT');

@@ -31,6 +31,8 @@ class Products extends ModuleAdminController
 {
     use ClassTrait;
 
+    public $categories = null;
+
     public function __construct()
     {
         $this->categories = new Categories();

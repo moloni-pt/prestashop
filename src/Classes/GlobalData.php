@@ -32,6 +32,12 @@ use Moloni\Classes\Globals\TaxExemptions;
 
 class GlobalData extends ModuleAdminController
 {
+    public $countries = false;
+    public $fiscalZones = false;
+    public $languages = false;
+    public $currencies = false;
+    public $documentModels = false;
+    public $taxExemptions = false;
 
     public function __construct()
     {
