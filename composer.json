@@ -21,6 +21,13 @@
   "extra": {
     "changelog": [
       {
+        "version": "v3.0.3",
+        "title": "Release da versão 3.0.3",
+        "description": [
+          "Adicionada janela para gerar URL de Webservice"
+        ]
+      },
+      {
         "version": "v3.0.2",
         "title": "Release da versão 3.0.2",
         "description": [
