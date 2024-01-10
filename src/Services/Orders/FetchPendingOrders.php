@@ -28,9 +28,9 @@ use Currency;
 use Customer;
 use Db;
 use Order;
+use OrderState;
 use PrestaShopDatabaseException;
 use PrestaShopException;
-use State;
 use Tools;
 
 class FetchPendingOrders
@@ -175,9 +175,9 @@ class FetchPendingOrders
         try {
             $order = new Order($orderId, $this->languageId);
             $address = new Address($order->id_address_invoice, $this->languageId);
-            $state = new State($address->id_state, $this->languageId);
             $customer = new Customer($order->id_customer);
             $currency = new Currency($order->id_currency, $this->languageId);
+            $state = new OrderState($order->current_state, $this->languageId);
         } catch (PrestaShopDatabaseException $e) {
             return null;
         } catch (PrestaShopException $e) {
