@@ -34,7 +34,7 @@ if (!defined('_PS_VERSION_')) {
 
 class AuthenticationExpiredMail extends SendMail
 {
-    public function handle(): void
+    public function handle()
     {
         Mail::Send(
             (int)(Configuration::get('PS_LANG_DEFAULT')), // default language id

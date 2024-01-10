@@ -14,11 +14,11 @@ class FindTaxGroupFromMoloniTax
         $this->moloniTax = $moloniTax;
     }
 
-    public function handle(): int
+    public function handle()
     {
-        $fiscalZone = $this->moloniTax['fiscalZone'] ?? 'pt';
+        $fiscalZone = isset($this->moloniTax['fiscalZone']) ? $this->moloniTax['fiscalZone'] : 'pt';
         $countryId = Country::getByIso($fiscalZone);
-        $value = (float)($this->moloniTax['value'] ?? 0);
+        $value = (float)(isset($this->moloniTax['value']) ? $this->moloniTax['value'] : 0);
 
         $taxes = array_reverse(TaxRulesGroup::getAssociatedTaxRatesByIdCountry($countryId), true);
 

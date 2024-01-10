@@ -40,7 +40,7 @@ abstract class SendMail
      * @param string|null $email
      * @param array|null $data
      */
-    public function __construct(?string $email = '', ?array $data = [])
+    public function __construct($email = '', $data = [])
     {
         $this->email = $email;
         $this->data = $data;
@@ -48,7 +48,7 @@ abstract class SendMail
         $this->subject = 'Moloni - Prestashop';
     }
 
-    protected function getLogoUrl(): string
+    protected function getLogoUrl()
     {
         return (new \Link())->getBaseLink() . '/modules/moloni/views/img/moloni_logo_white.png';
     }

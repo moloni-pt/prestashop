@@ -20,13 +20,6 @@
  * @license   https://creativecommons.org/licenses/by-nd/4.0/  Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)
  */
 
-use Moloni\Classes\General;
-use Moloni\Classes\MoloniError;
-use Moloni\Classes\Start;
-use Moloni\Mails\DocumentWarningMail;
-
-include_once _PS_MODULE_DIR_ . 'moloni/src/Webservice/WebserviceSpecificManagementMoloniResource.php';
-
 class Moloni extends Module
 {
     public function __construct()
@@ -94,8 +87,8 @@ class Moloni extends Module
      */
     public function hookActionProductSave($params)
     {
-        new Start();
-        $functions = new General();
+        new \Moloni\Classes\Start();
+        $functions = new \Moloni\Classes\General();
 
         if (defined('AUTO_ADD_PRODUCT') && AUTO_ADD_PRODUCT == 1) {
             $functions->productCreate($params);
@@ -110,7 +103,7 @@ class Moloni extends Module
      */
     public function hookActionOrderStatusPostUpdate($params)
     {
-        new Start();
+        new \Moloni\Classes\Start();
 
         if (defined('INVOICE_AUTO')) {
             if ((int)INVOICE_AUTO === 1) {
@@ -118,21 +111,21 @@ class Moloni extends Module
                 $newOrderStatus = $params['newOrderStatus'];
 
                 if ($newOrderStatus->paid) {
-                    $functions = new General();
+                    $functions = new \Moloni\Classes\General();
 
                     $functions->makeInvoice($params['id_order'], true);
                 }
             } else if ((int)INVOICE_AUTO === 2) {
                 //check if the new status was chosen in settings
                 if (defined('ORDER_STATUS') && in_array($params['newOrderStatus']->id, unserialize(ORDER_STATUS))) {
-                    $functions = new General();
+                    $functions = new \Moloni\Classes\General();
 
                     $functions->makeInvoice($params['id_order'], true);
                 }
             }
 
-            if (MoloniError::$exists) {
-                MoloniError::$message;
+            if (\Moloni\Classes\MoloniError::$exists) {
+                \Moloni\Classes\MoloniError::$message;
             }
         }
     }
@@ -144,6 +137,12 @@ class Moloni extends Module
      */
     public function hookAddWebserviceResources()
     {
+        if (\Moloni\Helpers\Version::isPrestashopVersion_1_6()) {
+            return [];
+        }
+
+        include_once _PS_MODULE_DIR_ . 'moloni/src/Webservice/WebserviceSpecificManagementMoloniResource.php';
+
         return [
             'moloniresource' => [
                 'description' => 'Moloni sync resource',

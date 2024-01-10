@@ -79,7 +79,7 @@ class ProductSyncService
 
     /** Public's */
 
-    public function run(): ProductSyncService
+    public function run()
     {
         if (empty($this->date)) {
             $this->date = (Tools::getValue('updateSince')) ?: date('Y-m-d H:i:s', strtotime('-1 week'));
@@ -103,9 +103,14 @@ class ProductSyncService
 
                 try {
                     $this->syncProduct($product);
-                } catch (PrestaShopDatabaseException|PrestaShopException $e) {
+                } catch (PrestaShopDatabaseException $e) {
                     $this->addFatalError([
-                        'name' => $this->moloniProduct['name'] ?? '',
+                        'name' => isset($this->moloniProduct['name']) ? $this->moloniProduct['name'] : '',
+                        'error' => $e->getMessage()
+                    ]);
+                } catch (PrestaShopException $e) {
+                    $this->addFatalError([
+                        'name' => isset($this->moloniProduct['name']) ? $this->moloniProduct['name'] : '',
                         'error' => $e->getMessage()
                     ]);
                 }
@@ -117,7 +122,7 @@ class ProductSyncService
 
     /** Sets */
 
-    public function instantiateSyncFilters(): void
+    public function instantiateSyncFilters()
     {
         $syncFields = Tools::getValue('sync_fields');
 
@@ -158,7 +163,7 @@ class ProductSyncService
         }
     }
 
-    public function setImportDate($date): void
+    public function setImportDate($date)
     {
         $this->date = $date;
     }
@@ -175,17 +180,17 @@ class ProductSyncService
         return $this->page;
     }
 
-    public function getPerPage(): int
+    public function getPerPage()
     {
         return $this->perPage;
     }
 
-    public function getResults(): ?array
+    public function getResults()
     {
         return $this->updatedResult;
     }
 
-    public function getTotalProducts(): int
+    public function getTotalProducts()
     {
         return $this->totalProducts;
     }
@@ -198,7 +203,7 @@ class ProductSyncService
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    private function syncProduct($moloniProduct): void
+    private function syncProduct($moloniProduct)
     {
         $this->moloniProduct = $moloniProduct;
         $this->moloniProduct['reference'] = trim($this->moloniProduct['reference']);
@@ -291,7 +296,7 @@ class ProductSyncService
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    private function syncAttributeProduct(): void
+    private function syncAttributeProduct()
     {
         /** Sincronizar o stock dos produtos que fazem o produto com atributos e atualizar o produto principal*/
         if ((int)$this->moloniProduct['has_stock'] === 1 && $this->shouldSyncStock) {
@@ -318,7 +323,7 @@ class ProductSyncService
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    private function syncAttributeProductEAN(): void
+    private function syncAttributeProductEAN()
     {
         if ((int)$this->currentSyncAttributeProduct['id_product_attribute'] < 0 || empty($this->currentSyncAttributeProduct['id_product_attribute'])) {
             return;
@@ -328,7 +333,7 @@ class ProductSyncService
             $this->currentSyncAttributeProduct['id_product_attribute']
         );
 
-        $ean = $this->moloniProduct['ean'] ?? '';
+        $ean = isset($this->moloniProduct['ean']) ? $this->moloniProduct['ean'] : '';
 
         if (!empty($ean) && $ean !== $product->ean13) {
             $this->addUpdateAttributes([
@@ -348,7 +353,7 @@ class ProductSyncService
      * @throws PrestaShopException
      * @throws PrestaShopDatabaseException
      */
-    private function syncAttributeProductPrice(): bool
+    private function syncAttributeProductPrice()
     {
         $parentProduct = $this->getProductById($this->currentSyncAttributeProduct['id_product']);
 
@@ -389,7 +394,7 @@ class ProductSyncService
     /**
      * @throws PrestaShopDatabaseException
      */
-    private function syncAttributeProductStock(): void
+    private function syncAttributeProductStock()
     {
         $stock = round($this->moloniProduct['stock']);
 
@@ -462,7 +467,7 @@ class ProductSyncService
      *
      * @return void
      */
-    private function syncAttributeImage(): void
+    private function syncAttributeImage()
     {
         if (empty($this->moloniProduct['image'])) {
             return;
@@ -485,7 +490,7 @@ class ProductSyncService
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    private function syncSimpleProduct(): void
+    private function syncSimpleProduct()
     {
         if ((int)$this->moloniProduct['has_stock'] === 1 && $this->shouldSyncStock) {
             $this->syncSimpleProductStock();
@@ -515,7 +520,7 @@ class ProductSyncService
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      */
-    private function syncSimpleProductPrice(): void
+    private function syncSimpleProductPrice()
     {
         $product = new Product($this->currentSyncProductId, true, Configuration::get('PS_LANG_DEFAULT'));
 
@@ -563,7 +568,7 @@ class ProductSyncService
      * @throws PrestaShopException
      * @throws PrestaShopDatabaseException
      */
-    private function syncSimpleProductFields(): void
+    private function syncSimpleProductFields()
     {
         $product = new Product($this->currentSyncProductId, true, Configuration::get('PS_LANG_DEFAULT'));
         $changeFlag = false;
@@ -588,7 +593,7 @@ class ProductSyncService
         }
 
         if ($this->shouldSyncEAN && $this->isEan13Valid($this->moloniProduct['ean'])) {
-            $ean = $this->moloniProduct['ean'] ?? '';
+            $ean = isset($this->moloniProduct['ean']) ? $this->moloniProduct['ean'] : '';
 
             if (!empty($ean) && $ean !== $product->ean13) {
                 $this->addUpdateSimple([
@@ -605,7 +610,7 @@ class ProductSyncService
         }
     }
 
-    private function syncSimpleProductStock(): void
+    private function syncSimpleProductStock()
     {
         $stock = round($this->moloniProduct['stock']);
 
@@ -644,7 +649,7 @@ class ProductSyncService
 
         /** Set taxes */
         if (isset($this->moloniProduct['taxes']) && !empty($this->moloniProduct['taxes'])) {
-            $moloniTax = $this->moloniProduct['taxes'][0]['tax'] ?? [];
+            $moloniTax = isset($this->moloniProduct['taxes'][0]['tax']) ? $this->moloniProduct['taxes'][0]['tax'] : [];
 
             $newTaxRuleGroup = (new FindTaxGroupFromMoloniTax($moloniTax))->handle();
         } else {
@@ -672,7 +677,7 @@ class ProductSyncService
      *
      * @return void
      */
-    private function syncSimpleProductImage(): void
+    private function syncSimpleProductImage()
     {
         if (empty($this->moloniProduct['image'])) {
             return;
@@ -699,7 +704,7 @@ class ProductSyncService
         return $result ?: false;
     }
 
-    private function getProductIdByReference(): int
+    private function getProductIdByReference()
     {
         $result = Db::getInstance()->getRow(
             'SELECT id_product FROM ' . _DB_PREFIX_ . "product WHERE reference = '" . pSQL($this->moloniProduct['reference']) . "'"
@@ -708,7 +713,7 @@ class ProductSyncService
         return $result ? (int)$result['id_product'] : 0;
     }
 
-    private function getProductPriceById($productId): float
+    private function getProductPriceById($productId)
     {
         $result = Db::getInstance()->getRow(
             'SELECT price FROM ' . _DB_PREFIX_ . "product WHERE id_product = '" . pSQL($productId) . "'"
@@ -729,7 +734,7 @@ class ProductSyncService
 
     /** Results methods */
 
-    private function addHeader(): void
+    private function addHeader()
     {
         $this->updatedResult = [
             'header' => [
@@ -739,7 +744,7 @@ class ProductSyncService
         ];
     }
 
-    private function insertSuccess(array $array): void
+    private function insertSuccess(array $array)
     {
         $reference = $this->moloniProduct['reference'];
         $this->updatedResult['insert_success'][$reference]['reference'] = $reference;
@@ -749,7 +754,7 @@ class ProductSyncService
         }
     }
 
-    private function insertError(array $array): void
+    private function insertError(array $array)
     {
         $reference = $this->moloniProduct['reference'];
         $this->updatedResult['insert_error'][$reference]['reference'] = $reference;
@@ -759,7 +764,7 @@ class ProductSyncService
         }
     }
 
-    private function addUpdateError(array $array): void
+    private function addUpdateError(array $array)
     {
         $reference = $this->moloniProduct['reference'];
         $this->updatedResult['update_error'][$reference]['reference'] = $reference;
@@ -769,7 +774,7 @@ class ProductSyncService
         }
     }
 
-    private function addUpdateSimple(array $array): void
+    private function addUpdateSimple(array $array)
     {
         $reference = $this->moloniProduct['reference'];
         $this->updatedResult['simple'][$reference]['reference'] = $reference;
@@ -780,7 +785,7 @@ class ProductSyncService
 
     }
 
-    private function addUpdateAttributes(array $array): void
+    private function addUpdateAttributes(array $array)
     {
         $reference = $this->moloniProduct['reference'];
         $this->updatedResult['with_attributes'][$reference]['reference'] = $reference;
@@ -790,7 +795,7 @@ class ProductSyncService
         }
     }
 
-    private function addFatalError(array $array): void
+    private function addFatalError(array $array)
     {
         $reference = $this->moloniProduct['reference'];
         $this->updatedResult['fatal_error'][$reference]['reference'] = $reference;
@@ -826,38 +831,38 @@ class ProductSyncService
         return false;
     }
 
-    private function enableStockSync(): void
+    private function enableStockSync()
     {
         $this->shouldSyncStock = true;
     }
 
-    private function enablePriceSync(): void
+    private function enablePriceSync()
     {
         $this->shouldSyncPrice = true;
     }
 
-    private function enableNameSync(): void
+    private function enableNameSync()
     {
         $this->shouldSyncName = true;
     }
 
-    private function enableDescriptionSync(): void
+    private function enableDescriptionSync()
     {
         $this->shouldSyncDescription = true;
     }
 
-    private function enableEANSync(): void
+    private function enableEANSync()
     {
         $this->shouldSyncEAN = true;
     }
 
 
-    private function enableTaxSync(): void
+    private function enableTaxSync()
     {
         $this->shouldSyncTax = true;
     }
 
-    private function enableImageSync(): void
+    private function enableImageSync()
     {
         $this->shouldSyncImage = true;
     }

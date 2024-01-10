@@ -137,7 +137,7 @@ class Curl
             'url' => $url,
             'sent' => [],
             'received' => $res_txt,
-            'curl_info' => $res_info ?? [],
+            'curl_info' => isset($res_info) ? $res_info : [],
             'curl_error' => $res_error,
         ];
 
@@ -181,9 +181,13 @@ class Curl
      *
      * @return array
      */
-    public static function getLog(): array
+    public static function getLog()
     {
-        return end(self::$logs) ?? [];
+        if (empty(self::$logs)) {
+            return [];
+        }
+
+        return end(self::$logs);
     }
 
     /**
@@ -191,8 +195,8 @@ class Curl
      *
      * @return array
      */
-    public static function getLogs(): array
+    public static function getLogs()
     {
-        return self::$logs ?? [];
+        return isset(self::$logs) ? self::$logs : [];
     }
 }

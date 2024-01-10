@@ -47,7 +47,7 @@ class UpdatePrestaCombinationImage extends PrestaImage
         $this->handle();
     }
 
-    private function handle(): void
+    private function handle()
     {
         if (empty($this->moloniImagePath)) {
             return;

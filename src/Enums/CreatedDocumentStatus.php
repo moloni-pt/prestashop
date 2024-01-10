@@ -30,9 +30,9 @@ if (!defined('_PS_VERSION_')) {
 
 class CreatedDocumentStatus
 {
-    public const DRAFT = 0;
-    public const CLOSED = 1;
-    public const CLOSED_AND_SENT = 2;
-    public const DRAFT_WITH_ERROR = 3;
-    public const DISCARDED = 4;
+    const DRAFT = 0;
+    const CLOSED = 1;
+    const CLOSED_AND_SENT = 2;
+    const DRAFT_WITH_ERROR = 3;
+    const DISCARDED = 4;
 }

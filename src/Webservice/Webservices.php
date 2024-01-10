@@ -30,7 +30,7 @@ class Webservices
         $this->deleteWebserviceKey();
     }
 
-    public function getWebserviceProductSyncUrl(?array $syncFields = []): string
+    public function getWebserviceProductSyncUrl($syncFields = [])
     {
         if (empty($this->key)) {
             $this->fillKey();
