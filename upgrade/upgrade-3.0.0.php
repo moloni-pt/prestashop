@@ -4,7 +4,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-function upgrade_module_3_0_0($module): bool
+function upgrade_module_3_0_0($module)
 {
     /** Install new tab for logs */
     $module->setMenu('MoloniLogs', $module->l('Logs'), Tab::getIdFromClassName('MoloniTab'));

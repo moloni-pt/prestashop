@@ -259,7 +259,7 @@ class General
         return Curl::simple('companies/getOne', $values, true);
     }
 
-    public function cleanInvoice($order_id): array
+    public function cleanInvoice($order_id)
     {
         Db::getInstance()->insert('moloni_invoices', [
             'order_id' => $order_id,
@@ -286,7 +286,7 @@ class General
         ];
     }
 
-    public function cleanInvoiceAnulate($order_id): array
+    public function cleanInvoiceAnulate($order_id)
     {
         Db::getInstance()->delete('moloni_invoices', 'order_id = ' . (int)$order_id);
 
@@ -305,7 +305,7 @@ class General
         ];
     }
 
-    public function makeInvoice($order_id, ?bool $isAutomatic = false)
+    public function makeInvoice($order_id, $isAutomatic = false)
     {
         $this->settings = new Settings();
         $this->products = new Products();
@@ -1452,7 +1452,7 @@ class General
         return $productDiscount;
     }
 
-    private function getCartRulesTotal(array $cartRules)
+    private function getCartRulesTotal($cartRules)
     {
         $discountTotal = 0;
         foreach ($cartRules as $rule) {
@@ -1504,7 +1504,7 @@ class General
         return (bool)SHOW_SHIPPING_INFORMATION;
     }
 
-    private function dealWithDocumentSuccess(Order $orderPS, array $documentProps, int $documentId)
+    private function dealWithDocumentSuccess(Order $orderPS, $documentProps, $documentId)
     {
         $message = ModuleFacade::getModule()->l('Document created successfully', $this->className());
         $message .= ' (' . $orderPS->reference . ')';
@@ -1517,7 +1517,7 @@ class General
         ]);
     }
 
-    private function dealWithDocumentWarning(Order $orderPS, array $documentProps, int $documentId, bool $isAutomatic)
+    private function dealWithDocumentWarning(Order $orderPS, $documentProps, $documentId, $isAutomatic = false)
     {
         $message = ModuleFacade::getModule()->l('Warning processing order', $this->className());
         $message .= ' (' . $orderPS->reference . ')';
@@ -1535,7 +1535,7 @@ class General
         }
     }
 
-    private function dealWithDocumentError(Order $orderPS, array $documentProps, bool $isAutomatic)
+    private function dealWithDocumentError(Order $orderPS, $documentProps, $isAutomatic = false)
     {
         $message = ModuleFacade::getModule()->l('Error processing order', $this->className());
         $message .= ' (' . $orderPS->reference . ')';

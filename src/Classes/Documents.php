@@ -79,7 +79,7 @@ class Documents
         $values['document_set_id'] = DOCUMENT_SET;
 
         $total = 0;
-        $offset = $values['offset'] ?? "0";
+        $offset = isset($values['offset']) ? $values['offset'] : "0";
         $results = [];
 
         while ($total < $max) {

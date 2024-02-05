@@ -78,7 +78,7 @@ class ProductImportService
 
             /** Set taxes */
             if (isset($this->product['taxes']) && !empty($this->product['taxes'])) {
-                $moloniTax = $this->product['taxes'][0]['tax'] ?? [];
+                $moloniTax = isset($this->product['taxes'][0]['tax']) ? $this->product['taxes'][0]['tax'] : [];
 
                 $newProduct->id_tax_rules_group = (new FindTaxGroupFromMoloniTax($moloniTax))->handle();
             }

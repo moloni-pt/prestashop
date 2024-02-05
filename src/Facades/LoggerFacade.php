@@ -21,31 +21,31 @@ class LoggerFacade
         }
     }
 
-    public static function debug(string $message, ?array $context = []) {
+    public static function debug($message, $context = []) {
 
         self::loadLogger();
         self::$LOGGER->debug($message, $context);
     }
 
-    public static function error(string $message, ?array $context = []) {
+    public static function error($message, $context = []) {
 
         self::loadLogger();
         self::$LOGGER->error($message, $context);
     }
 
-    public static function critical(string $message, ?array $context = []) {
+    public static function critical($message, $context = []) {
 
         self::loadLogger();
         self::$LOGGER->critical($message, $context);
     }
 
-    public static function info(string $message, ?array $context = []) {
+    public static function info($message, $context = []) {
 
         self::loadLogger();
         self::$LOGGER->info($message, $context);
     }
 
-    public static function warning(string $message, ?array $context = []) {
+    public static function warning($message, $context = []) {
 
         self::loadLogger();
         self::$LOGGER->warning($message, $context);
