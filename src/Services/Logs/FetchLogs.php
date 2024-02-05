@@ -38,7 +38,7 @@ class FetchLogs
         $this->request = $request;
     }
 
-    public function run(): array
+    public function run()
     {
         $this->fetchAllLogs();
 

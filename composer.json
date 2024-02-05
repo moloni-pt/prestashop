@@ -15,11 +15,19 @@
     }
   },
   "require": {
-    "php": ">=7.2",
+    "php": ">=5.6",
     "psr/log": "1.1.4"
   },
   "extra": {
     "changelog": [
+      {
+        "version": "v3.0.4",
+        "title": "Release da versão 3.0.4",
+        "description": [
+          "Corrigidos erros na versão 1.6 do Prestashop",
+          "Corrigidos erros na versão 5.6 do PHP"
+        ]
+      },
       {
         "version": "v3.0.3",
         "title": "Release da versão 3.0.3",

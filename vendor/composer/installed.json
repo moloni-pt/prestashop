@@ -54,6 +54,6 @@
             "install-path": "../psr/log"
         }
     ],
-    "dev": false,
+    "dev": true,
     "dev-package-names": []
 }

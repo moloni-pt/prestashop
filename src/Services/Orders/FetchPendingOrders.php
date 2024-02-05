@@ -22,8 +22,15 @@
 
 namespace Moloni\Services\Orders;
 
+use Address;
 use Configuration;
+use Currency;
+use Customer;
 use Db;
+use Order;
+use OrderState;
+use PrestaShopDatabaseException;
+use PrestaShopException;
 use Tools;
 
 class FetchPendingOrders
@@ -63,11 +70,15 @@ class FetchPendingOrders
         $this->totalPendingOrders = Db::getInstance()
             ->ExecuteS('SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'orders' . $this->queryTotalResultsCondition)[0]['COUNT(*)'];
 
-        $orders = Db::getInstance()->ExecuteS('SELECT * FROM ' . _DB_PREFIX_ . 'orders' . $this->queryCondition);
+        $orders = Db::getInstance()->ExecuteS('SELECT id_order FROM ' . _DB_PREFIX_ . 'orders' . $this->queryCondition);
 
         if ($orders) {
             foreach ($orders as $order) {
-                $this->documentList[] = $this->processOrder($order);
+                $processedOrder = $this->processOrder($order);
+
+                if ($processedOrder) {
+                    $this->documentList[] = $processedOrder;
+                }
             }
         }
     }
@@ -157,27 +168,51 @@ class FetchPendingOrders
         $this->queryCondition = $condition;
     }
 
-    private function processOrder($order)
+    private function processOrder($query)
     {
-        $address = Db::getInstance()
-            ->getRow('SELECT * FROM ' . _DB_PREFIX_ . "address  WHERE id_address = '" . (int)$order['id_address_invoice'] . "'");
-        $customer = Db::getInstance()
-            ->getRow('SELECT * FROM ' . _DB_PREFIX_ . "customer WHERE id_customer = '" . (int)$order['id_customer'] . "'");
-        $state = Db::getInstance()
-            ->getRow('SELECT * FROM ' . _DB_PREFIX_ . "order_state_lang WHERE id_order_state = '" . (int)$order['current_state'] . "' and id_lang = '" . $this->languageId . "'");
-        $currency = Db::getInstance()
-            ->getRow('SELECT * FROM ' . _DB_PREFIX_ . "currency_lang WHERE id_currency = '" . (int)$order['id_currency'] . "' and id_lang = '" . $this->languageId . "'");
+        $orderId = (int)$query['id_order'];
+
+        try {
+            $order = new Order($orderId, $this->languageId);
+            $address = new Address($order->id_address_invoice, $this->languageId);
+            $customer = new Customer($order->id_customer);
+            $currency = new Currency($order->id_currency, $this->languageId);
+            $state = new OrderState($order->current_state, $this->languageId);
+        } catch (PrestaShopDatabaseException $e) {
+            return null;
+        } catch (PrestaShopException $e) {
+            return null;
+        }
 
         return [
-            'info' => $order,
-            'address' => $address,
-            'customer' => $customer,
-            'state' => $state,
-            'currency' => $currency,
+            'info' => [
+               'id_order' => $order->id,
+               'date_add' => $order->date_add,
+               'total_paid' => $order->total_paid,
+            ],
+            'address' => [
+                'id' => $address->id,
+                'firstname' => $address->firstname,
+                'lastname' => $address->lastname,
+                'address1' => $address->address1,
+                'vat_number' => $address->vat_number
+            ],
+            'customer' => [
+                'id' => $customer->id,
+                'email' => $customer->email
+            ],
+            'state' => [
+                'id' => $state->id,
+                'name' => $state->name
+            ],
+            'currency' => [
+                'id' => $currency->id,
+                'symbol' => isset($currency->symbol) ? $currency->symbol : $currency->sign
+            ],
             'url' => [
-                'order' => $this->genURL('AdminOrders', '&id_order=' . $order['id_order'] . '&vieworder'),
-                'create' => $this->genURL('MoloniStart', '&action=create&id_order=' . $order['id_order']),
-                'clean' => $this->genURL('MoloniStart', '&action=clean&id_order=' . $order['id_order'])
+                'order' => $this->genURL('AdminOrders', '&id_order=' . $orderId . '&vieworder'),
+                'create' => $this->genURL('MoloniStart', '&action=create&id_order=' . $orderId),
+                'clean' => $this->genURL('MoloniStart', '&action=clean&id_order=' . $orderId)
             ]
         ];
     }

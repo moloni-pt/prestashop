@@ -16,19 +16,19 @@ class ModuleFacade
      */
     private static $module;
 
-    private static function loadModule(): void
+    private static function loadModule()
     {
         if (empty(self::$module)) {
             self::$module = Module::getInstanceByName('moloni');
         }
     }
 
-    public static function setModule(Module $module): void
+    public static function setModule($module)
     {
         self::$module = $module;
     }
 
-    public static function getModule(): ?Module
+    public static function getModule()
     {
         self::loadModule();
 

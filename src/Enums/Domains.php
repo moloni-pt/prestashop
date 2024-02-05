@@ -30,6 +30,6 @@ if (!defined('_PS_VERSION_')) {
 
 class Domains
 {
-    public const MOLONI = 'https://www.moloni.pt/';
-    public const MOLONI_MEDIA_API = 'https://www.moloni.pt/_imagens/?img=';
+    const MOLONI = 'https://www.moloni.pt/';
+    const MOLONI_MEDIA_API = 'https://www.moloni.pt/_imagens/?img=';
 }

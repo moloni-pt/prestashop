@@ -34,9 +34,9 @@ if (!defined('_PS_VERSION_')) {
 
 class DocumentErrorMail extends SendMail
 {
-    public function handle(): void
+    public function handle()
     {
-        $orderId = $this->data["order_id"] ?? 0;
+        $orderId = isset($this->data["order_id"]) ? $this->data["order_id"] : 0;
 
         Mail::Send(
             (int)(Configuration::get('PS_LANG_DEFAULT')), // defaut language id

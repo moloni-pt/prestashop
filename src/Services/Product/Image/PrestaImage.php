@@ -42,7 +42,7 @@ abstract class PrestaImage
     protected $languageId;
     protected $moloniImagePath;
 
-    public function __construct(string $moloniImagePath)
+    public function __construct($moloniImagePath)
     {
         $this->languageId = Configuration::get('PS_LANG_DEFAULT');
         $this->moloniImagePath = $moloniImagePath;
@@ -58,7 +58,7 @@ abstract class PrestaImage
      * @throws PrestaShopDatabaseException
      * @see \PrestaShop\PrestaShop\Adapter\Import\ImageCopier::copyImg
      */
-    protected function saveImage(Image $image): void
+    protected function saveImage(Image $image)
     {
         $imageUrl = Domains::MOLONI_MEDIA_API . $this->moloniImagePath;
         $imageUrl = urldecode(trim($imageUrl));
@@ -159,7 +159,7 @@ abstract class PrestaImage
      * @return string
      * @see \PrestaShop\PrestaShop\Adapter\Import\ImageCopier::getBestPath
      */
-    protected function getBestPath(int $targetWidth, int $targetHeight, array $pathInfos): string
+    protected function getBestPath($targetWidth, $targetHeight, $pathInfos)
     {
         $pathInfos = array_reverse($pathInfos);
         $path = '';

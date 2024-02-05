@@ -36,7 +36,7 @@ class UpdatePrestaProductImage extends PrestaImage
 {
     protected $prestashopProductId;
 
-    public function __construct(int $prestashopProductId, string $moloniImagePath)
+    public function __construct($prestashopProductId, $moloniImagePath)
     {
         parent::__construct($moloniImagePath);
 
@@ -45,7 +45,7 @@ class UpdatePrestaProductImage extends PrestaImage
         $this->handle();
     }
 
-    private function handle(): void
+    private function handle()
     {
         if (empty($this->moloniImagePath)) {
             return;

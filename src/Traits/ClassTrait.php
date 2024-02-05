@@ -17,7 +17,7 @@ trait ClassTrait
         }
     }
 
-    protected function className(): string
+    protected function className()
     {
         $this->loadName();
 
