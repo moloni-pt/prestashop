@@ -276,6 +276,30 @@
                             </option>
                         </select>
                     </div>
+
+                    <!-------------------------- Nome dos artigos no documento ------------------------------>
+                    <div class="col-sm-6">
+                        <label>
+                            {l s='Use product name from' mod='moloni'}
+                        </label>
+                        <select name='options[use_moloni_product_details]'>
+                            {if 'use_moloni_product_details'|array_key_exists:$moloni.configurations}
+                                {assign var="useMoloniProductDetails" value=$moloni.configurations.use_moloni_product_details.value}
+                            {else}
+                                {assign var="useMoloniProductDetails" value="order"}
+                            {/if}
+
+                            <option value='' disabled selected>
+                                {l s='The product in the document will use the name from the selected source' mod='moloni'}
+                            </option>
+                            <option value='order' {if $useMoloniProductDetails == "order"} selected {/if}>
+                                {l s='Use product name present in the order' mod='moloni'}
+                            </option>
+                            <option value='moloni' {if $useMoloniProductDetails == "moloni"} selected {/if}>
+                                {l s='Use product name present in the Moloni' mod='moloni'}
+                            </option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>

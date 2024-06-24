@@ -412,6 +412,12 @@ class Start
             'description' => '',
             'value' => ''
         ];
+        $defines[] = [
+            'label' => 'use_moloni_product_details',
+            'name' => 'Usar o nome do produto de',
+            'description' => '',
+            'value' => '1'
+        ];
 
         foreach ($defines as $variable) {
             $row = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "moloni_configs WHERE label = '" . pSQL($variable['label']) . "'");
