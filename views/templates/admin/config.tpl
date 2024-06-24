@@ -282,20 +282,20 @@
                         <label>
                             {l s='Use product name from' mod='moloni'}
                         </label>
-                        <select name='options[use_moloni_product_details]'>
-                            {if 'use_moloni_product_details'|array_key_exists:$moloni.configurations}
-                                {assign var="useMoloniProductDetails" value=$moloni.configurations.use_moloni_product_details.value}
+                        <select name='options[use_product_details_from]'>
+                            {if 'use_product_details_from'|array_key_exists:$moloni.configurations}
+                                {assign var="useProductDetailsFrom" value=$moloni.configurations.use_product_details_from.value}
                             {else}
-                                {assign var="useMoloniProductDetails" value="order"}
+                                {assign var="useProductDetailsFrom" value="order"}
                             {/if}
 
                             <option value='' disabled selected>
                                 {l s='The product in the document will use the name from the selected source' mod='moloni'}
                             </option>
-                            <option value='order' {if $useMoloniProductDetails == "order"} selected {/if}>
+                            <option value='order' {if $useProductDetailsFrom == "order"} selected {/if}>
                                 {l s='Use product name present in the order' mod='moloni'}
                             </option>
-                            <option value='moloni' {if $useMoloniProductDetails == "moloni"} selected {/if}>
+                            <option value='moloni' {if $useProductDetailsFrom == "moloni"} selected {/if}>
                                 {l s='Use product name present in the Moloni' mod='moloni'}
                             </option>
                         </select>

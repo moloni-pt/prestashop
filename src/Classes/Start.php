@@ -413,7 +413,7 @@ class Start
             'value' => ''
         ];
         $defines[] = [
-            'label' => 'use_moloni_product_details',
+            'label' => 'use_product_details_from',
             'name' => 'Usar o nome do produto de',
             'description' => '',
             'value' => '1'
