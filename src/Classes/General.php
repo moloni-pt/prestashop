@@ -474,7 +474,7 @@ class General
                 }
 
                 if (abs($productPrice - $productPriceAux) < 0.01) {
-                    $invoice['products'][$x]['price'] = $productPriceAux;
+                    $invoice['products'][$x]['price'] = $productPriceAux / $invoice['products'][$x]['qty'];
                 }
             }
 
