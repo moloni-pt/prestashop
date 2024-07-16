@@ -21,6 +21,13 @@
   "extra": {
     "changelog": [
       {
+        "version": "v3.0.5",
+        "title": "Release da versão 3.0.5",
+        "description": [
+          "Melhorias nos preços de produtos compostos"
+        ]
+      },
+      {
         "version": "v3.0.4",
         "title": "Release da versão 3.0.4",
         "description": [
