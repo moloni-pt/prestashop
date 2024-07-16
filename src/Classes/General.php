@@ -432,6 +432,9 @@ class General
 
                 $priceScale = ($product['unit_price_tax_excl'] / $moloni_product['price']);
 
+                $productPrice = $invoice['products'][$x]['price'] * $invoice['products'][$x]['qty'];
+                $productPriceAux = 0;
+
                 foreach ($moloni_product['child_products'] as $key => $child) {
                     $moloni_child = Curl::simple('products/getOne', ['product_id' => $child['product_child_id']]);
 
@@ -466,6 +469,12 @@ class General
                             $invoice['products'][$x]['child_products'][$key]['exemption_reason'] = $moloni_child['exemption_reason'];
                         }
                     }
+
+                    $productPriceAux += $invoice['products'][$x]['child_products'][$key]['qty'] * $invoice['products'][$x]['child_products'][$key]['price'];
+                }
+
+                if (abs($productPrice - $productPriceAux) < 0.01) {
+                    $invoice['products'][$x]['price'] = $productPriceAux / $invoice['products'][$x]['qty'];
                 }
             }
 
