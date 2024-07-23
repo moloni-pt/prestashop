@@ -386,7 +386,13 @@ class General
             $moloni_product = $this->products->getOne(['product_id' => $moloniProductId]);
 
             $invoice['products'][$x]['product_id'] = isset($moloni_product['product_id']) ? $moloni_product['product_id'] : 0;
-            $invoice['products'][$x]['name'] = $product['product_name'];
+
+            if (defined('USE_PRODUCT_DETAILS_FROM') && USE_PRODUCT_DETAILS_FROM === 'moloni') {
+                $invoice['products'][$x]['name'] = $moloni_product['name'];
+            } else {
+                $invoice['products'][$x]['name'] = $product['product_name'];
+            }
+
             $invoice['products'][$x]['summary'] = '';
             $invoice['products'][$x]['discount'] = $discount ?: 0;
             $invoice['products'][$x]['qty'] = $product['product_quantity'];

@@ -21,6 +21,14 @@
   "extra": {
     "changelog": [
       {
+        "version": "v3.1.0",
+        "title": "Release da versão 3.1.0",
+        "description": [
+          "Correção na autenticação do plugin",
+          "Nova definição para escolher o nome dos produtos usado nos documentos"
+        ]
+      },
+      {
         "version": "v3.0.5",
         "title": "Release da versão 3.0.5",
         "description": [

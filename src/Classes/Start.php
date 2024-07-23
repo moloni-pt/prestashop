@@ -88,7 +88,10 @@ class Start
 
     private function doLogin()
     {
-        $validate = Curl::login(Tools::getValue('mol-username'), Tools::getValue('mol-password'));
+        $username = (string)$_POST['mol-username'];
+        $password = (string)$_POST['mol-password'];
+
+        $validate = Curl::login($username, $password);
 
         if (!$validate) {
             #Utilizador/password errada
@@ -411,6 +414,12 @@ class Start
             'name' => 'Alerta de erros',
             'description' => '',
             'value' => ''
+        ];
+        $defines[] = [
+            'label' => 'use_product_details_from',
+            'name' => 'Usar o nome do produto de',
+            'description' => '',
+            'value' => '1'
         ];
 
         foreach ($defines as $variable) {
