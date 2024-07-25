@@ -4,7 +4,8 @@
   "description": "Moloni integration for Prestashop",
   "main": "index.js",
   "scripts": {
-    "build-prod": "npm i&&gulp css:prod js:prod"
+    "build-prod": "npm i && gulp css:prod js:prod",
+    "watch": "gulp watch"
   },
   "keywords": [
     "Moloni",
