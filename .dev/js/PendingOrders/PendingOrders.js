@@ -13,7 +13,8 @@ if (pt.moloni.PendingOrders === undefined) {
 pt.moloni.PendingOrders = (function ($) {
     var translations;
     var currentPageAction;
-
+    var checkMaster;
+    var actionBulk = 'generate_document';
     function init(_translations, _currentPageAction) {
         translations = _translations;
         currentPageAction = _currentPageAction;
@@ -25,6 +26,7 @@ pt.moloni.PendingOrders = (function ($) {
         var datatable = $('.dataTable');
         var checkError = $('.check_error');
         var close = $('.close');
+        checkMaster = $('.select-all')
 
         datatable
             .on('preXhr.dt', disableTable) // https://datatables.net/reference/event/preXhr
@@ -39,6 +41,10 @@ pt.moloni.PendingOrders = (function ($) {
                     }
                 },
                 "columns": [
+                    {
+                        orderable: false,
+                        render: renderCheckbox,
+                    },
                     {
                         data: 'info.id_order',
                         orderable: true,
@@ -76,18 +82,32 @@ pt.moloni.PendingOrders = (function ($) {
                 "columnDefs": [
                     {
                         className: "dt-center",
-                        targets: [0, 6]
+                        targets: [1, 7]
                     },
                     {
                         className: "dt-right",
-                        targets: 5
+                        targets: 6
                     },
                 ],
-                "fnDrawCallback": enableTable, // https://datatables.net/reference/option/drawCallback
-                "searchDelay": 2000,
+                "fnDrawCallback": function () {
+                    enableTable();
+                    enableEvents();
+
+                }, // https://datatables.net/reference/option/drawCallback
                 "lengthMenu": [10, 25, 50, 75, 100, 250],
                 "pageLength": 10,
-                "sDom": '<"dataTable--header panel"<l><"dataTable--search"f>>tr<"dataTable--footer panel"<i><"dataTable--pagination" p>>',
+                "sDom": '<"dataTable--header panel"' +
+                    'l' +
+                    '<"dataTable--options"'+
+                    '<"dataTable--search"<f>>' +
+                    '<"dataTable--button">' +
+                    '>' +
+                    '>' +
+                    'tr' +
+                    '<"dataTable--footer panel"' +
+                    '<i>' +
+                    '<"dataTable--pagination" p>' +
+                    '>',
                 "language": {
                     "sLengthMenu": "_MENU_",
                     "sZeroRecords": translations.sZeroRecords,
@@ -102,8 +122,10 @@ pt.moloni.PendingOrders = (function ($) {
                         "sNext": translations.sNext,
                         "sLast": translations.sLast,
                     }
-                }
+                },
             })
+
+        addCreateAndDeleteOptions();
 
         checkError.on('click', function () {
             if (checkError.hasClass('selected')) {
@@ -121,6 +143,17 @@ pt.moloni.PendingOrders = (function ($) {
             return false;
         });
 
+
+        checkMaster.on('change', function() {
+            $('.pending_doc').prop('checked', $(this).prop('checked'));
+
+            if ($(this).prop('checked')) {
+                $('.run_actions').prop('disabled', false);
+            } else {
+                $('.run_actions').prop('disabled', true);
+            }
+        });
+
         // Duck tape to fix, multiple ajax requests while searching.
         // Only searches when pressing "enter"
         $('.dataTables_filter input')
@@ -132,6 +165,10 @@ pt.moloni.PendingOrders = (function ($) {
 
                 datatable.fnFilter($(this).val());
             });
+
+        $('.run_actions').on('click', function () {
+            pt.moloni.PendingOrders.Overlays.ProcessOrder(currentPageAction, actionBulk);
+        });
     }
 
     //       PRIVATES       //
@@ -148,6 +185,37 @@ pt.moloni.PendingOrders = (function ($) {
 
     function enableTable() {
         $('.dataTable').removeClass('dataTable--disabled');
+    }
+
+    function enableEvents(){
+        $('.select_actions').prop('disabled',false);
+        $('.select_actions').on('change',function(){
+            actionBulk = $('.select_actions').val();
+        });
+        $('.pending_doc').each(function() {
+            $(this).on('change', function() {
+                if ($('.pending_doc').length === $("input[class='pending_doc']:checked").length) {
+                    checkMaster.prop('checked', true);
+                } else {
+                    checkMaster.prop('checked', false);
+                }
+
+                if (!$("input[class='pending_doc']:checked").length) {
+                    $('.run_actions').prop('disabled', true);
+                } else {
+                    $('.run_actions').prop('disabled', false);
+                }
+            });
+        });
+    }
+
+    function addCreateAndDeleteOptions() {
+        $('.dataTable--button').html(
+            '<select class="select_actions" disabled>  ' +
+                '<option value="generate_document">Create Invoice</option>' +
+                '<option value="delete_document">Discard Order</option> ' +
+            '</select>' +
+            '<input type="button" class="run_actions" value="Bulk Action" data-target="#sync_products_modal" disabled>');
     }
 
     //       RENDERS       //
@@ -209,6 +277,17 @@ pt.moloni.PendingOrders = (function ($) {
         html += symbol;
         html += "</div>";
 
+        return html;
+    }
+
+    function renderCheckbox(data, type, row, meta) {
+        var html = '<input ' +
+            'type="checkbox" ' +
+            'name="checkbox" ' +
+            'class="pending_doc" ' +
+            'id="pending_doc_' + row.info.id_order + '" ' +
+            'value="' + row.info.id_order + '"' +
+            '>';
         return html;
     }
 

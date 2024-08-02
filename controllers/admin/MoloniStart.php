@@ -102,7 +102,41 @@ class MoloniStartController extends ModuleAdminController
 
     public function displayAjax()
     {
-        echo json_encode((new FetchPendingOrders(Tools::getAllValues()))->run());
+        $params = Tools::getAllValues();
+        $field = Tools::getValue('field_to_process', '');
+        $hasMore = Tools::getValue('has_more', '');
+        $functions = new General();
+
+        $response = [
+            'valid' => 1,
+            'message' => ''
+        ];
+
+        switch ($params['operation']) {
+            case 'generate_document':
+                $response['has_more'] = $hasMore;
+                $response['results'] = $functions->makeInvoice($field);
+
+                if (MoloniError::$exists) {
+                    echo json_encode(MoloniError::$message);
+                }
+
+                break;
+            case 'delete_document':
+                $response['has_more'] = $hasMore;
+                $response['results'] = $functions->cleanInvoice($field);
+
+                if (MoloniError::$exists) {
+                    echo json_encode(MoloniError::$message);
+                }
+
+                break;
+            default:
+                echo json_encode((new FetchPendingOrders(Tools::getAllValues()))->run());
+                exit();
+        }
+
+        echo json_encode($response);
     }
 
     public function initContent()

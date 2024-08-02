@@ -54,6 +54,7 @@
         <table class='dataTable display dataTable--slimed panel'>
             <thead>
             <tr>
+                <th class="no-sort" style='width: 30px'><input type="checkbox" class='select-all'></th>
                 <th style='width: 50px'>{l s='Number' mod='moloni'}</th>
                 <th>{l s='Client' mod='moloni'}</th>
                 <th style='width: 200px'>{l s='Email' mod='moloni'}</th>
@@ -73,6 +74,8 @@
         </table>
     </div>
 
+    {* Overlays *}
+    {include file="`$smarty.const._PS_MODULE_DIR_`moloni/views/templates/admin/tools/actionOverlay.tpl"}
 
 </section>
 
@@ -95,4 +98,4 @@
     $(document).ready(function () {
         pt.moloni.PendingOrders.init(translations, currentAction);
     });
-</script>
+</script>
