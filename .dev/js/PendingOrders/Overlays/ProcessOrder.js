@@ -33,13 +33,8 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
     }
 
     var appendResults = (requestResults) => {
-        if (requestResults.header && actionBulk === 'generate_document') {
-            results.header.generated_documents += requestResults.header.generated_documents;
-        }
-
-        if (requestResults.header && actionBulk === 'delete_document') {
-            results.header.generated_documents += requestResults.header.cancel_documents;
-        }
+        results.header.generated_documents += requestResults.generated_documents;
+        results.header.cancel_documents += requestResults.cancel_documents;
     }
 
     var showResults = () => {
@@ -48,10 +43,10 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
 
 
     var processOrder = async () => {
-
         var body = {
             field_to_process: fields.pop(),
             has_more : fields.length,
+
         };
 
         var response = await fetch(url + '&' + (new URLSearchParams(body)).toString());
@@ -60,10 +55,7 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
         //updateContent(jsonData.overlayContent || '');
         appendResults(jsonData.results || {});
 
-        if (jsonData.has_more && actionModal.is(':visible')) {
-            return await processOrder();
-        } else {
-            actionBulk = null;
+        if (parseInt(jsonData.has_more) && actionModal.is(':visible')) {
             return await processOrder();
         }
     }

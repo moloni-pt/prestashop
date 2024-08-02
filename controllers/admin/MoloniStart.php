@@ -115,7 +115,11 @@ class MoloniStartController extends ModuleAdminController
         switch ($params['operation']) {
             case 'generate_document':
                 $response['has_more'] = $hasMore;
-                $response['results'] = $functions->makeInvoice($field);
+                $response['results'] = [
+                    'generated_documents' => 1,
+                    'cancel_documents' => 0
+                ];
+                //$response['results'] = $functions->makeInvoice($field);
 
                 if (MoloniError::$exists) {
                     echo json_encode(MoloniError::$message);
@@ -124,7 +128,12 @@ class MoloniStartController extends ModuleAdminController
                 break;
             case 'delete_document':
                 $response['has_more'] = $hasMore;
-                $response['results'] = $functions->cleanInvoice($field);
+                $response['results'] = [
+                    'generated_documents' => 0,
+                    'cancel_documents' => 1
+                ];
+
+                //$response['results'] = $functions->cleanInvoice($field);
 
                 if (MoloniError::$exists) {
                     echo json_encode(MoloniError::$message);
