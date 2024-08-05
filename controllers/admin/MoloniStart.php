@@ -105,21 +105,30 @@ class MoloniStartController extends ModuleAdminController
         $params = Tools::getAllValues();
         $field = Tools::getValue('field_to_process', '');
         $hasMore = Tools::getValue('has_more', '');
+        $processedProducts = Tools::getValue('processed_documents', '');
+
         $functions = new General();
 
         $response = [
             'valid' => 1,
-            'message' => ''
+            'message' => '',
+            'has_more' => $hasMore
         ];
 
         switch ($params['operation']) {
             case 'generate_document':
-                $response['has_more'] = $hasMore;
                 $response['results'] = [
                     'generated_documents' => 1,
                     'cancel_documents' => 0
                 ];
                 //$response['results'] = $functions->makeInvoice($field);
+                $this->context->smarty->assign([
+                    'documentsProcessed' => $processedProducts,
+                    'hasMore' => $hasMore,
+                    'success' => $response['success']
+                ]);
+
+                $response['overlayContent'] = $this->module->display(_PS_MODULE_DIR_ . 'moloni', 'views/templates/admin/index/blocks/cancelAndGenerateContent.tpl');
 
                 if (MoloniError::$exists) {
                     echo json_encode(MoloniError::$message);
@@ -127,13 +136,20 @@ class MoloniStartController extends ModuleAdminController
 
                 break;
             case 'delete_document':
-                $response['has_more'] = $hasMore;
                 $response['results'] = [
                     'generated_documents' => 0,
                     'cancel_documents' => 1
                 ];
 
-                //$response['results'] = $functions->cleanInvoice($field);
+                $response['success'] = $functions->cleanInvoice($field);
+
+                $this->context->smarty->assign([
+                    'documentsProcessed' => $processedProducts,
+                    'hasMore' => $hasMore,
+                    'success' => $response['success']
+                ]);
+
+                $response['overlayContent'] = $this->module->display(_PS_MODULE_DIR_ . 'moloni', 'views/templates/admin/index/blocks/cancelAndGenerateContent.tpl');
 
                 if (MoloniError::$exists) {
                     echo json_encode(MoloniError::$message);

@@ -75,7 +75,7 @@
     </div>
 
     {* Overlays *}
-    {include file="`$smarty.const._PS_MODULE_DIR_`moloni/views/templates/admin/tools/actionOverlay.tpl"}
+    {include file="`$smarty.const._PS_MODULE_DIR_`moloni/views/templates/admin/index/actionOverlay.tpl"}
 
 </section>
 
@@ -98,4 +98,4 @@
     $(document).ready(function () {
         pt.moloni.PendingOrders.init(translations, currentAction);
     });
-</script>
+</script>

@@ -10,8 +10,8 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
     var spinner = actionModal.find('#action_overlay_spinner');
     var content = actionModal.find('#action_overlay_content');
     var error = actionModal.find('#action_overlay_error');
+    var processedDocuments = 1;
 
-    var page = 1;
     var fields = [];
     var results = {
         'header': {
@@ -46,16 +46,21 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
         var body = {
             field_to_process: fields.pop(),
             has_more : fields.length,
-
+            processed_documents: processedDocuments
         };
 
         var response = await fetch(url + '&' + (new URLSearchParams(body)).toString());
         var jsonData = await response.json();
 
-        //updateContent(jsonData.overlayContent || '');
+        spinner.fadeOut(100, function () {
+            content.fadeIn(200);
+        });
+
+        updateContent(jsonData.overlayContent || '');
         appendResults(jsonData.results || {});
 
         if (parseInt(jsonData.has_more) && actionModal.is(':visible')) {
+            processedDocuments++;
             return await processOrder();
         }
     }
