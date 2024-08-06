@@ -10,6 +10,7 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
     var spinner = actionModal.find('#action_overlay_spinner');
     var content = actionModal.find('#action_overlay_content');
     var error = actionModal.find('#action_overlay_error');
+    var orderPosition = 0;
     var processedDocuments = 1;
 
     var fields = [];
@@ -18,11 +19,14 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
             'generated_documents': 0,
             'cancel_documents': 0,
         },
+        'message':{
+            'success':{}
+        }
     };
     var url = currentPageAction + '&operation=' + actionBulk + '&ajax=true';
 
     var resetActionModel = () => {
-        content.html('Julho').hide();
+        content.html('').hide();
         closeButton.hide();
         error.hide();
         spinner.show();
@@ -33,31 +37,51 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
     }
 
     var appendResults = (requestResults) => {
-        results.header.generated_documents += requestResults.generated_documents;
-        results.header.cancel_documents += requestResults.cancel_documents;
+        results.header.generated_documents += requestResults.results.generated_documents;
+        results.header.cancel_documents += requestResults.results.cancel_documents;
+
+        results.message.success[orderPosition] = requestResults.success;
+        orderPosition++;
+    }
+
+    var drawResults = () => {
+        $.each(results.message.success
+            , function(key, value) {
+                var html = '<div> '
+                    + value.orderId
+                    + value.message +
+                    ' <a class="" ' +
+                    ' href="' + value.url + '" ' +
+                    ' target="' + value.tab + '">' + ' ' + value.button +'</a>' +
+                    '</div>'
+
+                console.log('Key: ' + key + ', Value: ' + value);
+                return content.find('.order_processed').append(html);
+            });
     }
 
     var showResults = () => {
         console.log(results);
+        drawResults();
     }
 
 
     var processOrder = async () => {
         var body = {
             field_to_process: fields.pop(),
-            has_more : fields.length,
+            has_more: fields.length,
             processed_documents: processedDocuments
         };
 
         var response = await fetch(url + '&' + (new URLSearchParams(body)).toString());
         var jsonData = await response.json();
 
-        spinner.fadeOut(100, function () {
+        spinner.fadeOut(100, function() {
             content.fadeIn(200);
         });
 
         updateContent(jsonData.overlayContent || '');
-        appendResults(jsonData.results || {});
+        appendResults(jsonData || {});
 
         if (parseInt(jsonData.has_more) && actionModal.is(':visible')) {
             processedDocuments++;

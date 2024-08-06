@@ -121,18 +121,8 @@ class MoloniStartController extends ModuleAdminController
                     'generated_documents' => 1,
                     'cancel_documents' => 0
                 ];
-                //$response['results'] = $functions->makeInvoice($field);
-                $this->context->smarty->assign([
-                    'documentsProcessed' => $processedProducts,
-                    'hasMore' => $hasMore,
-                    'success' => $response['success']
-                ]);
 
-                $response['overlayContent'] = $this->module->display(_PS_MODULE_DIR_ . 'moloni', 'views/templates/admin/index/blocks/cancelAndGenerateContent.tpl');
-
-                if (MoloniError::$exists) {
-                    echo json_encode(MoloniError::$message);
-                }
+                $response['success'] = $functions->makeInvoice($field);
 
                 break;
             case 'delete_document':
@@ -142,24 +132,25 @@ class MoloniStartController extends ModuleAdminController
                 ];
 
                 $response['success'] = $functions->cleanInvoice($field);
-
-                $this->context->smarty->assign([
-                    'documentsProcessed' => $processedProducts,
-                    'hasMore' => $hasMore,
-                    'success' => $response['success']
-                ]);
-
-                $response['overlayContent'] = $this->module->display(_PS_MODULE_DIR_ . 'moloni', 'views/templates/admin/index/blocks/cancelAndGenerateContent.tpl');
-
-                if (MoloniError::$exists) {
-                    echo json_encode(MoloniError::$message);
-                }
-
                 break;
+
             default:
                 echo json_encode((new FetchPendingOrders(Tools::getAllValues()))->run());
                 exit();
         }
+
+        if (MoloniError::$exists) {
+            echo json_encode(MoloniError::$message);
+        }
+
+        $this->context->smarty->assign([
+            'action' => $params['operation'],
+            'documentsProcessed' => $processedProducts,
+            'hasMore' => $hasMore,
+            'success' => $response['success']
+        ]);
+
+        $response['overlayContent'] = $this->module->display(_PS_MODULE_DIR_ . 'moloni', 'views/templates/admin/index/blocks/cancelAndGenerateContent.tpl');
 
         echo json_encode($response);
     }
