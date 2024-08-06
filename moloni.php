@@ -182,7 +182,6 @@ class Moloni extends Module
 
     public function hookDisplayOrderDetail($data)
     {
-
         if (empty($data['order'])) {
             return '';
         }
