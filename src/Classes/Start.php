@@ -421,6 +421,12 @@ class Start
             'description' => '',
             'value' => '1'
         ];
+        $defines[] = [
+            'label' => 'show_download_order_view',
+            'name' => 'Download de documento na página de detalhes de encomenda',
+            'description' => '',
+            'value' => '0'
+        ];
 
         foreach ($defines as $variable) {
             $row = Db::getInstance()->getRow('SELECT * FROM ' . _DB_PREFIX_ . "moloni_configs WHERE label = '" . pSQL($variable['label']) . "'");
