@@ -10,11 +10,12 @@ if (pt.moloni.PendingOrders === undefined) {
     pt.moloni.PendingOrders = {};
 }
 
-pt.moloni.PendingOrders = (function ($) {
+pt.moloni.PendingOrders = (function($) {
     var translations;
     var currentPageAction;
     var checkMaster;
     var actionBulk = 'generate_document';
+
     function init(_translations, _currentPageAction) {
         translations = _translations;
         currentPageAction = _currentPageAction;
@@ -89,7 +90,7 @@ pt.moloni.PendingOrders = (function ($) {
                         targets: 6
                     },
                 ],
-                "fnDrawCallback": function () {
+                "fnDrawCallback": function() {
                     enableTable();
                     enableEvents();
 
@@ -98,7 +99,7 @@ pt.moloni.PendingOrders = (function ($) {
                 "pageLength": 10,
                 "sDom": '<"dataTable--header panel"' +
                     'l' +
-                    '<"dataTable--options"'+
+                    '<"dataTable--options"' +
                     '<"dataTable--search"<f>>' +
                     '<"dataTable--button">' +
                     '>' +
@@ -127,7 +128,7 @@ pt.moloni.PendingOrders = (function ($) {
 
         addCreateAndDeleteOptions();
 
-        checkError.on('click', function () {
+        checkError.on('click', function() {
             if (checkError.hasClass('selected')) {
                 deselect($(this));
             } else {
@@ -138,7 +139,7 @@ pt.moloni.PendingOrders = (function ($) {
             return false;
         });
 
-        close.on('click', function () {
+        close.on('click', function() {
             deselect(checkError);
             return false;
         });
@@ -158,7 +159,7 @@ pt.moloni.PendingOrders = (function ($) {
         // Only searches when pressing "enter"
         $('.dataTables_filter input')
             .off('')
-            .bind('keyup', function (e) {
+            .bind('keyup', function(e) {
                 if (e.keyCode != 13) {
                     return;
                 }
@@ -166,15 +167,15 @@ pt.moloni.PendingOrders = (function ($) {
                 datatable.fnFilter($(this).val());
             });
 
-        $('.run_actions').on('click', function () {
-            pt.moloni.PendingOrders.Overlays.ProcessOrder(currentPageAction, actionBulk);
+        $('.run_actions').on('click', function() {
+            pt.moloni.PendingOrders.Overlays.ProcessOrder(currentPageAction, actionBulk, datatable);
         });
     }
 
     //       PRIVATES       //
 
     function deselect(e) {
-        $('.pop').slideFadeToggle(function () {
+        $('.pop').slideFadeToggle(function() {
             e.removeClass('selected');
         });
     }
@@ -187,9 +188,10 @@ pt.moloni.PendingOrders = (function ($) {
         $('.dataTable').removeClass('dataTable--disabled');
     }
 
-    function enableEvents(){
-        $('.select_actions').prop('disabled',false);
-        $('.select_actions').on('change',function(){
+    function enableEvents() {
+        checkMaster.prop('checked', false);
+        $('.select_actions').prop('disabled', false);
+        $('.select_actions').on('change', function() {
             actionBulk = $('.select_actions').val();
         });
         $('.pending_doc').each(function() {
@@ -212,8 +214,8 @@ pt.moloni.PendingOrders = (function ($) {
     function addCreateAndDeleteOptions() {
         $('.dataTable--button').html(
             '<select class="select_actions" disabled>  ' +
-                '<option value="generate_document">Create Invoice</option>' +
-                '<option value="delete_document">Discard Order</option> ' +
+            '<option value="generate_document">Create Invoice</option>' +
+            '<option value="delete_document">Discard Order</option> ' +
             '</select>' +
             '<input type="button" class="run_actions" value="Bulk Action" data-target="#sync_products_modal" disabled>');
     }

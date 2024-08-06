@@ -1,7 +1,11 @@
 <div>
     {if $hasMore}
         <div class="d-flex align-items-center">
-            {l s='%s order(s) processed, the invoice(s) will be available!' sprintf=[$documentsProcessed] mod='moloni'}
+            {if $action == 'generate_document'}
+                {l s='%s order(s) processed, the invoice(s) will be available!' sprintf=[$documentsProcessed] mod='moloni'}
+                {else}
+                {l s='%s order(s) processed, the orders(s) will be deleted!' sprintf=[$documentsProcessed] mod='moloni'}
+            {/if}
         </div>
 
         <br>
@@ -13,8 +17,14 @@
         </div>
     {else}
         <p>
-            {l s='%s order(s) processed!' sprintf=[$documentsProcessed] mod='moloni'}
-            {l s='Check the invoices!' mod='moloni'}
+            {if $action == 'generate_document'}
+                {l s='%s order(s) processed!' sprintf=[$documentsProcessed] mod='moloni'}
+                {l s='Check the invoices!' mod='moloni'}
+            {else}
+                {l s='%s order(s) processed!' sprintf=[$documentsProcessed] mod='moloni'}
+                {l s='Check the deleted orders!' mod='moloni'}
+            {/if}
+
         </p>
         <div class="order_processed" style="overflow: auto; max-height:150px"></div>
         <br>

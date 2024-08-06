@@ -2,7 +2,7 @@ if (!pt.moloni.PendingOrders.Overlays) {
     pt.moloni.PendingOrders.Overlays = {}
 }
 
-pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageAction, actionBulk) {
+pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageAction, actionBulk, table) {
     var pendingDocs = $('.pending_doc:checked')
     var actionButton = $('#action_overlay_button');
     var actionModal = $('#action_overlay_modal');
@@ -27,7 +27,9 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
 
     var resetActionModel = () => {
         content.html('').hide();
-        closeButton.hide();
+        closeButton.on('click', function(){
+           table._fnAjaxUpdate();
+        }).hide();
         error.hide();
         spinner.show();
         actionButton.trigger('click');
@@ -47,12 +49,11 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
     var drawResults = () => {
         $.each(results.message.success
             , function(key, value) {
-                var html = '<div> '
-                    + value.orderId
-                    + value.message +
+                var html = '<div> Order Id: ' + value.orderId + ' - '
+                    + value.message + ' - ' +
                     ' <a class="" ' +
                     ' href="' + value.url + '" ' +
-                    ' target="' + value.tab + '">' + ' ' + value.button +'</a>' +
+                    ' target="' + value.tab + '">' + value.button +'</a>' +
                     '</div>'
 
                 console.log('Key: ' + key + ', Value: ' + value);
@@ -61,10 +62,8 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
     }
 
     var showResults = () => {
-        console.log(results);
         drawResults();
     }
-
 
     var processOrder = async () => {
         var body = {
