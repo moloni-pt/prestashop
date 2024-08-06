@@ -137,19 +137,19 @@ class DisplayOrderDetail
         switch ($saftCode) {
             case 'FT' :
             default:
-                $typeName = ModuleFacade::getModule()->l("Invoice", $this->className());
+                $typeName = ModuleFacade::getModule()->l('Invoice', $this->className());
                 break;
             case 'FR' :
-                $typeName = ModuleFacade::getModule()->l("Invoice/Receipt", $this->className());
+                $typeName = ModuleFacade::getModule()->l('Invoice/Receipt', $this->className());
                 break;
             case 'GT' :
-                $typeName = ModuleFacade::getModule()->l("Bill of Landing", $this->className());
+                $typeName = ModuleFacade::getModule()->l('Bill of Landing', $this->className());
                 break;
             case 'NEF' :
-                $typeName = ModuleFacade::getModule()->l("Order Note", $this->className());
+                $typeName = ModuleFacade::getModule()->l('Order Note', $this->className());
                 break;
             case 'OR':
-                $typeName = ModuleFacade::getModule()->l("Estimate", $this->className());
+                $typeName = ModuleFacade::getModule()->l('Estimate', $this->className());
                 break;
         }
 
