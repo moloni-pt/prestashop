@@ -15,10 +15,6 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
 
     var fields = [];
     var results = {
-        'header': {
-            'generated_documents': 0,
-            'cancel_documents': 0,
-        },
         'message':{
             'success':{}
         }
@@ -27,29 +23,33 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
 
     var resetActionModel = () => {
         content.html('').hide();
-        closeButton.on('click', function(){
+        closeButton.off('click').on('click', function(){
            table._fnAjaxUpdate();
         }).hide();
         error.hide();
         spinner.show();
         actionButton.trigger('click');
     }
+
+    var toogleContent = () => {
+        spinner.fadeOut(100, function () {
+            content.fadeIn(200);
+        });
+    }
+
     var updateContent = (overlayContent) => {
         content.html(overlayContent);
     }
 
     var appendResults = (requestResults) => {
-        results.header.generated_documents += requestResults.results.generated_documents;
-        results.header.cancel_documents += requestResults.results.cancel_documents;
-
         results.message.success[orderPosition] = requestResults.success;
         orderPosition++;
     }
 
-    var drawResults = () => {
+    var showResults = () => {
         $.each(results.message.success
             , function(key, value) {
-                var html = '<div> Order Id: ' + value.orderId + ' - '
+                var html = '<div> Order: #' + value.orderId + ' - '
                     + value.message + ' - ' +
                     ' <a class="" ' +
                     ' href="' + value.url + '" ' +
@@ -59,10 +59,6 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
                 console.log('Key: ' + key + ', Value: ' + value);
                 return content.find('.order_processed').append(html);
             });
-    }
-
-    var showResults = () => {
-        drawResults();
     }
 
     var processOrder = async () => {
@@ -75,14 +71,11 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
         var response = await fetch(url + '&' + (new URLSearchParams(body)).toString());
         var jsonData = await response.json();
 
-        spinner.fadeOut(100, function() {
-            content.fadeIn(200);
-        });
-
+        toogleContent();
         updateContent(jsonData.overlayContent || '');
         appendResults(jsonData || {});
 
-        if (parseInt(jsonData.has_more) && actionModal.is(':visible')) {
+        if (fields.length && actionModal.is(':visible')) {
             processedDocuments++;
             return await processOrder();
         }

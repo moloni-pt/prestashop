@@ -112,28 +112,15 @@ class MoloniStartController extends ModuleAdminController
         $response = [
             'valid' => 1,
             'message' => '',
-            'has_more' => $hasMore
         ];
 
         switch ($params['operation']) {
             case 'generate_document':
-                $response['results'] = [
-                    'generated_documents' => 1,
-                    'cancel_documents' => 0
-                ];
-
                 $response['success'] = $functions->makeInvoice($field);
-
                 break;
             case 'delete_document':
-                $response['results'] = [
-                    'generated_documents' => 0,
-                    'cancel_documents' => 1
-                ];
-
                 $response['success'] = $functions->cleanInvoice($field);
                 break;
-
             default:
                 echo json_encode((new FetchPendingOrders(Tools::getAllValues()))->run());
                 exit();
