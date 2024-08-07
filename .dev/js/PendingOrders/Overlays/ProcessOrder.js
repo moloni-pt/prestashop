@@ -2,8 +2,9 @@ if (!pt.moloni.PendingOrders.Overlays) {
     pt.moloni.PendingOrders.Overlays = {}
 }
 
-pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageAction, actionBulk, table) {
-    var pendingDocs = $('.pending_doc:checked')
+pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageAction, actionBulk, table, _translations) {
+    var translations =_translations;
+    var pendingDocs = $('.order_doc:checked')
     var actionButton = $('#action_overlay_button');
     var actionModal = $('#action_overlay_modal');
     var closeButton = actionModal.find('#action_overlay_button');
@@ -49,14 +50,13 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
     var showResults = () => {
         $.each(results.message.success
             , function(key, value) {
-                var html = '<div> Order: #' + value.orderId + ' - '
+                var html = '<div> ' + translations.sOrder + ': #' + value.orderId + ' - '
                     + value.message + ' - ' +
                     ' <a class="" ' +
                     ' href="' + value.url + '" ' +
                     ' target="' + value.tab + '">' + value.button +'</a>' +
                     '</div>'
 
-                console.log('Key: ' + key + ', Value: ' + value);
                 return content.find('.order_processed').append(html);
             });
     }

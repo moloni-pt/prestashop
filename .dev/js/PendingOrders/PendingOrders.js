@@ -129,7 +129,7 @@ pt.moloni.PendingOrders = (function($) {
 
         addCreateAndDiscardOptions();
 
-        actionButton = $('.run_actions');
+        actionButton = $('.execute');
 
         checkError.on('click', function() {
             if (checkError.hasClass('selected')) {
@@ -149,12 +149,12 @@ pt.moloni.PendingOrders = (function($) {
 
 
         checkMaster.on('change', function() {
-            $('.pending_doc').prop('checked', $(this).prop('checked'));
+            $('.order_doc').prop('checked', $(this).prop('checked'));
 
             if ($(this).prop('checked')) {
-                $('.run_actions').prop('disabled', false);
+                $('.execute').prop('disabled', false);
             } else {
-                $('.run_actions').prop('disabled', true);
+                $('.execute').prop('disabled', true);
             }
         });
 
@@ -171,9 +171,9 @@ pt.moloni.PendingOrders = (function($) {
             });
 
        actionButton.on('click', function() {
-            var action = $('.select_actions').val();
+            var action = $('.select-action').val();
 
-            pt.moloni.PendingOrders.Overlays.ProcessOrder(currentPageAction, action, datatable);
+            pt.moloni.PendingOrders.Overlays.ProcessOrder(currentPageAction, action, datatable, translations);
         });
     }
 
@@ -195,18 +195,21 @@ pt.moloni.PendingOrders = (function($) {
 
     function onTableRender() {
         enableTable();
+
         checkMaster.prop('checked', false);
         actionButton.prop('disabled', true);
-        $('.select_actions').prop('disabled', false);
-        $('.pending_doc').each(function() {
+
+        $('.select-action').prop('disabled', false);
+
+        $('.order_doc').each(function() {
             $(this).on('change', function() {
-                if ($('.pending_doc').length === $("input[class='pending_doc']:checked").length) {
+                if ($('.order_doc').length === $("input[class='order_doc']:checked").length) {
                     checkMaster.prop('checked', true);
                 } else {
                     checkMaster.prop('checked', false);
                 }
 
-                if (!$("input[class='pending_doc']:checked").length) {
+                if (!$("input[class='order_doc']:checked").length) {
                     actionButton.prop('disabled', true);
                 } else {
                     actionButton.prop('disabled', false);
@@ -217,11 +220,11 @@ pt.moloni.PendingOrders = (function($) {
 
     function addCreateAndDiscardOptions() {
         $('.dataTable--button').html(
-            '<select class="select_actions" disabled>  ' +
-            '<option value="generate_document">Create Invoice</option>' +
-            '<option value="delete_document">Discard Order</option> ' +
+            '<select class="select-action" disabled>  ' +
+            '<option value="generate_document">' + translations.sCreateInvoice + '</option>' +
+            '<option value="delete_document">' + translations.sDiscardOrder + '</option> ' +
             '</select>' +
-            '<input type="button" class="run_actions" value="Bulk Action" data-target="#sync_products_modal" disabled>');
+            '<input type="button" class="execute" value="'+ translations.sAction +'" data-target="#sync_products_modal" disabled>');
     }
 
     //       RENDERS       //
@@ -290,8 +293,8 @@ pt.moloni.PendingOrders = (function($) {
         var html = '<input ' +
             'type="checkbox" ' +
             'name="checkbox" ' +
-            'class="pending_doc" ' +
-            'id="pending_doc_' + row.info.id_order + '" ' +
+            'class="order_doc" ' +
+            'id="order_doc_' + row.info.id_order + '" ' +
             'value="' + row.info.id_order + '"' +
             '>';
         return html;
