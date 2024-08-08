@@ -102,7 +102,7 @@ class MoloniStartController extends ModuleAdminController
 
     public function displayAjax()
     {
-        $params = Tools::getAllValues();
+        $operation = Tools::getValue('operation', 'list');
         $field = Tools::getValue('field_to_process', '');
         $hasMore = Tools::getValue('has_more', '');
         $processedProducts = Tools::getValue('processed_documents', '');
@@ -114,13 +114,14 @@ class MoloniStartController extends ModuleAdminController
             'message' => '',
         ];
 
-        switch ($params['operation']) {
+        switch ($operation) {
             case 'generate_document':
                 $response['success'] = $functions->makeInvoice($field);
                 break;
             case 'delete_document':
                 $response['success'] = $functions->cleanInvoice($field);
                 break;
+            case 'list':
             default:
                 echo json_encode((new FetchPendingOrders(Tools::getAllValues()))->run());
                 exit();
@@ -131,7 +132,7 @@ class MoloniStartController extends ModuleAdminController
         }
 
         $this->context->smarty->assign([
-            'action' => $params['operation'],
+            'action' => $operation,
             'documentsProcessed' => $processedProducts,
             'hasMore' => $hasMore,
             'success' => $response['success']
