@@ -188,7 +188,7 @@ $_MODULE['<{moloni}prestashop>cancelandgeneratecontent_be68b298ac1f866e21f80a63d
 $_MODULE['<{moloni}prestashop>cancelandgeneratecontent_0e72b609580b7faa10dd003c5004c3bd'] = 'Aguarde, sincronização em curso';
 $_MODULE['<{moloni}prestashop>cancelandgeneratecontent_b8f3734bec36afcfda6bf961df619564'] = '%s encomenda(s) processada(s)!';
 $_MODULE['<{moloni}prestashop>cancelandgeneratecontent_e0801d120f23976af5463d7e3e38e9f2'] = 'Verifique a(s) Fatura(s)!';
-$_MODULE['<{moloni}prestashop>cancelandgeneratecontent_89177ae51faec16644e37c24898ae3d6'] = 'Verifique a(s) encomenda(s) descartada(s)!';
+$_MODULE['<{moloni}prestashop>cancelandgeneratecontent_05f1f8d9fa2211e9e6f1bfa5f90bc8dd'] = 'Verifique a(s) encomenda(s) descartada(s)!';
 $_MODULE['<{moloni}prestashop>cancelandgeneratecontent_254cec87ba5d0dac94cf0bee486d7c6f'] = 'Processo concluído';
 $_MODULE['<{moloni}prestashop>logsoverlay_4ff2e716a7d06ce5274b4090b39abad3'] = 'Ver';
 $_MODULE['<{moloni}prestashop>logsoverlay_47305511dfd5598c6ad6c89d0fc32f3e'] = 'Informações de registro';

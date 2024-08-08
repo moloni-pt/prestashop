@@ -22,7 +22,7 @@
                 {l s='Check the invoices!' mod='moloni'}
             {else}
                 {l s='%s order(s) processed!' sprintf=[$documentsProcessed] mod='moloni'}
-                {l s='Check the discarded order(s))!' mod='moloni'}
+                {l s='Check the discarded order(s)!' mod='moloni'}
             {/if}
 
         </p>
