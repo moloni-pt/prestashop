@@ -18,6 +18,7 @@ const buildProdCSS = () => {
         './css/Login.scss',
         './css/Logs.scss',
         './css/Message.scss',
+        './css/Orders.scss',
         './css/Settings.scss',
     ];
 

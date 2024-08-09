@@ -17,7 +17,7 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
     var fields = [];
     var results = {
         'message':{
-            'success':{}
+            'success':{},
         }
     };
     var url = currentPageAction + '&operation=' + actionBulk + '&ajax=true';
@@ -50,12 +50,17 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
     var showResults = () => {
         $.each(results.message.success
             , function(key, value) {
-                var html = '<div> ' + translations.sOrder + ': #' + value.orderId + ' - '
-                    + value.message + ' - ' +
-                    ' <a class="" ' +
-                    ' href="' + value.url + '" ' +
-                    ' target="' + value.tab + '">' + value.button +'</a>' +
-                    '</div>'
+
+            var html = '<div> ' +
+                    translations.sOrder + ': #' + value.orderId + ' - '
+                    + value.message;
+
+                if (value.url && value.button) {
+                    html += ' - <a class="" ' +
+                        ' href="' + value.url + '" ' +
+                        ' target="' + value.tab + '">' + value.button + '</a>';
+                }
+                    html += '</div>'
 
                 return content.find('.order_processed').append(html);
             });
