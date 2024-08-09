@@ -29,6 +29,8 @@ use Moloni\Facades\ModuleFacade;
 
 class MoloniStartController extends ModuleAdminController
 {
+    use \Moloni\Traits\ClassTrait;
+    
     public $moloniTpl;
 
     public function __construct()
@@ -127,8 +129,13 @@ class MoloniStartController extends ModuleAdminController
                 exit();
         }
 
-        if (MoloniError::$exists) {
-            echo json_encode(MoloniError::$message);
+        if(!$response['success']){
+            $response['success'] = [
+                'orderId' => $field,
+                'message' => ModuleFacade::getModule()->l('Error on generate recipe', $this->className()),
+                'url' => false,
+                'button' => false
+            ];
         }
 
         $this->context->smarty->assign([
