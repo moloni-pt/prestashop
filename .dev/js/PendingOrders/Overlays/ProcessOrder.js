@@ -58,7 +58,7 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
                 if (value.url && value.button) {
                     html += ' - <a class="" ' +
                         ' href="' + value.url + '" ' +
-                        ' target="' + value.tab + '">' + value.button + '</a>';
+                        ' target="_blank">' + value.button + '</a>';
                 }
                     html += '</div>'
 
