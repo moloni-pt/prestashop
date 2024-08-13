@@ -24,9 +24,6 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
 
     var resetActionModel = () => {
         content.html('').hide();
-        closeButton.off('click').on('click', function(){
-           table._fnAjaxUpdate();
-        }).hide();
         error.hide();
         spinner.show();
         actionButton.trigger('click');
@@ -86,6 +83,14 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
         }
     }
 
+    var refreshTable = () => {
+        if (!table || !table._fnAjaxUpdate) {
+            return;
+        }
+
+        table._fnAjaxUpdate();
+    }
+
     pendingDocs.each(function (index, elem) {
         fields.push(elem.value);
     });
@@ -101,5 +106,7 @@ pt.moloni.PendingOrders.Overlays.ProcessOrder = (async function (currentPageActi
     }
 
     showResults();
+    refreshTable();
+
     closeButton.show(200);
 });
