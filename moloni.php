@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2020 - moloni.pt
  *
@@ -27,7 +28,7 @@ class Moloni extends Module
         $this->name = 'moloni';
         $this->tab = 'administration';
         $this->need_instance = 1;
-        $this->version = '3.1.0';
+        $this->version = '3.2.0';
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
         $this->author = 'Moloni';
         $this->bootstrap = true;
@@ -55,7 +56,8 @@ class Moloni extends Module
 
         return parent::install()
             && $this->dbInstall()
-            && $this->registerHook('DisplayBackOfficeHeader')
+            && $this->registerHook('displayBackOfficeHeader')
+            && $this->registerHook('displayOrderDetail')
             && $this->registerHook('addWebserviceResources')
             && $this->registerHook('actionOrderStatusPostUpdate') //after order status is changed
             && $this->registerHook('actionProductSave');
@@ -176,6 +178,18 @@ class Moloni extends Module
     public function hookDisplayBackOfficeHeader()
     {
         $this->context->controller->addCss($this->_path . 'views/css/moloni-icons.css');
+    }
+
+    public function hookDisplayOrderDetail($data)
+    {
+        if (empty($data['order'])) {
+            return '';
+        }
+
+        $service = new \Moloni\Hooks\DisplayOrderDetail($data['order']);
+        $service->run();
+
+        return $service->getHtml();
     }
 
     public function setMenu($className, $text, $parent = '2')
