@@ -26,9 +26,12 @@ use Moloni\Classes\MoloniError;
 use Moloni\Classes\Start;
 use Moloni\Services\Orders\FetchPendingOrders;
 use Moloni\Facades\ModuleFacade;
+use Moloni\Traits\ClassTrait;
 
 class MoloniStartController extends ModuleAdminController
 {
+    use ClassTrait;
+    
     public $moloniTpl;
 
     public function __construct()
@@ -102,7 +105,50 @@ class MoloniStartController extends ModuleAdminController
 
     public function displayAjax()
     {
-        echo json_encode((new FetchPendingOrders(Tools::getAllValues()))->run());
+        $operation = Tools::getValue('operation', 'list');
+        $field = Tools::getValue('field_to_process', '');
+        $hasMore = Tools::getValue('has_more', '');
+        $processedProducts = Tools::getValue('processed_documents', '');
+
+        $functions = new General();
+
+        $response = [
+            'valid' => 1,
+            'message' => '',
+        ];
+
+        switch ($operation) {
+            case 'generate_document':
+                $response['success'] = $functions->makeInvoice($field);
+                break;
+            case 'delete_document':
+                $response['success'] = $functions->cleanInvoice($field);
+                break;
+            case 'list':
+            default:
+                echo json_encode((new FetchPendingOrders(Tools::getAllValues()))->run());
+                exit();
+        }
+
+        if(!$response['success']){
+            $response['success'] = [
+                'orderId' => $field,
+                'message' => ModuleFacade::getModule()->l('Error on create document', $this->className()),
+                'url' => false,
+                'button' => false
+            ];
+        }
+
+        $this->context->smarty->assign([
+            'action' => $operation,
+            'documentsProcessed' => $processedProducts,
+            'hasMore' => $hasMore,
+            'success' => $response['success']
+        ]);
+
+        $response['overlayContent'] = $this->module->display(_PS_MODULE_DIR_ . 'moloni', 'views/templates/admin/index/blocks/cancelAndGenerateContent.tpl');
+
+        echo json_encode($response);
     }
 
     public function initContent()

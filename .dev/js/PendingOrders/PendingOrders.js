@@ -10,9 +10,13 @@ if (pt.moloni.PendingOrders === undefined) {
     pt.moloni.PendingOrders = {};
 }
 
-pt.moloni.PendingOrders = (function ($) {
+pt.moloni.PendingOrders = (function($) {
     var translations;
     var currentPageAction;
+
+    var checkMaster;
+    var actionButton;
+    var datatable;
 
     function init(_translations, _currentPageAction) {
         translations = _translations;
@@ -22,9 +26,11 @@ pt.moloni.PendingOrders = (function ($) {
     }
 
     function startObservers() {
-        var datatable = $('.dataTable');
         var checkError = $('.check_error');
         var close = $('.close');
+
+        datatable = $('.dataTable');
+        checkMaster = $('.select-all')
 
         datatable
             .on('preXhr.dt', disableTable) // https://datatables.net/reference/event/preXhr
@@ -39,6 +45,10 @@ pt.moloni.PendingOrders = (function ($) {
                     }
                 },
                 "columns": [
+                    {
+                        orderable: false,
+                        render: renderCheckbox,
+                    },
                     {
                         data: 'info.id_order',
                         orderable: true,
@@ -76,18 +86,30 @@ pt.moloni.PendingOrders = (function ($) {
                 "columnDefs": [
                     {
                         className: "dt-center",
-                        targets: [0, 6]
+                        targets: [1, 7]
                     },
                     {
                         className: "dt-right",
-                        targets: 5
+                        targets: 6
                     },
                 ],
-                "fnDrawCallback": enableTable, // https://datatables.net/reference/option/drawCallback
-                "searchDelay": 2000,
+                "fnDrawCallback": function() {
+                    onTableRender();
+                }, // https://datatables.net/reference/option/drawCallback
                 "lengthMenu": [10, 25, 50, 75, 100, 250],
                 "pageLength": 10,
-                "sDom": '<"dataTable--header panel"<l><"dataTable--search"f>>tr<"dataTable--footer panel"<i><"dataTable--pagination" p>>',
+                "sDom": '<"dataTable--header panel"' +
+                    'l' +
+                    '<"dataTable--options"' +
+                    '<"dataTable--search"<f>>' +
+                    '<"dataTable--button">' +
+                    '>' +
+                    '>' +
+                    'tr' +
+                    '<"dataTable--footer panel"' +
+                    '<i>' +
+                    '<"dataTable--pagination" p>' +
+                    '>',
                 "language": {
                     "sLengthMenu": "_MENU_",
                     "sZeroRecords": translations.sZeroRecords,
@@ -102,10 +124,14 @@ pt.moloni.PendingOrders = (function ($) {
                         "sNext": translations.sNext,
                         "sLast": translations.sLast,
                     }
-                }
+                },
             })
 
-        checkError.on('click', function () {
+        addCreateAndDiscardOptions();
+
+        actionButton = $('.execute');
+
+        checkError.on('click', function() {
             if (checkError.hasClass('selected')) {
                 deselect($(this));
             } else {
@@ -116,38 +142,89 @@ pt.moloni.PendingOrders = (function ($) {
             return false;
         });
 
-        close.on('click', function () {
+        close.on('click', function() {
             deselect(checkError);
             return false;
+        });
+
+
+        checkMaster.on('change', function() {
+            $('.order_doc').prop('checked', $(this).prop('checked'));
+
+            if ($(this).prop('checked')) {
+                $('.execute').prop('disabled', false);
+            } else {
+                $('.execute').prop('disabled', true);
+            }
         });
 
         // Duck tape to fix, multiple ajax requests while searching.
         // Only searches when pressing "enter"
         $('.dataTables_filter input')
             .off('')
-            .bind('keyup', function (e) {
+            .bind('keyup', function(e) {
                 if (e.keyCode != 13) {
                     return;
                 }
 
                 datatable.fnFilter($(this).val());
             });
+
+       actionButton.on('click', function() {
+            var action = $('.select-action').val();
+
+            pt.moloni.PendingOrders.Overlays.ProcessOrder(currentPageAction, action, datatable, translations);
+        });
     }
 
     //       PRIVATES       //
 
     function deselect(e) {
-        $('.pop').slideFadeToggle(function () {
+        $('.pop').slideFadeToggle(function() {
             e.removeClass('selected');
         });
     }
 
     function disableTable() {
-        $('.dataTable').addClass('dataTable--disabled');
+        datatable.addClass('dataTable--disabled');
     }
 
     function enableTable() {
-        $('.dataTable').removeClass('dataTable--disabled');
+        datatable.removeClass('dataTable--disabled');
+    }
+
+    function onTableRender() {
+        enableTable();
+
+        checkMaster.prop('checked', false);
+        actionButton.prop('disabled', true);
+
+        $('.select-action').prop('disabled', false);
+
+        $('.order_doc').each(function() {
+            $(this).on('change', function() {
+                if ($('.order_doc').length === $("input[class='order_doc']:checked").length) {
+                    checkMaster.prop('checked', true);
+                } else {
+                    checkMaster.prop('checked', false);
+                }
+
+                if (!$("input[class='order_doc']:checked").length) {
+                    actionButton.prop('disabled', true);
+                } else {
+                    actionButton.prop('disabled', false);
+                }
+            });
+        });
+    }
+
+    function addCreateAndDiscardOptions() {
+        $('.dataTable--button').html(
+            '<select class="select-action" disabled>  ' +
+            '<option value="generate_document">' + translations.sCreateInvoice + '</option>' +
+            '<option value="delete_document">' + translations.sDiscardOrder + '</option> ' +
+            '</select>' +
+            '<input type="button" class="execute" value="'+ translations.sAction +'" data-target="#sync_products_modal" disabled>');
     }
 
     //       RENDERS       //
@@ -209,6 +286,17 @@ pt.moloni.PendingOrders = (function ($) {
         html += symbol;
         html += "</div>";
 
+        return html;
+    }
+
+    function renderCheckbox(data, type, row, meta) {
+        var html = '<input ' +
+            'type="checkbox" ' +
+            'name="checkbox" ' +
+            'class="order_doc" ' +
+            'id="order_doc_' + row.info.id_order + '" ' +
+            'value="' + row.info.id_order + '"' +
+            '>';
         return html;
     }
 
