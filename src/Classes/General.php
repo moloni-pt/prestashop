@@ -280,6 +280,7 @@ class General
 
         return [
             'success' => true,
+            'orderId' => $order_id,
             'message' => $message,
             'button' => $btnText,
             'url' => $this->genURL('MoloniStart', '&action=cleanAnulate&id_order=' . $order_id)
@@ -653,6 +654,7 @@ class General
 
                     return [
                         'success' => true,
+                        'orderId' => $order_id,
                         'message' => ModuleFacade::getModule()->l('Document successfully inserted and closed!', $this->className()),
                         'button' => 'Ver',
                         'tab' => '_BLANK',
@@ -673,6 +675,7 @@ class General
 
                 return [
                     'success' => true,
+                    'orderId' => $order_id,
                     'message' => ModuleFacade::getModule()->l('Document inserted as draft!', $this->className()),
                     'button' => 'Ver',
                     'tab' => '_BLANK',

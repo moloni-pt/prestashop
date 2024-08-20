@@ -54,6 +54,7 @@
         <table class='dataTable display dataTable--slimed panel'>
             <thead>
             <tr>
+                <th class="no-sort" style='width: 30px'><input type="checkbox" class='select-all'></th>
                 <th style='width: 50px'>{l s='Number' mod='moloni'}</th>
                 <th>{l s='Client' mod='moloni'}</th>
                 <th style='width: 200px'>{l s='Email' mod='moloni'}</th>
@@ -73,6 +74,8 @@
         </table>
     </div>
 
+    {* Overlays *}
+    {include file="`$smarty.const._PS_MODULE_DIR_`moloni/views/templates/admin/index/actionOverlay.tpl"}
 
 </section>
 
@@ -89,6 +92,10 @@
         "sPrevious": "{l s='Back' mod='moloni'}",
         "sNext": "{l s='Next' mod='moloni'}",
         "sLast": "{l s='Last' mod='moloni'}",
+        "sAction": "{l s='Execute' mod='moloni'}",
+        "sCreateInvoice": "{l s='Create Invoice' mod='moloni'}",
+        "sDiscardOrder": "{l s='Discard Order' mod='moloni'}",
+        "sOrder": "{l s='Order' mod='moloni'}",
     };
     var currentAction = "{Context::getContext()->link->getAdminLink('MoloniStart', true)}";
 

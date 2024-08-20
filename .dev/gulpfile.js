@@ -1,7 +1,7 @@
 const gulp = require('gulp');
 const concat = require('gulp-concat');
 
-gulp.task('css:prod', () => {
+const buildProdCSS = () => {
     const postcss = require('gulp-postcss')
     const cleanCSS = require('gulp-clean-css');
     const cssimport = require("gulp-cssimport");
@@ -18,6 +18,7 @@ gulp.task('css:prod', () => {
         './css/Login.scss',
         './css/Logs.scss',
         './css/Message.scss',
+        './css/Orders.scss',
         './css/Settings.scss',
     ];
 
@@ -33,9 +34,9 @@ gulp.task('css:prod', () => {
         .pipe(concat("compiled.min.css"))
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('../views/css/'));
-});
+};
 
-gulp.task('js:prod', () => {
+const buildProdJs = () => {
     const babel = require("gulp-babel");
     const plumber = require("gulp-plumber");
     const uglify = require('gulp-uglify');
@@ -47,7 +48,8 @@ gulp.task('js:prod', () => {
         './js/Login.js',
         './js/Logs.js',
         './js/Movements.js',
-        './js/PendingOrders.js',
+        './js/PendingOrders/PendingOrders.js',
+        './js/PendingOrders/Overlays/ProcessOrder.js',
         './js/Settings.js',
         './js/Tools/Tools.js',
         './js/Tools/Overlays/SyncProducts.js',
@@ -65,4 +67,16 @@ gulp.task('js:prod', () => {
             .pipe(concat("compiled.min.js"))
             .pipe(gulp.dest("../views/js/"))
     )
+};
+
+gulp.task('css:prod', buildProdCSS);
+gulp.task('js:prod', buildProdJs);
+
+gulp.task('watch', () => {
+    gulp.watch([
+        './css/**/*.scss',
+    ], buildProdCSS);
+    gulp.watch([
+        './js/**/*.js',
+    ], buildProdJs);
 });

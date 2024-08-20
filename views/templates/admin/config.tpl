@@ -356,6 +356,39 @@
 
         <div class="panel">
             <div class="panel-heading">
+                {l s='Hooks' mod='moloni'}
+            </div>
+            <div class="panel-body">
+                <div class="form-group row">
+                    <!-------------------------- Download de documentos nos detalhes da encomenda (Sim/Não) ------------------------------>
+                    <div class="col-sm-6">
+                        <label>
+                            {l s='Order details page' mod='moloni'}
+                        </label>
+                        <select name='options[show_download_order_view]'>
+                            {if 'show_download_order_view'|array_key_exists:$moloni.configurations}
+                                {assign var="showDownloadOrderView" value=$moloni.configurations.show_download_order_view.value}
+                            {else}
+                                {assign var="showDownloadOrderView" value="0"}
+                            {/if}
+
+                            <option value='' disabled selected>
+                                {l s='Show document download section in order details page' mod='moloni'}
+                            </option>
+                            <option value='1' {if $showDownloadOrderView == "1"} selected {/if}>
+                                {l s='Yes' mod='moloni'}
+                            </option>
+                            <option value='0' {if $showDownloadOrderView == "0"} selected {/if}>
+                                {l s='No' mod='moloni'}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-heading">
                 {l s='Advanced' mod='moloni'}
             </div>
             <div class="panel-body">
