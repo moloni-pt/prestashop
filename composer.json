@@ -21,6 +21,14 @@
   "extra": {
     "changelog": [
       {
+        "version": "v3.2.0",
+        "title": "Release da versão 3.2.0",
+        "description": [
+          "Acrescentada uma ligação na página de detalhes de encomenda que permite ao cliente descarregar o documento associado.",
+          "Nova ação quer permite criar e descartar encomendas de forma massiva"
+        ]
+      },
+      {
         "version": "v3.1.0",
         "title": "Release da versão 3.1.0",
         "description": [
