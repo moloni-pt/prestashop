@@ -1214,6 +1214,11 @@ class General
     {
         $attributeID = ($attributeID == false) ? '0' : $attributeID;
         $stock = Db::getInstance()->getRow('SELECT quantity AS qty FROM ' . _DB_PREFIX_ . "stock_available WHERE id_product = '" . (int)$productID . "' and id_product_attribute = '" . (int)$attributeID . "'");
+
+        if (!isset($stock['qty'])) {
+            return $qty;
+        }
+
         $total = $stock['qty'] + $qty;
 
         return ($total < 0) ? '0' : $total;
