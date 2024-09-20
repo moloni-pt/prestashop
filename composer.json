@@ -21,6 +21,13 @@
   "extra": {
     "changelog": [
       {
+        "version": "v3.2.1",
+        "title": "Release da versão 3.2.1",
+        "description": [
+          "Correção de alertas/erros de PHP"
+        ]
+      },
+      {
         "version": "v3.2.0",
         "title": "Release da versão 3.2.0",
         "description": [

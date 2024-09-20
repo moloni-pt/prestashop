@@ -3,7 +3,7 @@
         'name' => 'moloni-pt/prestashop',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '639edae835090badcee68a905140fe2ec45c491e',
+        'reference' => '13b6d4b5b828002e2c41ec012dfea13e02060cf4',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'moloni-pt/prestashop' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '639edae835090badcee68a905140fe2ec45c491e',
+            'reference' => '13b6d4b5b828002e2c41ec012dfea13e02060cf4',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
