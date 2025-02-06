@@ -26,12 +26,9 @@ use Moloni\Classes\MoloniError;
 use Moloni\Classes\Start;
 use Moloni\Services\Orders\FetchPendingOrders;
 use Moloni\Facades\ModuleFacade;
-use Moloni\Traits\ClassTrait;
 
 class MoloniStartController extends ModuleAdminController
 {
-    use ClassTrait;
-    
     public $moloniTpl;
 
     public function __construct()
@@ -133,7 +130,7 @@ class MoloniStartController extends ModuleAdminController
         if(!$response['success']){
             $response['success'] = [
                 'orderId' => $field,
-                'message' => ModuleFacade::getModule()->l('Error on create document', $this->className()),
+                'message' => ModuleFacade::getModule()->l('Error on create document', 'molonistartcontroller'),
                 'url' => false,
                 'button' => false
             ];
