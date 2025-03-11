@@ -39,8 +39,7 @@ class Taxes extends Settings
 
     public function check($rate, $countryCode = 'PT')
     {
-
-        $taxes = $this->getAll();
+        $taxes = $this->getAll($rate, $countryCode);
 
         foreach ($taxes as $tax) {
             if ($tax['fiscal_zone'] === $countryCode && (round($rate, 2) === round($tax['value'], 2))) {
@@ -70,7 +69,7 @@ class Taxes extends Settings
 
     public function checkEcotax($value, $countryCode = 'PT')
     {
-        $taxes = $this->getAll();
+        $taxes = $this->getAll($value, $countryCode);
         $needleName = "Ecotaxa " . $value;
 
         foreach ($taxes as $tax) {
@@ -92,12 +91,15 @@ class Taxes extends Settings
         return $this->insert($values);
     }
 
-    public function getAll($companyID = COMPANY)
+    public function getAll($value, $fiscalZone)
     {
-        $values = [];
-        $values['company_id'] = $companyID;
-        $result = Curl::simple("taxes/getAll", $values);
-        return ($result);
+        $values = [
+            'company_id' => COMPANY,
+            'value' => $value,
+            'fiscal_zone' => $fiscalZone,
+        ];
+
+        return Curl::simple("taxes/getAll", $values);
     }
 
     public function insert($values, $companyID = COMPANY)
