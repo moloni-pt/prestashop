@@ -3,14 +3,13 @@
 namespace Moloni\Facades;
 
 use Moloni\Logs\Logger;
-use Psr\Log\LoggerInterface;
 
 class LoggerFacade
 {
     /**
      * Logger instance
      *
-     * @var LoggerInterface|null
+     * @var Logger|null
      */
     private static $LOGGER;
 
