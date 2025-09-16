@@ -20,6 +20,14 @@
   "extra": {
     "changelog": [
       {
+        "version": "v3.3.0",
+        "title": "Release da versão 3.3.0",
+        "description": [
+          "Adicionado suporte para Prestashop 9",
+          "Adicionada referência às notas dos métodos de pagamento"
+        ]
+      },
+      {
         "version": "v3.2.3",
         "title": "Release da versão 3.2.3",
         "description": [
