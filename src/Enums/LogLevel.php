@@ -1,10 +1,7 @@
 <?php
 
-namespace Psr\Log;
+namespace Moloni\Enums;
 
-/**
- * Describes log levels.
- */
 class LogLevel
 {
     const EMERGENCY = 'emergency';
