@@ -727,7 +727,8 @@ class General
     {
         $paymentMethod = [
             'value' => $payment->amount,
-            'date' => date('Y-m-d')
+            'date' => date('Y-m-d'),
+            'notes' => $payment->transaction_id ?: '',
         ];
 
         if (!empty($payment->conversion_rate)) {
