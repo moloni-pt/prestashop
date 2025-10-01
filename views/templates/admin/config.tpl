@@ -155,8 +155,10 @@
                                 {l s='Select an option' mod='moloni'}
                             </option>
                             {foreach from=$moloni.configurations.exemption_reason.options item=opt}
-                                <option value='{$opt.code|escape:'html':'UTF-8'}' {if $moloni.configurations.exemption_reason.value == $opt.code} selected {/if}>
-                                    {$opt.name|escape:'html':'UTF-8'} ({$opt.code|escape:'html':'UTF-8'})
+                                {assign var="selected" value=($moloni.configurations.exemption_reason.value == $opt.code || $moloni.configurations.exemption_reason.value == $opt.at_code)}
+
+                                <option value='{$opt.code|escape:'html':'UTF-8'}' {if $selected} selected {/if}>
+                                    {$opt.name|escape:'html':'UTF-8'} ({$opt.at_code|escape:'html':'UTF-8'})
                                 </option>
                             {/foreach}
                         </select>
@@ -172,8 +174,10 @@
                                 {l s='Select an option' mod='moloni'}
                             </option>
                             {foreach from=$moloni.configurations.exemption_reason.options item=opt}
-                                <option value='{$opt.code|escape:'html':'UTF-8'}' {if $moloni.configurations.exemption_reason_shipping.value == $opt.code} selected {/if}>
-                                    {$opt.name|escape:'html':'UTF-8'} ({$opt.code|escape:'html':'UTF-8'})
+                                {assign var="selected" value=($moloni.configurations.exemption_reason_shipping.value == $opt.code || $moloni.configurations.exemption_reason_shipping.value == $opt.at_code)}
+
+                                <option value='{$opt.code|escape:'html':'UTF-8'}' {if $selected} selected {/if}>
+                                    {$opt.name|escape:'html':'UTF-8'} ({$opt.at_code|escape:'html':'UTF-8'})
                                 </option>
                             {/foreach}
                         </select>
