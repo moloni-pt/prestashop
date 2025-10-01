@@ -5,7 +5,7 @@
   "license": "proprietary",
   "authors": [
     {
-      "name": "Moloni, lda",
+      "name": "Moloni, lda",sc
       "email": "apoio@moloni.pt"
     }
   ],
@@ -19,6 +19,13 @@
   },
   "extra": {
     "changelog": [
+      {
+        "version": "v3.3.1",
+        "title": "Release da versão 3.3.1",
+        "description": [
+          "Alteração na apresentação das isenções"
+        ]
+      },
       {
         "version": "v3.3.0",
         "title": "Release da versão 3.3.0",
