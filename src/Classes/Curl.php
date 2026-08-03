@@ -170,7 +170,6 @@ class Curl
             return ($res_txt);
         }
 
-        echo 'Falhou a obter a token ' . $url . '<br>' . $res_curl;
         return (false);
     }
 

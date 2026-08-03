@@ -84,6 +84,7 @@ class MoloniStartController extends ModuleAdminController
                     ],
                     'companies' => $companies,
                     'message' => $message,
+                    'session_message' => $moloni->message,
                     'version' => $this->module->version,
                 ],
                 'html' => $moloni->template

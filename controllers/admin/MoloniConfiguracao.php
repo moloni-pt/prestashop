@@ -73,6 +73,7 @@ class MoloniConfiguracaoController extends ModuleAdminController
                     'companies' => $companies,
                     'message_alert' => ((Tools::getValue('goDo') && Tools::getValue('goDo') === "save" && Tools::getValue('options')) ? "1" : null ),
                     'configurations' => $configurations,
+                    'session_message' => $moloni->message,
                 ],
                 'html' => $moloni->template
             ]);
