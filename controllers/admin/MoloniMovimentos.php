@@ -66,7 +66,8 @@ class MoloniMovimentosController extends ModuleAdminController
                 ],
                 'version' => $this->module->version,
                 'documents' => $documents,
-                'companies' => $companies
+                'companies' => $companies,
+                'session_message' => $moloni->message
             ]
         ]);
 

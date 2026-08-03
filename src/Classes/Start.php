@@ -151,12 +151,12 @@ class Start
                     $refresh = Curl::refresh($row['refresh_token']);
 
                     if (!$refresh) {
-                        sleep(2000);
+                        sleep(2);
                         $refresh = Curl::refresh($row['refresh_token']);
                     }
 
                     if (!$refresh) {
-                        sleep(2000);
+                        sleep(2);
                         $refresh = Curl::refresh($row['refresh_token']);
                     }
 

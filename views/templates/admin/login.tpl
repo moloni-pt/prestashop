@@ -31,6 +31,14 @@
                     </div>
                 {/if}
 
+                {if isset($moloni.session_message.label) && $moloni.session_message.label == 'sessao-expirada'}
+                    <div class="moloni-login--block moloni-login--error">
+                        <center>
+                            {l s='Connection expired, please login again' mod='moloni'}
+                        </center>
+                    </div>
+                {/if}
+
                 <div class="moloni-login--block">
                     <div class="form-group">
                         <label for="mol-username">

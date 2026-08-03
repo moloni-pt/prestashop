@@ -69,6 +69,7 @@ class MoloniToolsController extends ModuleAdminController
                     'version' => $this->module->version,
                     'companies' => $companies,
                     'configurations' => $configurations,
+                    'session_message' => $moloni->message,
                 ],
                 'html' => $moloni->template
             ]);
