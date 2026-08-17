@@ -568,7 +568,7 @@ class General
 
             if ($deliveryMethodId > 0) {
                 $invoice['delivery_method_id'] = $deliveryMethodId;
-                $invoice['delivery_datetime'] = date('Y-m-d h:m:s');
+                $invoice['delivery_datetime'] = date('Y-m-d H:i:s');
 
                 $invoice['delivery_departure_address'] = $this->me['address'];
                 $invoice['delivery_departure_city'] = $this->me['city'];
