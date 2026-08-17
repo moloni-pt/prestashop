@@ -1311,9 +1311,6 @@ class General
             $product['pos_favorite'] = '0';
             $product['at_product_category'] = AT_CATEGORY;
 
-            print_r($productPS);
-            print_r(get_class_methods($productPS));
-
             if ($taxRate == 0) {
                 $product['exemption_reason'] = EXEMPTION_REASON;
             } else {
@@ -1433,8 +1430,6 @@ class General
                 'productID' => $productID,
                 'data' => MoloniError::$message
             ]);
-
-            print_r(MoloniError::$message);
         }
     }
 
