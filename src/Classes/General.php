@@ -885,7 +885,7 @@ class General
 
         $vat = $this->vatCheck($vat);
 
-        $updateCustomer = true;
+        $updateCustomer = defined('UPDATE_CUSTOMER') && (string)UPDATE_CUSTOMER === '1';
         if ((string)$vat === '999999990') {
             if (!empty($customer['base']['email'])) {
                 $clientExists = $this->entities->customers->getByEmail($customer['base']['email']);
@@ -957,11 +957,6 @@ class General
         $MoloniCustomer['delivery_method_id'] = 0;
         $MoloniCustomer['copies'] = $this->me['copies'];
 
-        $MoloniCustomer['salesman_id'] = '0';
-        $MoloniCustomer['payment_day'] = '0';
-        $MoloniCustomer['discount'] = '0';
-        $MoloniCustomer['credit_limit'] = '0';
-
         if ($clientExists) {
             $MoloniCustomer['customer_id'] = $clientExists['customer_id'];
 
@@ -974,6 +969,11 @@ class General
         } else {
             $MoloniCustomer['vat'] = $vat;
             $MoloniCustomer['number'] = $this->entities->customers->getNextNumber();
+
+            $MoloniCustomer['salesman_id'] = '0';
+            $MoloniCustomer['payment_day'] = '0';
+            $MoloniCustomer['discount'] = '0';
+            $MoloniCustomer['credit_limit'] = '0';
 
             $return = [];
             $return['customer_id'] = $this->entities->customers->insert($MoloniCustomer);
