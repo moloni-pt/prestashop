@@ -369,7 +369,7 @@ class ProductSyncService
             $priceDiference = 0;
         }
 
-        if ((float)$this->moloniProduct['price'] !== ($parentProduct['price'] + $priceDiference)) {
+        if (!$this->floatsAreEqual($this->moloniProduct['price'], $parentProduct['price'] + $priceDiference)) {
             $attributeProduct = new Combination(
                 $this->currentSyncAttributeProduct['id_product_attribute']
             );
@@ -407,7 +407,7 @@ class ProductSyncService
             "' and id_product_attribute = '" . (int)$productToUpdate['id_product_attribute'] . "'"
         );
 
-        if ($stock === (float)$stockCheck['quantity']) {
+        if ($this->floatsAreEqual($stock, $stockCheck['quantity'])) {
             return;
         }
 
@@ -526,7 +526,7 @@ class ProductSyncService
 
         $oldProductPrice = $this->getProductPriceById($this->currentSyncProductId);
 
-        if ($oldProductPrice === (float)$this->moloniProduct['price']) {
+        if ($this->floatsAreEqual($oldProductPrice, $this->moloniProduct['price'])) {
             return;
         }
 
@@ -618,7 +618,7 @@ class ProductSyncService
             'SELECT * FROM ' . _DB_PREFIX_ .
             "stock_available WHERE id_product = '" . (int)$this->currentSyncProductId . "'");
 
-        if ((int)$this->moloniProduct['has_stock'] === 1 && (float)$stockCheck['quantity'] !== $stock) {
+        if ((int)$this->moloniProduct['has_stock'] === 1 && !$this->floatsAreEqual($stockCheck['quantity'], $stock)) {
             $this->addUpdateSimple([
                 'stock_before' => $stockCheck['quantity'],
                 'stock_after' => $stock
@@ -829,6 +829,23 @@ class ProductSyncService
         }
 
         return false;
+    }
+
+    /**
+     * Compara dois valores como floats com tolerância.
+     *
+     * Evita falsos positivos/negativos causados por erros de representação de
+     * vírgula flutuante ao usar comparações estritas (=== / !==).
+     *
+     * @param string|int|float $a
+     * @param string|int|float $b
+     * @param float $epsilon
+     *
+     * @return bool
+     */
+    private function floatsAreEqual($a, $b, $epsilon = 0.00001)
+    {
+        return abs((float)$a - (float)$b) < $epsilon;
     }
 
     private function enableStockSync()
