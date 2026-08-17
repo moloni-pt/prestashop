@@ -106,7 +106,7 @@ class GetCategoryFromMoloniProduct
                 $insertCategory->active = 1;
                 $insertCategory->name = [$this->default_lang => $moloniCategory['name']];
                 $insertCategory->id_parent = $parentId;
-                $insertCategory->link_rewrite = [$this->default_lang => Tools::link_rewrite($moloniCategory['name'])];
+                $insertCategory->link_rewrite = [$this->default_lang => Tools::str2url($moloniCategory['name'])];
 
                 if (isset($category['image'])) {
                     $this->saveImage($moloniCategory, $insertCategory);
