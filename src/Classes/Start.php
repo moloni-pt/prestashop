@@ -177,15 +177,12 @@ class Start
                 #Login feito, e empresa seleccionada
                 #Tentar refresh se for preciso
                 if ($row['date_expire'] < time()) {
-                    $refresh = Curl::refresh($row['refresh_token']);
+                    // Tenta o refresh até 3 vezes. Cada tentativa já está limitada
+                    // pelos timeouts de curl, por isso evitamos sleeps bloqueantes
+                    // que poderiam congelar hooks (encomendas/produtos) vários segundos.
+                    $refresh = false;
 
-                    if (!$refresh) {
-                        sleep(2);
-                        $refresh = Curl::refresh($row['refresh_token']);
-                    }
-
-                    if (!$refresh) {
-                        sleep(2);
+                    for ($attempt = 0; $attempt < 3 && !$refresh; $attempt++) {
                         $refresh = Curl::refresh($row['refresh_token']);
                     }
 
