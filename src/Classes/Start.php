@@ -42,6 +42,27 @@ class Start
 
     public function __construct()
     {
+        if ($this->isBackOfficeContext()) {
+            $this->handleRequest();
+        } else {
+            /*
+             * Em contexto de front-office / webservice apenas refrescamos os tokens.
+             * Ações que alteram estado (login, logout, guardar definições, escolher
+             * empresa) só podem ser despoletadas a partir do back-office, caso
+             * contrário qualquer visitante poderia, por exemplo, desligar a loja do
+             * Moloni através de parâmetros no URL da página de detalhe da encomenda.
+             */
+            $this->refreshTokens();
+        }
+
+        $this->afterProcess();
+    }
+
+    /**
+     * Processa pedidos que alteram estado. Apenas invocado no back-office.
+     */
+    private function handleRequest()
+    {
         if (Tools::getValue('goDo') && Tools::getValue('goDo') === 'save' && Tools::getValue('options')) {
             $this->variablesUpdate();
         }
@@ -61,8 +82,16 @@ class Start
 
             $this->refreshTokens();
         }
+    }
 
-        $this->afterProcess();
+    /**
+     * Verifica se estamos a correr dentro do back-office do PrestaShop.
+     *
+     * @return bool
+     */
+    private function isBackOfficeContext()
+    {
+        return defined('_PS_ADMIN_DIR_');
     }
 
     public function templateSelect()
