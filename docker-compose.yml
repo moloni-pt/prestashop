@@ -1,0 +1,50 @@
+services:
+  mysql:
+    image: mariadb:11
+    container_name: moloni_ps9_db
+    environment:
+      MYSQL_ROOT_PASSWORD: prestashop
+      MYSQL_DATABASE: prestashop
+      MYSQL_USER: prestashop
+      MYSQL_PASSWORD: prestashop
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  prestashop:
+    image: prestashop/prestashop:9
+    container_name: moloni_ps9_web
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    environment:
+      # Ligação à base de dados
+      DB_SERVER: mysql
+      DB_PORT: 3306
+      DB_NAME: prestashop
+      DB_USER: prestashop
+      DB_PASSWD: prestashop
+      DB_PREFIX: ps_
+      # Instalação automática do PrestaShop
+      PS_INSTALL_AUTO: 1
+      PS_ERASE_DB: 0
+      PS_DEV_MODE: 1
+      PS_DOMAIN: localhost:8080
+      PS_HANDLE_DYNAMIC_DOMAIN: 0
+      # Credenciais de administração
+      ADMIN_MAIL: admin@example.com
+      ADMIN_PASSWD: prestashop123
+      PS_LANGUAGE: pt
+      PS_COUNTRY: pt
+    volumes:
+      # Mapeia a pasta atual (o módulo) para dentro de /modules do PrestaShop
+      - ./:/var/www/html/modules/moloni
+
+volumes:
+  db_data:

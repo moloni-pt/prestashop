@@ -41,7 +41,7 @@ class Customers extends Entities
     {
         $values = array();
         $values['company_id'] = $companyID;
-        $result = Curl::simple("customers/count");
+        $result = Curl::simple("customers/count", $values, true);
         return ($result);
     }
 
@@ -49,35 +49,35 @@ class Customers extends Entities
     {
         $values = array();
         $values['company_id'] = $companyID;
-        $result = Curl::simple("customers/getAll");
+        $result = Curl::simple("customers/getAll", $values, true);
         return ($result);
     }
 
     public function getOne($values, $companyID = COMPANY)
     {
         $values['company_id'] = $companyID;
-        $result = Curl::simple("customers/getOne");
+        $result = Curl::simple("customers/getOne", $values, true);
         return ($result);
     }
 
     public function countBySearch($values, $companyID = COMPANY)
     {
         $values['company_id'] = $companyID;
-        $result = Curl::simple("customers/countBySearch");
+        $result = Curl::simple("customers/countBySearch", $values, true);
         return ($result);
     }
 
     public function getBySearch($values, $companyID = COMPANY)
     {
         $values['company_id'] = $companyID;
-        $result = Curl::simple("customers/getBySearch");
+        $result = Curl::simple("customers/getBySearch", $values, true);
         return ($result);
     }
 
     public function countByVat($values, $companyID = COMPANY)
     {
         $values['company_id'] = $companyID;
-        $result = Curl::simple("customers/countByVat");
+        $result = Curl::simple("customers/countByVat", $values, true);
         return ($result);
     }
 
@@ -127,21 +127,21 @@ class Customers extends Entities
     public function countByNumber($values, $companyID = COMPANY)
     {
         $values['company_id'] = $companyID;
-        $result = Curl::simple("customers/countByNumber");
+        $result = Curl::simple("customers/countByNumber", $values, true);
         return ($result);
     }
 
     public function countByName($values, $companyID = COMPANY)
     {
         $values['company_id'] = $companyID;
-        $result = Curl::simple("customers/countByName");
+        $result = Curl::simple("customers/countByName", $values, true);
         return ($result);
     }
 
     public function getByName($values, $companyID = COMPANY)
     {
         $values['company_id'] = $companyID;
-        $result = Curl::simple("customers/getByName");
+        $result = Curl::simple("customers/getByName", $values, true);
         return ($result);
     }
 
@@ -192,7 +192,7 @@ class Customers extends Entities
     public function delete($values, $companyID = COMPANY)
     {
         $values['company_id'] = $companyID;
-        $result = Curl::simple("customers/delete");
+        $result = Curl::simple("customers/delete", $values, true);
         return ($result);
     }
 }

@@ -58,11 +58,21 @@ class Curl
         curl_setopt($con, CURLOPT_POSTFIELDS, $send);
         curl_setopt($con, CURLOPT_HEADER, false);
         curl_setopt($con, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($con, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($con, CURLOPT_TIMEOUT, 30);
 
         $res_curl = curl_exec($con);
+        $res_errno = curl_errno($con);
+        $res_error = $res_errno ? curl_error($con) : '';
         curl_close($con);
 
-        $res_txt = json_decode($res_curl, true);
+        if ($res_errno) {
+            // Erro de transporte (timeout, DNS, ligação recusada, ...).
+            // Tratado como erro para que o fluxo devolva false de forma consistente.
+            $res_txt = ['error' => true, 'curl_errno' => $res_errno, 'curl_error' => $res_error];
+        } else {
+            $res_txt = json_decode($res_curl, true);
+        }
 
         if ($print) {
             echo $url;
@@ -77,33 +87,6 @@ class Curl
         }
 
         return $return ? $res_txt : false;
-    }
-
-    /**
-     * Testar a ligação para verificar se existe algum erro
-     *
-     * @return bool
-     */
-    public static function test()
-    {
-        $con = curl_init();
-        $url = 'https://api.moloni.pt/v1/products/getOne/?access_token=FAKETOKEN';   /* Substituir pelo token atual */
-
-        curl_setopt($con, CURLOPT_URL, $url);
-        curl_setopt($con, CURLOPT_POST, true);
-        curl_setopt($con, CURLOPT_POSTFIELDS, false);
-        curl_setopt($con, CURLOPT_HEADER, false);
-        curl_setopt($con, CURLOPT_RETURNTRANSFER, true);
-
-        $res_curl = curl_exec($con);
-        curl_close($con);
-
-        $res_txt = json_decode($res_curl, true);
-        if (isset($res_txt['error'])) {
-            return (true);
-        }
-
-        return (false);
     }
 
     /**
@@ -124,6 +107,8 @@ class Curl
         curl_setopt($con, CURLOPT_POSTFIELDS, false);
         curl_setopt($con, CURLOPT_HEADER, false);
         curl_setopt($con, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($con, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($con, CURLOPT_TIMEOUT, 30);
 
         $res_curl = curl_exec($con);
         $res_info = curl_getinfo($con);
@@ -160,6 +145,8 @@ class Curl
         curl_setopt($con, CURLOPT_POSTFIELDS, false);
         curl_setopt($con, CURLOPT_HEADER, false);
         curl_setopt($con, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($con, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($con, CURLOPT_TIMEOUT, 30);
 
         $res_curl = curl_exec($con);
         curl_close($con);
