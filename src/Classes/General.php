@@ -152,6 +152,11 @@ class General
                 $settings = new Settings();
                 $options = $settings->maturityDates->getAll();
                 break;
+
+            case 'salesman':
+                $settings = new Settings();
+                $options = $settings->salesmen->getAll();
+                break;
         }
 
         return ($options);
@@ -349,6 +354,10 @@ class General
         $invoice['date'] = date('d-m-Y');
         $invoice['expiration_date'] = date('d-m-Y');
         $invoice['document_set_id'] = DOCUMENT_SET;
+
+        if (defined('SALESMAN') && (int)SALESMAN > 0) {
+            $invoice['salesman_id'] = SALESMAN;
+        }
 
         // Order customer
         $moloniClient = $this->client($order);
