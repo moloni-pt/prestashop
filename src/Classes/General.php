@@ -1480,19 +1480,6 @@ class General
         return $productDiscount;
     }
 
-    private function getCartRulesTotal($cartRules)
-    {
-        $discountTotal = 0;
-        foreach ($cartRules as $rule) {
-            if ($rule['free_shipping'] == 1) {
-                $this->freeShipping = true;
-            } else {
-                $discountTotal = $discountTotal + $rule['value_tax_excl'];
-            }
-        }
-        return $discountTotal;
-    }
-
     private function convertPriceFull($amount, Currency $currency_from = null, Currency $currency_to = null)
     {
         if ($currency_from === $currency_to) {

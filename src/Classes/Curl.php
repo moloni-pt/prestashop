@@ -90,35 +90,6 @@ class Curl
     }
 
     /**
-     * Testar a ligação para verificar se existe algum erro
-     *
-     * @return bool
-     */
-    public static function test()
-    {
-        $con = curl_init();
-        $url = 'https://api.moloni.pt/v1/products/getOne/?access_token=FAKETOKEN';   /* Substituir pelo token atual */
-
-        curl_setopt($con, CURLOPT_URL, $url);
-        curl_setopt($con, CURLOPT_POST, true);
-        curl_setopt($con, CURLOPT_POSTFIELDS, false);
-        curl_setopt($con, CURLOPT_HEADER, false);
-        curl_setopt($con, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($con, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($con, CURLOPT_TIMEOUT, 30);
-
-        $res_curl = curl_exec($con);
-        curl_close($con);
-
-        $res_txt = json_decode($res_curl, true);
-        if (isset($res_txt['error'])) {
-            return (true);
-        }
-
-        return (false);
-    }
-
-    /**
      * Login com as credênciais do utilizador
      *
      * @param $user

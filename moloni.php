@@ -47,7 +47,7 @@ class Moloni extends Module
      * */
     public function install()
     {
-        $this->setMenu('MoloniTab', $this->l('Moloni'), (_PS_VERSION_ > 1.6) ? Tab::getIdFromClassName('SELL') : '0');
+        $this->setMenu('MoloniTab', $this->l('Moloni'), version_compare(_PS_VERSION_, '1.7', '>=') ? Tab::getIdFromClassName('SELL') : '0');
         $this->setMenu('MoloniStart', $this->l('Moloni'), Tab::getIdFromClassName('MoloniTab'));
         $this->setMenu('MoloniMovimentos', $this->l('Documents'), Tab::getIdFromClassName('MoloniTab'));
         $this->setMenu('MoloniConfiguracao', $this->l('Settings'), Tab::getIdFromClassName('MoloniTab'));
@@ -76,10 +76,6 @@ class Moloni extends Module
         $this->delMenu('MoloniLogs');
 
         return parent::uninstall() && $this->dbUninstall();
-    }
-
-    public function hookActionPaymentConfirmation($params)
-    {
     }
 
     /**
@@ -124,10 +120,6 @@ class Moloni extends Module
 
                     $functions->makeInvoice($params['id_order'], true);
                 }
-            }
-
-            if (\Moloni\Classes\MoloniError::$exists) {
-                \Moloni\Classes\MoloniError::$message;
             }
         }
     }
