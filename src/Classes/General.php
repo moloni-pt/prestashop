@@ -50,9 +50,7 @@ class General
     private $moloniExchangeId = 0;
     private $moloniExchangeRate = 1;
 
-    private $eac_id = false;
     private $freeShipping = false;
-    private $priceHasTaxIncluded = false;
 
     /** @var Settings */
     public $settings;
@@ -379,11 +377,6 @@ class General
 
         // Products
         foreach ($order['products'] as $product) {
-            if ($this->priceHasTaxIncluded) {
-                $product['tax_rate'] = 23;
-                $product['unit_price_tax_excl'] /= 1.23;
-            }
-
             $taxRate = $this->getOrderProductTax($product, $order['productsTaxes']);
 
             $product['moloni_reference'] = Tools::substr($product['product_reference'], 0, 25);
@@ -499,11 +492,6 @@ class General
 
         // Shipping
         if ($order['base']['total_shipping'] > 0) {
-            if ($this->priceHasTaxIncluded) {
-                $order['shipping'][0]['carrier_tax_rate'] = 23;
-                $order['shipping'][0]['shipping_cost_tax_incl'] /= 1.23;
-            }
-
             $shippingPrice = ($this->freeShipping ? 0 : $order['shipping'][0]['shipping_cost_tax_incl']);
             $shippingPrice = ($order['shipping'][0]['carrier_tax_rate'] > 0 ? ($shippingPrice * 100) / (100 + $order['shipping'][0]['carrier_tax_rate']) : $shippingPrice);
 
@@ -532,10 +520,6 @@ class General
 
         // Wrapping
         if (isset($order['base']['total_wrapping']) && (float)$order['base']['total_wrapping'] > 0) {
-            if ($this->priceHasTaxIncluded) {
-                $order['base']['total_wrapping_tax_excl'] = $order['base']['total_wrapping_tax_incl'] / 1.23;
-            }
-
             $invoice['products'][$x]['name'] = 'Embrulho';
             $invoice['products'][$x]['summary'] = '';
             $invoice['products'][$x]['discount'] = 0;
@@ -598,10 +582,6 @@ class General
         if ($this->moloniExchangeId > 0) {
             $invoice['exchange_currency_id'] = $this->moloniExchangeId;
             $invoice['exchange_rate'] = $this->moloniExchangeRate;
-        }
-
-        if ($this->eac_id) {
-            $invoice['eac_id'] = $this->eac_id;
         }
 
         $invoice['status'] = DocumentStatus::DRAFT;
