@@ -27,6 +27,7 @@ use Moloni\Classes\Settings\DocumentSets;
 use Moloni\Classes\Settings\MaturityDates;
 use Moloni\Classes\Settings\MeasurementUnits;
 use Moloni\Classes\Settings\PaymentMethods;
+use Moloni\Classes\Settings\Salesmen;
 use Moloni\Classes\Settings\Taxes;
 
 class Settings
@@ -49,6 +50,9 @@ class Settings
     /** @var MeasurementUnits */
     public $measurementUnits = false;
 
+    /** @var Salesmen */
+    public $salesmen = false;
+
     public function __construct()
     {
         $this->documentSets = new DocumentSets;
@@ -57,5 +61,6 @@ class Settings
         $this->deliveryMethods = new DeliveryMethods;
         $this->taxes = new Taxes;
         $this->measurementUnits = new MeasurementUnits;
+        $this->salesmen = new Salesmen;
     }
 }

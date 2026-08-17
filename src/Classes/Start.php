@@ -314,6 +314,12 @@ class Start
             'value' => ''
         ];
         $defines[] = [
+            'label' => 'salesman',
+            'name' => 'Vendedor',
+            'description' => '',
+            'value' => ''
+        ];
+        $defines[] = [
             'label' => 'maturity_date',
             'name' => 'Prazo de vencimento',
             'description' => '',

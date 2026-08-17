@@ -213,6 +213,23 @@
                 </div>
 
                 <div class="form-group row">
+                    <!-------------------------- Vendedor associado ao documento (from Moloni) ------------------------------>
+                    <div class="col-sm-6">
+                        <label>
+                            {l s='Salesman' mod='moloni'}
+                        </label>
+                        <select name='options[salesman]'>
+                            <option value=''{if $moloni.configurations.salesman.value == ''} selected{/if}>{l s='No salesman' mod='moloni'}</option>
+                            {if 'salesman'|array_key_exists:$moloni.configurations}
+                                {foreach from=$moloni.configurations.salesman.options item=opt}
+                                    <option value='{$opt.salesman_id|escape:'html':'UTF-8'}' {if $moloni.configurations.salesman.value == $opt.salesman_id} selected {/if}> {$opt.name|escape:'html':'UTF-8'} </option>
+                                {/foreach}
+                            {/if}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group row">
                     <!-------------------------- Tipo de artigo (From AT) ------------------------------>
                     <div class="col-sm-6">
                         <label>

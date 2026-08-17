@@ -20,6 +20,14 @@
   "extra": {
     "changelog": [
       {
+        "version": "v3.3.3",
+        "title": "Release da versão 3.3.3",
+        "description": [
+          "Correções na atualização de clientes",
+          "Nova opção para associar vendedores a documentos"
+        ]
+      },
+      {
         "version": "v3.3.2",
         "title": "Release da versão 3.3.2",
         "description": [
